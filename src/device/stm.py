@@ -4,6 +4,7 @@ import device.deviceConstrains as deviceConst
 from dataclasses import dataclass
 
 
+
 @dataclass
 class UARTData:
     pass
