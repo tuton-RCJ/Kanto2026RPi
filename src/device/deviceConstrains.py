@@ -1,0 +1,2 @@
+
+LOADCELL_THRESHOULD = 100  # ADCのしきい値
