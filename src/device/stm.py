@@ -1,4 +1,5 @@
 import serial
+
 from dataclasses import dataclass
 
 @dataclass
@@ -12,10 +13,10 @@ class STMUART:
     def read(self) -> UARTData:
         # シリアル通信でSTMからデータを読む
         return UARTData()
-    
+
 
 port = "/dev/ttyAMA4"
-stmUART=STMUART(port)
+stmUART = STMUART(port)
 
 
 class STS3032:
@@ -38,34 +39,61 @@ class Loadcell:
     ):
         pass
 
+@dataclass
+class gyroData:
+    """
+    @brief ジャイロセンサのデータ構造体. X,Y,Z軸の角度を保持する.
+    @note 単位はdeg
+    """
+    x: int
+    y: int
+    z: int
 
 class Gyro:
+    """
+    @brief ジャイロセンサクラス
+    @note readonly
+    """
     def __init__(
         self,
     ):
+        self.data: gyroData = gyroData(0, 0, 0)
         pass
+    
 
 
-class Display:
-    def __init__(
-        self,
-    ):
-        pass
+# class Display:
+#     """
+#     @brief ディスプレイクラス。たぶん変える
+#     """
+#     def __init__(
+#         self,
+#     ):
+#         pass
 
 
 class Switch:
+    """
+    @brief 
+    """
     def __init__(
         self,
     ):
         pass
+
 
 
 class RescueKitServo:
+    """
+    @brief レスキューキット
+    
+    """
     def __init__(
         self,
     ):
-        pass
-
+        
+    def dropRescueKit(int num, ):
+        
 
 
 class STM:
@@ -76,7 +104,7 @@ class STM:
         self.unitv: UnitV = UnitV()
         self.loadcell: Loadcell = Loadcell()
         self.gyro: Gyro = Gyro()
-        self.display: Display = Display()
+        # self.display: Display = Display()
         self.switch: Switch = Switch()
         self.rescuekitservo: RescueKitServo = RescueKitServo()
 
