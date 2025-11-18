@@ -6,15 +6,15 @@ import time
 
 
 class STMUART:
-    def __init__(self, port: str = "/dev/ttyAMA4", timeout: float = 0.5):
+    def __init__(self, port: str = "/dev/ttyAMA2", timeout: float = 0.5):
         self._port = port
         self._serial = serial.Serial(
             port=self._port,
             baudrate=115200,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            timeout=1,
+            # bytesize=serial.EIGHTBITS,
+            # parity=serial.PARITY_NONE,
+            # stopbits=serial.STOPBITS_ONE,
+            # timeout=1,
         )
         self._seq: int = 0
         self._timeout = timeout
@@ -67,7 +67,7 @@ class STMUART:
         self._serial.write(bytes([self._seq]))
         for b in data:
             self._serial.write(bytes([b]))
-        checkDigit = 0 ^ self._seq
+        checkDigit = type.value[0] ^ self._seq
         for b in data:
             checkDigit ^= b
         self._serial.write(bytes([checkDigit]))
@@ -83,7 +83,7 @@ class STMUART:
 
         # レスポンスのチェック
         if response[0] == type.value[0] and response[1] == self._seq:
-            checkDigit = 0 ^ self._seq
+            checkDigit = type.value[0] ^ self._seq
             if checkDigit == response[2]:
                 return True
         print("STM UART response error")
@@ -94,7 +94,7 @@ class STMUART:
         self._seq = self._seq % 256
 
 
-port: str = "/dev/ttyAMA4"
+port: str = "/dev/ttyAMA2"
 stmUART: STMUART = STMUART(port)
 
 
@@ -283,7 +283,7 @@ class RescueKitServo:
     ):
         pass
 
-    def dropRescueKit(self, num: int, side: deviceEnums.Side):
+    def dropRescueKit(self, num: int, side: deviceEnums.Side) -> bool:
         """
         @brief レスキューキットを落とす
         @param num: レスキューキットの数
@@ -297,9 +297,7 @@ class RescueKitServo:
                 num,
             ]
         )
-        stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.RESCUE_KIT, data)
-
-        pass
+        return stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.RESCUE_KIT, data)
 
 
 class LED:
@@ -308,7 +306,7 @@ class LED:
     ):
         pass
 
-    def setLEDColor(self, r: int, g: int, b: int) -> bool:
+    def setColor(self, r: int, g: int, b: int) -> bool:
         """
         @brief LEDの色を設定する
         @param r: 赤の値(0~255)
