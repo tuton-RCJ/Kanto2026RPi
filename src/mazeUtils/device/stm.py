@@ -1,6 +1,7 @@
 import serial
 import device.deviceEnums as deviceEnums
 import device.deviceConstrains as deviceConst
+from mazeEnums import *
 from dataclasses import dataclass
 import time
 
@@ -126,6 +127,42 @@ class STS3032:
         return stmUART.requestActuatorControl(
             deviceEnums.ActuatorControlType.STS_MOTOR, data
         )
+    
+    def turnRight(self, motorSpeed: int) -> bool:
+        """
+        @brief 右旋回する
+        @param motorSpeed: モーターの速度(int,0~100)
+        """
+        global stmUART
+
+        return self.setMotorSpeed({
+            deviceEnums.Side.LEFT: motorSpeed,
+            deviceEnums.Side.RIGHT: 0,
+        })
+    
+    def turnLeft(self, motorSpeed: int) -> bool:
+        """
+        @brief 左旋回する
+        @param motorSpeed: モーターの速度(int,0~100)
+        """
+        global stmUART
+
+        return self.setMotorSpeed({
+            deviceEnums.Side.LEFT: 0,
+            deviceEnums.Side.RIGHT: motorSpeed,
+        })
+    
+    def stop(self) -> bool:
+        """
+        @brief モーターを停止する
+        """
+        global stmUART
+
+        return self.setMotorSpeed({
+            deviceEnums.Side.LEFT: 0,
+            deviceEnums.Side.RIGHT: 0,
+        })
+
 
     # def setEncoderValue(self, encoderValue: dict[deviceEnums.Side, int]):
     #     """

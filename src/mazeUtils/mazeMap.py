@@ -1,5 +1,4 @@
-from device import stm
-from mazeUtils import mazeEnums as mazeEnums
+import mazeEnums
 from collections import deque
 
 def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> list[tuple[int, int]] | None:
@@ -34,6 +33,7 @@ class mazeMap:
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
+        self.frontDirection = mazeEnums.absDirection.NORTH
         if loadCache: #TODO: cache の実装
             pass 
         else:
@@ -111,6 +111,10 @@ class mazeMap:
 
 
     def getNearestUnexploredTile(self) -> list[mazeEnums.absDirection]:
+        """
+        @brief 最も近い未探索タイルへのパスを取得する
+        @return: 未探索タイルへの方向リスト。未探索タイルが存在しない場合は None を返す
+        """
         x, y = self.currentPosition
         path = BFS(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]][d] == mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection))
 
@@ -135,6 +139,11 @@ class mazeMap:
         return directions
     
     def getPathTo(self, target: tuple[int, int]) -> list[mazeEnums.absDirection] | None:
+        """
+        @brief 指定した座標へのパスを取得する
+        @param target: 目的地の座標 (x, y)
+        @return: 目的地への方向リスト。到達不可能な場合は None を返す
+        """
         x, y = self.currentPosition
         path = BFS(self.mazeAsGraph, (x, y), lambda pos: pos == target)
 
@@ -170,6 +179,10 @@ class mazeMap:
             self.currentPosition = (x, y+1)
         elif direction == mazeEnums.absDirection.WEST:
             self.currentPosition = (x-1, y)
+        self.frontDirection = direction
         
+    def setFrontDirection(self, direction: mazeEnums.absDirection) -> None:
+        self.frontDirection = direction
+
     def saveCache(self) -> None: #TODO: cache の実装
         pass
