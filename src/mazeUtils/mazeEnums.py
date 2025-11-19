@@ -1,5 +1,6 @@
 from enum import Enum
-from device import deviceEnums
+from .device import deviceEnums
+
 class absDirection(Enum):
     NORTH = 0
     EAST = 270

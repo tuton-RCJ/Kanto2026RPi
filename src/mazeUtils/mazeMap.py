@@ -1,4 +1,4 @@
-import mazeEnums
+from . import mazeEnums
 from collections import deque
 
 def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> list[tuple[int, int]] | None:

@@ -1,5 +1,5 @@
-import mazeEnums
-from device import deviceEnums
+from . import mazeEnums
+from .device import deviceEnums
 
 P_GAIN: float = 0.2
 I_GAIN: float = 0.0

@@ -2,7 +2,7 @@ import os
 import ydlidar
 import numpy as np
 
-def initializeLidar(port: str = "/dev/ttyAMA4", baudrate: int = 128000) -> ydlidar.CYdLidar:
+def initializeLidar(port: str = "/dev/ttyAMA4", baudrate: int = 230400) -> ydlidar.CYdLidar:
     lidar = ydlidar.CYdLidar()
     lidar.setlidaropt(ydlidar.LidarPropSerialPort, port)
     lidar.setlidaropt(ydlidar.LidarPropSerialBaudrate, baudrate)

@@ -1,10 +1,10 @@
-import serial
-import device.deviceEnums as deviceEnums
-import device.deviceConstrains as deviceConst
-from mazeEnums import *
 from dataclasses import dataclass
 import time
 
+import serial
+
+from . import deviceConstrains as deviceConst
+from . import deviceEnums
 
 class STMUART:
     def __init__(self, port: str = "/dev/ttyAMA2", timeout: float = 0.5):
@@ -108,20 +108,20 @@ class STS3032:
     def setMotorSpeed(self, motorSpeed: dict[deviceEnums.Side, int]) -> bool:
         """
         @brief モーターの速度を設定する
-        @param motorSpeed: モーターの速度の辞書[Side, 速度(int,0~100)]
+        @param motorSpeed: モーターの速度の辞書[Side, 速度(int,-100~100)]
         """
         global stmUART
-        if not (0 <= motorSpeed[deviceEnums.Side.LEFT] <= 100):
+        if not (-100 <= motorSpeed[deviceEnums.Side.LEFT] <= 100):
             print("invalid motor speed")
             return False
-        if not (0 <= motorSpeed[deviceEnums.Side.RIGHT] <= 100):
+        if not (-100 <= motorSpeed[deviceEnums.Side.RIGHT] <= 100):
             print("invalid motor speed")
             return False
 
         data: bytes = bytes(
             [
-                motorSpeed[deviceEnums.Side.LEFT],
-                motorSpeed[deviceEnums.Side.RIGHT],
+                motorSpeed[deviceEnums.Side.LEFT] + 100,
+                motorSpeed[deviceEnums.Side.RIGHT] + 100,
             ]
         )
         return stmUART.requestActuatorControl(
@@ -137,7 +137,7 @@ class STS3032:
 
         return self.setMotorSpeed({
             deviceEnums.Side.LEFT: motorSpeed,
-            deviceEnums.Side.RIGHT: 0,
+            deviceEnums.Side.RIGHT: -motorSpeed,
         })
     
     def turnLeft(self, motorSpeed: int) -> bool:
@@ -148,7 +148,7 @@ class STS3032:
         global stmUART
 
         return self.setMotorSpeed({
-            deviceEnums.Side.LEFT: 0,
+            deviceEnums.Side.LEFT: -motorSpeed,
             deviceEnums.Side.RIGHT: motorSpeed,
         })
     
