@@ -3,17 +3,24 @@ import ydlidar
 import numpy as np
 
 def initializeLidar(port: str = "/dev/ttyAMA4", baudrate: int = 230400) -> ydlidar.CYdLidar:
+    ydlidar.os_init()
+    print("Available ports:", *ydlidar.lidarPortList())
     lidar = ydlidar.CYdLidar()
     lidar.setlidaropt(ydlidar.LidarPropSerialPort, port)
     lidar.setlidaropt(ydlidar.LidarPropSerialBaudrate, baudrate)
     lidar.setlidaropt(ydlidar.LidarPropLidarType, ydlidar.TYPE_TRIANGLE)
     lidar.setlidaropt(ydlidar.LidarPropDeviceType, ydlidar.YDLIDAR_TYPE_SERIAL)
     lidar.setlidaropt(ydlidar.LidarPropScanFrequency, 10.0)
-    lidar.setlidaropt(ydlidar.LidarPropSampleRate, 5)
-    lidar.setlidaropt(ydlidar.LidarPropSingleChannel, True)
-    lidar.setlidaropt(ydlidar.LidarPropIntensities, False)
+    lidar.setlidaropt(ydlidar.LidarPropSampleRate, 4)
+    lidar.setlidaropt(ydlidar.LidarPropSingleChannel, False)
+    lidar.setlidaropt(ydlidar.LidarPropMaxAngle, 180.0)
+    lidar.setlidaropt(ydlidar.LidarPropMinAngle, -180.0)
+    lidar.setlidaropt(ydlidar.LidarPropMaxRange, 16.0)
+    lidar.setlidaropt(ydlidar.LidarPropMinRange, 0.02)
+    lidar.setlidaropt(ydlidar.LidarPropIntenstiy, True)
     if not lidar.initialize():
         raise Exception("Failed to initialize LiDAR")
+    lidar.turnOn()
     return lidar
 
 def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
@@ -30,7 +37,7 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
     
 def shutdownLidar(lidar: ydlidar.CYdLidar):
     lidar.turnOff()
-    lidar.disconnect()
+    lidar.disconnecting()
 
 
 def getCertainAngleDist(angle: int | list[int], points: list[ydlidar.LaserPoint]) -> int | dict[int]:

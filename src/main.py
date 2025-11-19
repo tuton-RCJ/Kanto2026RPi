@@ -10,12 +10,11 @@ import ydlidar
 def main():
     mapInstance = mazeMap.mazeMap()
     stmInstance = stm.STM()
-    lidarInstance = ydlidar.CYdLidar()
-    LiDAR.initializeLidar(lidarInstance)
+    lidarInstance = LiDAR.initializeLidar()
 
     try:
         while True:
-            points = lidarInstance.getLidarPoints()
+            points = LiDAR.getLiDARScan(lidarInstance)
             frontDist = LiDAR.getCertainAngleDist(0, points)
             print(f"Front Distance: {frontDist} cm")
     except KeyboardInterrupt:

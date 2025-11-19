@@ -5,7 +5,7 @@ P_GAIN: float = 0.2
 I_GAIN: float = 0.0
 D_GAIN: float = 0.01
 
-USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_GYRO # 回転時の制御方法
+USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_LiDAR # 回転時の制御方法
 USE_MOVE_METHOD: mazeEnums.moveMethod = mazeEnums.moveMethod.SEE_FRONT # 直進時の制御方法
 TURN_THRESHOLD_DEG: int = 3 # 回転時の誤差許容角度
 
