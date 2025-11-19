@@ -14,3 +14,5 @@ GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 50,
 NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value]
 
 MOVE_THRESHOLD_CM: int = 10  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+
+WALL_DETECTION_THRESHOLD_CM: int = 20  # LiDARで壁を検出する閾値

@@ -12,11 +12,24 @@ def escpapeObstacle():
 def detectBlackTile():
     pass
 
-def moveTile(direction: mazeEnums.absDirection, mazeMap: mazeMap.mazeMap, stm: stm.STM, lidar: ydlidar.Cydliar) -> None:
+def detectWall(lidar: ydlidar.Cydliar, mapInstance: mazeMap.mazeMap) -> None:
+    points = LiDAR.getLiDARScan(lidar)
+    for direction in mazeEnums.absDirection:
+        angle = direction.value
+        dist = LiDAR.getCertainAngleDist(angle, points)
+        if dist < mazeConsrains.WALL_DETECTION_THRESHOLD_CM:
+            mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+        else:
+            mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+
+def detectTileType():
+    pass
+
+def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stm: stm.STM, lidar: ydlidar.Cydliar) -> None:
     """
     @brief direction の方向へ一マス移動する
     @param direction: 移動方向
-    @param mazeMap: 現在の迷路情報
+    @param mapInstance: 現在の迷路情報
     @param stm: 通信に使用する STM インスタンス
     @param lidar: 使用する LiDAR インスタンス
     """
@@ -62,6 +75,8 @@ def moveTile(direction: mazeEnums.absDirection, mazeMap: mazeMap.mazeMap, stm: s
         pass
 
     stm.sts3032.stop()
+    detectWall(lidar, mapInstance)
+    detectTileType()
 
 def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stm: stm.STM, lidar: ydlidar.Cydliar) -> None:
     """
