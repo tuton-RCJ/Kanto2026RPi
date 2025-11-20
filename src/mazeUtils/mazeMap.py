@@ -8,7 +8,7 @@ def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> li
 
     while queue:
         current = queue.popleft()
-
+        print(current, visited)
         if goalCondition(current):
             path = []
             while current is not None:
@@ -16,7 +16,7 @@ def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> li
                 current = visited[current]
             return path[::-1]
 
-        for neighbor in mazeGraph[current[1]][current[0]]:
+        for neighbor in mazeGraph[current[0]][current[1]]:
             if neighbor not in visited:
                 visited[neighbor] = current
                 queue.append(neighbor)
@@ -32,31 +32,29 @@ class mazeMap:
         self.currentPosition = (20, 20)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
+        self.tileTypes[20][20] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
         if loadCache: #TODO: cache の実装
             pass 
-        else:
-            self.wallTypes[20][20][mazeEnums.absDirection.NORTH] = mazeEnums.wallType.NO_WALL
-            self.mazeAsGraph[20][20].add((20, 21)) # 前方が開いているという仮定
 
     def setWallType(self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType) -> None:
         x, y = self.currentPosition
 
         # もし壁がないならグラフを更新
         if wallType == mazeEnums.wallType.NO_WALL:
-            if direction == mazeEnums.absDirection.NORTH and self.tileTypes[y-1][x] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((x, y-1))
-                self.mazeAsGraph[y-1][x].add((x, y))
-            elif direction == mazeEnums.absDirection.EAST and self.tileTypes[y][x+1] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((x+1, y))
-                self.mazeAsGraph[y][x+1].add((x, y))
-            elif direction == mazeEnums.absDirection.SOUTH and self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
+            if direction == mazeEnums.absDirection.NORTH and self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
                 self.mazeAsGraph[y][x].add((x, y+1))
                 self.mazeAsGraph[y+1][x].add((x, y))
-            elif direction == mazeEnums.absDirection.WEST and self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
+            elif direction == mazeEnums.absDirection.EAST and self.tileTypes[y][x+1] != mazeEnums.tileType.BLACK:
                 self.mazeAsGraph[y][x].add((x-1, y))
                 self.mazeAsGraph[y][x-1].add((x, y))
+            elif direction == mazeEnums.absDirection.SOUTH and self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
+                self.mazeAsGraph[y][x].add((x, y-1))
+                self.mazeAsGraph[y-1][x].add((x, y))
+            elif direction == mazeEnums.absDirection.WEST and self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
+                self.mazeAsGraph[y][x].add((x+1, y))
+                self.mazeAsGraph[y][x+1].add((x, y))
 
         self.wallTypes[y][x][direction] = wallType
 
@@ -116,7 +114,7 @@ class mazeMap:
         @return: 未探索タイルへの方向リスト。未探索タイルが存在しない場合は None を返す
         """
         x, y = self.currentPosition
-        path = BFS(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]][d] == mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection))
+        path = BFS(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection))
 
         if path is None:
             return None

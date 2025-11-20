@@ -54,6 +54,7 @@ class tileType(Enum):
     RED = 2
     BLACK = 3
     BLUE = 4
+    START = 5
 
 class turnMethod(Enum):
     ONLY_LiDAR = 0
