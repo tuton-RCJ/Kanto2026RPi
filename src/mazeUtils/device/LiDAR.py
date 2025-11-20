@@ -1,6 +1,18 @@
 import os
 import ydlidar
 import numpy as np
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    """
+    @brief: LiDAR の点群データ構造体。
+    @note range は cm, angle は相対角度、反時計回りに正。
+    """
+    range: int
+    angle: int
+
+
 
 def initializeLidar(port: str = "/dev/ttyAMA4", baudrate: int = 230400) -> ydlidar.CYdLidar:
     ydlidar.os_init()
@@ -31,7 +43,10 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
     """
     scan = ydlidar.LaserScan()
     if lidar.doProcessSimple(scan):
-        return scan.points
+        res = []
+        for s in scan:
+            res.append(Point(s.range,(s.angle - 180)%360))
+            return res
     else:
         raise Exception("Failed to get LiDAR scan")
     
@@ -40,7 +55,7 @@ def shutdownLidar(lidar: ydlidar.CYdLidar):
     lidar.disconnecting()
 
 
-def getCertainAngleDist(angle: int | list[int], points: list[ydlidar.LaserPoint]) -> int | dict[int]:
+def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | dict[int]:
     """
     @brief 指定した角度の距離を取得する
     @param angle: 取得したい角度(度). 複数指定する場合はリストで渡す
@@ -61,3 +76,40 @@ def getCertainAngleDist(angle: int | list[int], points: list[ydlidar.LaserPoint]
         distances.append(closest_point.range)
 
     return distances[0] if single else distances
+
+def getAbsAngle(nowDirection: int, angleRange: int, points: list[Point]) -> int:
+    """Estimate which absolute NEWS direction the robot faces based on LiDAR data."""
+    if angleRange <= 0:
+        raise ValueError("angleRange must be positive")
+    if not points:
+        raise ValueError("points must not be empty")
+
+    def normalizeDiff(target: float, values: np.ndarray) -> np.ndarray:
+        """Return signed shortest angular difference between values and target."""
+        return ((values - target + 540.0) % 360.0) - 180.0
+
+    absAngles = np.array([(nowDirection + p.angle) % 360 for p in points], dtype=float)
+    ranges = np.array([p.range for p in points], dtype=float)
+
+    candidates = np.array([0.0, 90.0, 180.0, 270.0])
+    bestAngle = None
+    bestScore = np.inf
+    for candidate in candidates:
+        mask = np.abs(normalizeDiff(candidate, absAngles)) <= angleRange
+        if not mask.any():
+            continue
+        # Median is robust against outliers and noisy returns.
+        score = float(np.median(ranges[mask]))
+        if score < bestScore:
+            bestScore = score
+            bestAngle = candidate
+        elif score == bestScore:
+            # Prefer the candidate closest to the current gyro heading to avoid jumps.
+            currentDiff = abs(normalizeDiff(best_angle, np.array([nowDirection]))[0]) if best_angle is not None else np.inf
+            newDiff = abs(normalizeDiff(candidate, np.array([nowDirection]))[0])
+            if newDiff < currentDiff:
+                best_angle = candidate
+
+    if best_angle is None:
+        raise RuntimeError("Unable to determine absolute angle from LiDAR points")
+    return int(best_angle)
