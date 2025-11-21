@@ -125,3 +125,11 @@ def getRelativeAngle(nowDirection: int, angleRange: int, points: list[Point]) ->
 
     rel_heading = normalize(rel_heading)
     return int(round(rel_heading))
+
+def liDARShutdown(lidar: ydlidar.CYdLidar):
+    """
+    @brief LiDAR をシャットダウンする
+    @param lidar: 使用する LiDAR インスタンス
+    """
+    lidar.turnOff()
+    lidar.disconnecting()

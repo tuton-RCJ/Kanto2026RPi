@@ -122,6 +122,7 @@ class mazeMap:
         path = BFS(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection))
 
         if path is None:
+            print("None!!!!!!")
             return None
         
         directions = []
