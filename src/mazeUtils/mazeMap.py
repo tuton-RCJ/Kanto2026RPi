@@ -8,7 +8,7 @@ def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> li
 
     while queue:
         current = queue.popleft()
-        print(current, visited)
+        # print(current, visited)
         if goalCondition(current):
             path = []
             while current is not None:
@@ -16,7 +16,8 @@ def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> li
                 current = visited[current]
             return path[::-1]
 
-        for neighbor in mazeGraph[current[0]][current[1]]:
+        # mazeGraph is accessed as [y][x], current is (x, y)
+        for neighbor in mazeGraph[current[1]][current[0]]:
             if neighbor not in visited:
                 visited[neighbor] = current
                 queue.append(neighbor)
@@ -29,10 +30,10 @@ class mazeMap:
         self.maxSize = maxSize
         self.cacheAbsPath = cacheAbsPath
         self.loadCache = loadCache
-        self.currentPosition = (20, 20)
+        self.currentPosition = (maxSize // 2, maxSize // 2)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
-        self.tileTypes[20][20] = mazeEnums.tileType.START
+        self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
         if loadCache: #TODO: cache の実装
@@ -43,18 +44,22 @@ class mazeMap:
 
         # もし壁がないならグラフを更新
         if wallType == mazeEnums.wallType.NO_WALL:
-            if direction == mazeEnums.absDirection.NORTH and self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((x, y+1))
-                self.mazeAsGraph[y+1][x].add((x, y))
-            elif direction == mazeEnums.absDirection.EAST and self.tileTypes[y][x+1] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((x-1, y))
-                self.mazeAsGraph[y][x-1].add((x, y))
-            elif direction == mazeEnums.absDirection.SOUTH and self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((x, y-1))
-                self.mazeAsGraph[y-1][x].add((x, y))
-            elif direction == mazeEnums.absDirection.WEST and self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((x+1, y))
-                self.mazeAsGraph[y][x+1].add((x, y))
+            if direction == mazeEnums.absDirection.NORTH and y > 0:
+                if self.tileTypes[y-1][x] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x, y-1))
+                    self.mazeAsGraph[y-1][x].add((x, y))
+            elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
+                if self.tileTypes[y][x+1] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x+1, y))
+                    self.mazeAsGraph[y][x+1].add((x, y))
+            elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
+                if self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x, y+1))
+                    self.mazeAsGraph[y+1][x].add((x, y))
+            elif direction == mazeEnums.absDirection.WEST and x > 0:
+                if self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x-1, y))
+                    self.mazeAsGraph[y][x-1].add((x, y))
 
         self.wallTypes[y][x][direction] = wallType
 
