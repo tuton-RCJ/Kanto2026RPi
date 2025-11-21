@@ -10,10 +10,11 @@ def detectBlackTile():
 
 def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
     points = LiDAR.getLiDARScan(lidar)
+    currentDirVal = mapInstance.frontDirection.value
     for direction in mazeEnums.absDirection:
-        angle = direction.value
+        angle = (direction.value - currentDirVal) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
-        print(f"Direction: {direction}, Distance: {dist} cm")
+        print(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
 
         if dist < mazeConsrains.WALL_DETECTION_THRESHOLD_CM:
             mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
@@ -53,7 +54,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 print(f"Turning from {mapInstance.frontDirection} to {direction}")
                 print(f"Angle Difference: {(mapInstance.frontDirection - direction).value} deg")
 
-                if (mapInstance.frontDirection - direction).value == 270:
+                if (mapInstance.frontDirection - direction).value == 90:
                     turnDirection = mazeEnums.turnDirection.RIGHT
                 else:
                     turnDirection = mazeEnums.turnDirection.LEFT
@@ -75,6 +76,8 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 while abs(stm.gyro.getAngleZ()  - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     stm.update()
                 stm.sts3032.stop()
+        
+        mapInstance.frontDirection = direction
     
     points = LiDAR.getLiDARScan(lidar)
     
@@ -111,8 +114,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         pass
 
     stm.sts3032.stop()
-    detectWall(lidar, mapInstance)
-    detectTileType(mapInstance)
 
 def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
     """
@@ -124,5 +125,7 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
     """
     res = moveTile(direction, mapInstance, stm, lidar)
     mapInstance.moveTo(direction)
+    detectWall(lidar, mapInstance)
+    detectTileType(mapInstance)
     return res
 
