@@ -13,11 +13,10 @@ def main():
     lidarInstance = LiDAR.initializeLidar()
     try:
         while True:
-            """
             points = LiDAR.getLiDARScan(lidarInstance)
-            frontDist = LiDAR.getCertainAngleDist(0, points)
+            frontDist = LiDAR.getCertainAngleDist(180, points)
             print(f"Front Distance: {frontDist} cm")
-            angle = LiDAR.getRelativeAngle(mazeEnums.absDirection.NORTH.value, 20,  points)
+            angle = LiDAR.getRelativeAngle(90, 20,  points)
             print(f"Abs Angle on front deg: {min(angle, 360 - angle)} deg")
             """
             moveTile.detectWall(lidarInstance, mapInstance)
@@ -36,6 +35,7 @@ def main():
             if returnPath is not None:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+            """
     except:
         import traceback
         traceback.print_exc()

@@ -1,7 +1,10 @@
 import ydlidar
+import numpy as np
 from . import mazeConsrains, mazeEnums, mazeMap
 from .device import LiDAR, deviceEnums, stm, deviceConstrains
 import time
+import matplotlib.pyplot as plt
+from typing import Sequence
 def escpapeObstacle():
     pass
 
@@ -24,6 +27,30 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
 def detectTileType(mapInstance: mazeMap.mazeMap) -> None: #TODO: implement this
     mapInstance.setTileType(mazeEnums.tileType.EMPTY)
     pass
+
+def plotPointCloudPolar(points: Sequence[LiDAR.Point], title: str = "LiDAR point cloud", block: bool = False) -> None:
+    """Plot LiDAR points in polar coordinates for quick visual inspection.
+
+    Example:
+        plotPointCloudPolar(LiDAR.getLiDARScan(lidar))
+    """
+    if not points:
+        print("No LiDAR points to plot.")
+        return
+
+    angles = np.radians([p.angle for p in points])
+    ranges = [p.range for p in points]
+
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
+    pcm = ax.scatter(angles, ranges, c=ranges, s=10, cmap="viridis", alpha=0.8)
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
+    ax.set_title(title)
+    ax.set_rmax(80)
+    ax.set_rlabel_position(90)
+    fig.colorbar(pcm, ax=ax, pad=0.1, label="Distance (cm)")
+    fig.tight_layout()
+    plt.savefig(f"{title}.png")
 
 def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
     """
@@ -53,6 +80,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 print(f"Min Direction: {minDirection}, Min Distance: {minDist} cm")
                 print(f"Turning from {mapInstance.frontDirection} to {direction}")
                 print(f"Angle Difference: {(mapInstance.frontDirection - direction).value} deg")
+
+                if abs(relativeAngle) > 10:
+                    plotPointCloudPolar(points, title=str(time.time()), block=False)
+
+
 
                 minDeg = min((mapInstance.frontDirection - direction).value, 360 - (mapInstance.frontDirection - direction).value)
                 if minDeg == (mapInstance.frontDirection - direction).value:
