@@ -48,7 +48,9 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                         minDist = dist
                         minDirection = d
                 
-                relativeAngle = LiDAR.getRelativeAngle(minDirection.value, 5, points)
+                front_dir_value = mapInstance.frontDirection.value
+                use_direction = (minDirection.value - front_dir_value) % 360
+                relativeAngle = LiDAR.getRelativeAngle(minDirection.value, front_dir_value, use_direction, 5, points)
                 print(f"Initial Relative Angle: {relativeAngle} deg")
                 print(f"Min Direction: {minDirection}, Min Distance: {minDist} cm")
                 print(f"Turning from {mapInstance.frontDirection} to {direction}")
@@ -66,7 +68,25 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     pass
                 stm.sts3032.stop()
 
-                relativeAngle = LiDAR.getRelativeAngle(direction.value, 5, points)
+                new_front_dir_value = direction.value
+                use_direction = 0
+                relativeAngle = LiDAR.getRelativeAngle(direction.value, new_front_dir_value, use_direction, 5, points)
+                
+                while abs(relativeAngle) > mazeConsrains.TURN_THRESHOLD_DEG:
+                    points = LiDAR.getLiDARScan(lidar)
+                    new_front_dir_value = direction.value
+                    use_direction = 0
+                    relativeAngle = LiDAR.getRelativeAngle(direction.value, new_front_dir_value, use_direction, 5, points)
+                    
+                    print(f"Adjusting Relative Angle: {relativeAngle} deg")
+                    if relativeAngle > 0:
+                        stm.sts3032.turnRight(30)
+                    else:
+                        stm.sts3032.turnLeft(30)
+                    t = time.time()
+                    while (time.time() - t) < deviceConstrains.TURN_SEC*(abs(relativeAngle)/90):
+                        pass
+                    stm.sts3032.stop()
         
         if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
                             

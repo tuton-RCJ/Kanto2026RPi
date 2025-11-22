@@ -1,4 +1,5 @@
 import os
+import math
 import ydlidar
 import numpy as np
 from dataclasses import dataclass
@@ -81,47 +82,54 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
         distances.append(dist)
     return distances[0] if single else distances
 
-def getRelativeAngle(nowDirection: int, angleRange: int, points: list[Point]) -> int:
+def getRelativeAngle(targetDirection: int, frontDirection: int, useDirection: int, angleRange: int, points: list[Point]) -> int:
     """
-    @brief 相対角度で指定した方向の +-angleRange 内にある点群を用いて、 nowDirection からの相対角度を計算する。壁は nowDirection 方向にあると仮定する。
-    @param nowDirection: ロボットの現在の絶対角度(度)
+    @brief useDirection(相対角度) 方向の +-angleRange 内にある点群を用いて、ロボットが targetDirection 方向を向くための相対角度を計算する
+    @param targetDirection: 目標の絶対角度(度)
+    @param frontDirection: ロボットの正面が向いている絶対角度(度)
+    @param useDirection: 相対角度を計算する基準方向(度)
     @param angleRange: nowDirection からの許容範囲(度)
     @param points: LiDAR のスキャンデータのリスト
     """
-    if points is None:
-        raise ValueError("points must not be None")
+
+    if not points:
+        return 0
 
     def normalize(angle: float) -> float:
         return (angle + 180.0) % 360.0 - 180.0
 
-    sector: list[tuple[float, float]] = []
+    usable_points = []
     for point in points:
         if point.range <= 0:
             continue
-        relative_angle = normalize(point.angle)
-        if abs(relative_angle) > angleRange:
-            continue
-        rad = np.deg2rad(relative_angle)
-        x = point.range * np.cos(rad)
-        y = point.range * np.sin(rad)
-        sector.append((x, y))
+        relative = normalize(point.angle - useDirection)
+        if abs(relative) <= angleRange:
+            usable_points.append(point)
 
-    if not sector:
-        return nowDirection
+    if len(usable_points) < 2:
+        return int(round(normalize(targetDirection - frontDirection)))
 
-    coords = np.array(sector, dtype=np.float64)
+    xs = []
+    ys = []
+    for point in usable_points:
+        rad = math.radians(point.angle)
+        xs.append(point.range * math.cos(rad))
+        ys.append(point.range * math.sin(rad))
 
-    # 十分な点がない場合は単一点の角度を採用して補正する
-    if coords.shape[0] == 1:
-        rel_heading = np.degrees(np.arctan2(coords[0, 1], coords[0, 0]))
+    n = len(xs)
+    sum_x = sum(xs)
+    sum_y = sum(ys)
+    sum_x2 = sum(x * x for x in xs)
+    sum_xy = sum(x * y for x, y in zip(xs, ys))
+
+    denom = n * sum_x2 - sum_x * sum_x
+    if abs(denom) < 1e-6:
+        alpha = math.copysign(float("inf"), sum_xy if sum_xy != 0 else 1.0)
     else:
-        centered = coords - coords.mean(axis=0)
-        covariance = centered.T @ centered
-        eigvals, eigvecs = np.linalg.eigh(covariance)
-        normal_vec = eigvecs[:, np.argmin(eigvals)]
-        if normal_vec[0] < 0:
-            normal_vec *= -1
-        rel_heading = np.degrees(np.arctan2(normal_vec[1], normal_vec[0]))
+        alpha = (n * sum_xy - sum_x * sum_y) / denom
 
-    rel_heading = normalize(rel_heading)
-    return int(round(rel_heading))
+    measured_relative = math.degrees(math.atan2(-1.0, alpha))
+
+    measured_absolute = (frontDirection + measured_relative) % 360
+    turn = normalize(targetDirection - measured_absolute)
+    return int(round(turn))

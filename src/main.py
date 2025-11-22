@@ -17,7 +17,13 @@ def main():
         points = LiDAR.getLiDARScan(lidarInstance)
         frontDist = LiDAR.getCertainAngleDist(0, points)
         print(f"Front Distance: {frontDist} cm")
-        angle = LiDAR.getRelativeAngle(mazeEnums.absDirection.NORTH.value, 20,  points)
+        angle = LiDAR.getRelativeAngle(
+            mazeEnums.absDirection.NORTH.value,
+            mapInstance.frontDirection.value,
+            0,
+            20,
+            points,
+        )
         print(f"Abs Angle on front deg: {min(angle, 360 - angle)} deg")
         """
         moveTile.detectWall(lidarInstance, mapInstance)
