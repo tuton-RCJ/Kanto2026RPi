@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import math
 import ydlidar
@@ -133,3 +134,11 @@ def getRelativeAngle(targetDirection: int, frontDirection: int, useDirection: in
     measured_absolute = (frontDirection + measured_relative) % 360
     turn = normalize(targetDirection - measured_absolute)
     return int(round(turn))
+
+def liDARShutdown(lidar: ydlidar.CYdLidar):
+    """
+    @brief LiDAR をシャットダウンする
+    @param lidar: 使用する LiDAR インスタンス
+    """
+    lidar.turnOff()
+    lidar.disconnecting()

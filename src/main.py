@@ -5,7 +5,7 @@ from mazeUtils.device import LiDAR
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConsrains
 import ydlidar
-
+import time
 
 def main():
     mapInstance = mazeMap.mazeMap()
@@ -35,11 +35,17 @@ def main():
                 moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
             nextDirection = mapInstance.getNearestUnexploredTile()
 
-        returnPath = mapInstance.getPathTo((20, 20))
-
-        if returnPath is not None:
-            for direction in returnPath:
-                moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                
+            returnPath = mapInstance.getPathTo((20, 20))
+            print(f"Return Path: {returnPath}")
+            
+            if returnPath is not None:
+                for direction in returnPath:
+                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+            """
+    except:
+        import traceback
+        traceback.print_exc()
+        LiDAR.liDARShutdown(lidarInstance)
+        stmInstance.sts3032.stop()               
 if __name__ == "__main__":
     main()

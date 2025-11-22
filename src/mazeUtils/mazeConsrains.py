@@ -15,4 +15,6 @@ NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAS
 
 MOVE_THRESHOLD_CM: int = 30  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 
+MOVE_STRAIGHT_THRESHOLD_CM: int = 18
+
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
