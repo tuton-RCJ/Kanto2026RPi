@@ -8,16 +8,20 @@ import ydlidar
 import time
 
 def main():
-    mapInstance = mazeMap.mazeMap()
     stmInstance = stm.STM()
+    stmInstance.update()
+    stmInstance.gyro.setHeadingOffset(stmInstance.gyro.getValue().heading)
+    mapInstance = mazeMap.mazeMap()
     lidarInstance = LiDAR.initializeLidar()
     try:
         while True:
+            """
             points = LiDAR.getLiDARScan(lidarInstance)
-            frontDist = LiDAR.getCertainAngleDist(180, points)
-            print(f"Front Distance: {frontDist} cm")
-            angle = LiDAR.getRelativeAngle(90, 20,  points)
-            print(f"Abs Angle on front deg: {min(angle, 360 - angle)} deg")
+            frontDist = LiDAR.getCertainAngleDist([0,90,180,270], points)
+            print(f"Distances: {frontDist} cm")
+
+            stmInstance.update()
+            print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
             """
             moveTile.detectWall(lidarInstance, mapInstance)
             print(mapInstance.wallTypes[20][20])
@@ -35,7 +39,6 @@ def main():
             if returnPath is not None:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-            """
     except:
         import traceback
         traceback.print_exc()

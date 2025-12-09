@@ -103,12 +103,16 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 relativeAngle = LiDAR.getRelativeAngle(direction.value, 5, points)
         
         if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
-                            
-                turnDirection = mazeEnums.turnDirection.RIGHT if (stm.gyro.getAngleZ() - direction.value) > 0 else mazeEnums.turnDirection.LEFT
-                stm.sts3032.turnRight() if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft()
+                rightTurnAngle = stm.gyro.getValue().heading - direction.value
+                leftTurnAngle = direction.value - stm.gyro.getValue().heading
+                turnAngle = rightTurnAngle if abs(rightTurnAngle) < abs(leftTurnAngle) else leftTurnAngle
+                turnDirection = mazeEnums.turnDirection.RIGHT if turnAngle > 0 else mazeEnums.turnDirection.LEFT
+                
+                stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
 
-                while abs(stm.gyro.getAngleZ()  - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
+                while stm.gyro.getValue().heading  != direction.value:
                     stm.update()
+
                 stm.sts3032.stop()
         
         mapInstance.frontDirection = direction
@@ -135,7 +139,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             if (oldDist) - (currentDist) > mazeConsrains.MOVE_THRESHOLD_CM or currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
                 stm.sts3032.stop()
                 break
-            print(f"Old Dist: {oldDist} cm, Current Dist: {currentDist} cm")
 
             sideDist = LiDAR.getCertainAngleDist([-90, 90], points)
             
