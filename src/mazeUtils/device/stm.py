@@ -95,7 +95,7 @@ class STMUART:
         self._seq = self._seq % 256
 
 
-port: str = "/dev/ttyAMA2"
+port: str = "/dev/ttyAMA0"
 stmUART: STMUART = STMUART(port)
 
 
@@ -268,13 +268,20 @@ class Gyro:
         self,
     ):
         self.data: gyroData = gyroData(0, 0, 0)
+        self.headingOffset: int = 0
         pass
 
     def setValue(self, gyroData: gyroData):
         self.data = gyroData
 
+    def setHeadingOffset(self, offset: int):
+        self.headingOffset = offset
+
     def getValue(self) -> gyroData:
-        return self.data
+        res = self.data
+        res.heading -= self.headingOffset
+        res.heading %= 360
+        return res
 
 
 # class Display:

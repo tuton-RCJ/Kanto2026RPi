@@ -14,7 +14,7 @@ class Point:
 
 
 
-def initializeLidar(port: str = "/dev/ttyAMA4", baudrate: int = 230400) -> ydlidar.CYdLidar:
+def initializeLidar(port: str = "/dev/ttyAMA2", baudrate: int = 230400) -> ydlidar.CYdLidar:
     ydlidar.os_init()
     print("Available ports:", *ydlidar.lidarPortList())
     lidar = ydlidar.CYdLidar()
@@ -45,7 +45,7 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
     if lidar.doProcessSimple(scan):
         res = []
         for s in scan.points:
-            res.append(Point(s.range * 100,((s.angle - np.pi)%(np.pi*2)*360/(np.pi*2)+4)%360)) # LiDAR の角度補正 4 度
+            res.append(Point(s.range * 100,(-((s.angle - np.pi/2)%(np.pi*2)*360/(np.pi*2)+4))%360)) # LiDAR の角度補正 4 度
         return res
     else:
         raise Exception("Failed to get LiDAR scan")
