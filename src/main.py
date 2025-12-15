@@ -30,7 +30,6 @@ def main():
             while nextDirection is not None:
                 for direction in nextDirection:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                    time.sleep(0.5)  # 少し待機してから次の壁検出
                 nextDirection = mapInstance.getNearestUnexploredTile()
 
             returnPath = mapInstance.getPathTo((20, 20))
