@@ -124,7 +124,7 @@ def getRelativeAngle(nowDirection: int, angleRange: int, points: list[Point]) ->
         rel_heading = np.degrees(np.arctan2(normal_vec[1], normal_vec[0]))
 
     rel_heading = normalize(rel_heading)
-    return int(round(rel_heading))
+    return rel_heading
 
 def liDARShutdown(lidar: ydlidar.CYdLidar):
     """
