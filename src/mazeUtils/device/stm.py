@@ -38,19 +38,19 @@ class STMUART:
 
         # レスポンス待機
         start_time = time.time()
-        while self._serial.in_waiting < 11:
+        while self._serial.in_waiting < 22:
             if time.time() - start_time > self._timeout:
                 print("STM UART timeout")
                 return None
 
-        data: bytes = self._serial.read(11)
+        data: bytes = self._serial.read(22)
         # データのチェック
         if data[0] == 0x00 and data[1] == self._seq:
             checkDigit = 0
-            for b in data[0:10]:
+            for b in data[0:21]:
                 checkDigit ^= b
-            if checkDigit == data[10]:
-                return data[2:10]
+            if checkDigit == data[21]:
+                return data[2:21]
         print("STM UART data error")
         return None
 
@@ -245,6 +245,29 @@ class Loadcell:
         """
         return self.pressed
 
+class ToF:
+    def __init__(
+        self,
+    ):
+        self.distance: list[float] = [-1 for _ in range(8)] # 時計回り
+    
+    def setDistance(self, distances: list[float]) -> bool:
+        """
+        @brief センサの距離をセットする
+        @param distances: 距離のリスト[float(cm)]
+        @return: 正常にセットできればTrue, エラーがあればFalse
+        """
+        if len(distances) != 8:
+            return False
+        self.distance = distances
+        return True
+    
+    def getDistance(self) -> list[float]:
+        """
+        @brief センサの距離を取得する
+        @return: 距離のリスト[float(cm)]
+        """
+        return self.distance
 
 @dataclass
 class gyroData:
@@ -253,9 +276,9 @@ class gyroData:
     @note 単位はdeg
     """
 
-    heading: int
-    pitch: int
-    roll: int
+    heading: float
+    pitch: float
+    roll: float
 
 
 class Gyro:
@@ -267,14 +290,14 @@ class Gyro:
     def __init__(
         self,
     ):
-        self.data: gyroData = gyroData(0, 0, 0)
-        self.headingOffset: int = 0
+        self.data: gyroData = gyroData(0.0, 0.0, 0.0)
+        self.headingOffset: float = 0.0
         pass
 
     def setValue(self, gyroData: gyroData):
         self.data = gyroData
 
-    def setHeadingOffset(self, offset: int):
+    def setHeadingOffset(self, offset: float):
         self.headingOffset = offset
 
     def getValue(self) -> gyroData:
@@ -391,6 +414,7 @@ class STM:
         self.switch: Switch = Switch()
         self.rescuekitservo: RescueKitServo = RescueKitServo()
         self.led: LED = LED()
+        self.tof: ToF = ToF()
 
     def update(self) -> bool:
         global stmUART
@@ -411,11 +435,21 @@ class STM:
                     deviceEnums.Side.RIGHT: data[3],
                 }
             )
-            # ジャイロの値は360度を1/2に圧縮して送信されるので、2倍にして元に戻す
-            self.gyro.setValue(gyroData(data[4] * 2, data[5] * 2, data[6] * 2))
+            
+            self.gyro.setValue(
+                gyroData=gyroData(
+                    heading=((data[4] << 8) | data[5]) / 100.0,
+                    pitch=((data[6] << 8) | data[7]) / 100.0,
+                    roll=((data[8] << 8) | data[9]) / 100.0,
+                )
+            )
             # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
             self.switch.setValue(
-                pushSwitch1=bool((data[7] >> 7) & 0x01),
-                toggleSwitch1=bool((data[7] >> 6) & 0x01),
+                pushSwitch1=bool((data[10] >> 7) & 0x01),
+                toggleSwitch1=bool((data[10] >> 6) & 0x01),
             )
+            self.tof.setDistance(
+                [data[i+11]/10 for i in range(8)]
+            )
+
             return True
