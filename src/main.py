@@ -18,7 +18,7 @@ def main():
             """
             points = LiDAR.getLiDARScan(lidarInstance)
             frontDist = LiDAR.getCertainAngleDist([0,90,180,270], points)
-            print(f"Distances: {frontDist} cm")
+            #print(f"Distances: {frontDist} cm")
 
             stmInstance.update()
             print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
@@ -39,6 +39,8 @@ def main():
             if returnPath is not None:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    time.sleep(0.5) 
+            
     except:
         import traceback
         traceback.print_exc()

@@ -103,18 +103,28 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 relativeAngle = LiDAR.getRelativeAngle(direction.value, 5, points)
         
         if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
-                rightTurnAngle = stm.gyro.getValue().heading - direction.value
-                leftTurnAngle = direction.value - stm.gyro.getValue().heading
-                turnAngle = rightTurnAngle if abs(rightTurnAngle) < abs(leftTurnAngle) else leftTurnAngle
-                turnDirection = mazeEnums.turnDirection.RIGHT if turnAngle > 0 else mazeEnums.turnDirection.LEFT
+                rightTurnAngle = (stm.gyro.getValue().heading - direction.value)%360
+                leftTurnAngle = (direction.value - stm.gyro.getValue().heading)%360
+                turnAngle = rightTurnAngle if rightTurnAngle < leftTurnAngle else leftTurnAngle
+                turnDirection = mazeEnums.turnDirection.RIGHT if turnAngle == rightTurnAngle else mazeEnums.turnDirection.LEFT
                 
                 stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
 
-                while stm.gyro.getValue().heading  != direction.value:
+                while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     stm.update()
 
                 stm.sts3032.stop()
-        
+
+                firstFlag = True
+                while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
+                    if firstFlag:
+                        stm.sts3032.turnLeft(20) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnRight(20)
+                        firstFlag = False
+                    stm.update()
+
+                stm.update()
+                print(f"Turned to heading: {stm.gyro.getValue().heading} deg")
+
         mapInstance.frontDirection = direction
     
     points = LiDAR.getLiDARScan(lidar)
@@ -122,6 +132,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     if mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_FRONT:
         oldDist = LiDAR.getCertainAngleDist(0, points)
         stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
+        littleFowardFlag = False
         while True:
             points = LiDAR.getLiDARScan(lidar)
             currentDist = LiDAR.getCertainAngleDist(0, points)
@@ -138,9 +149,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             
             if (oldDist) - (currentDist) > mazeConsrains.MOVE_THRESHOLD_CM or currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
                 stm.sts3032.stop()
+                if mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM + 5:
+                    littleFowardFlag = True
                 break
 
-            sideDist = LiDAR.getCertainAngleDist([-90, 90], points)
+
             
             """ 壁の工作精度が微妙だと不安定になるので一旦コメントアウト
             diff = sideDist[1] - sideDist[0]
@@ -151,7 +164,13 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             rightSpeed = max(0, min(100, rightSpeed))
             stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(leftSpeed), deviceEnums.Side.RIGHT: int(rightSpeed)}) #TODO: PD 制御にする?
             """
-    
+        if littleFowardFlag:
+            while True:
+                points = LiDAR.getLiDARScan(lidar)
+                currentDist = LiDAR.getCertainAngleDist(0, points)
+                if currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
+                    break
+
     elif mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_CORNER: # TODO: implement this method
         pass
 
