@@ -5,10 +5,12 @@ from .device import LiDAR, deviceEnums, stm, deviceConstrains
 import time
 import matplotlib.pyplot as plt
 from typing import Sequence
+
 def escpapeObstacle():
     pass
 
 def detectBlackTile():
+    
     pass
 
 def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
@@ -147,16 +149,16 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
 
         mapInstance.frontDirection = direction
     
-    points = LiDAR.getLiDARScan(lidar)
+    stm.update()
     
     if mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_FRONT:
-        oldDist = LiDAR.getCertainAngleDist(0, points)
+        oldDist = stm.tof.getDistance()[0]
         stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
         littleFowardFlag = False
         while True:
-            points = LiDAR.getLiDARScan(lidar)
-            currentDist = LiDAR.getCertainAngleDist(0, points)
+
             stm.update()
+            currentDist = stm.tof.getDistance()[0]
             
             if any([p for p in stm.loadcell.getPressed().values()]):
                 escpapeObstacle()
@@ -186,8 +188,8 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             """
         if littleFowardFlag:
             while True:
-                points = LiDAR.getLiDARScan(lidar)
-                currentDist = LiDAR.getCertainAngleDist(0, points)
+                stm.update()
+                currentDist = stm.tof.getDistance()[0]
                 if currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
                     break
 
