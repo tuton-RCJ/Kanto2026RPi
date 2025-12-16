@@ -257,7 +257,7 @@ class ToF:
         @param distances: 距離のリスト[float(cm)]
         @return: 正常にセットできればTrue, エラーがあればFalse
         """
-        if len(distances) != 8:
+        if len(distances) != 4:
             return False
         self.distance = distances
         return True
@@ -431,8 +431,8 @@ class STM:
             )
             self.loadcell.setValue(
                 {
-                    deviceEnums.Side.LEFT: data[2],
-                    deviceEnums.Side.RIGHT: data[3],
+                    deviceEnums.Side.LEFT: data[2] & (1<<7),
+                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,
                 }
             )
             
@@ -444,12 +444,16 @@ class STM:
                 )
             )
             # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
+            print(data[2], data[3])
             self.switch.setValue(
                 pushSwitch1=bool((data[10] >> 7) & 0x01),
                 toggleSwitch1=bool((data[10] >> 6) & 0x01),
             )
+            #   int distance = ((int)sensorData[11 + i * 2] << 8) + (int)sensorData[12 + i * 2];
+            # uart1.print(distance);
+            # uart1.print(" ")
             self.tof.setDistance(
-                [data[i+11]/10 for i in range(8)]
+                [(data[11+i*2] << 8 | data[12+i*2])/10 for i in range(4)]
             )
 
             return True

@@ -5,13 +5,15 @@ from .device import LiDAR, deviceEnums, stm, deviceConstrains
 import time
 import matplotlib.pyplot as plt
 from typing import Sequence
-
 def escpapeObstacle():
     pass
 
 def detectBlackTile():
-    
     pass
+
+def escapeFromObstacle():
+    pass
+    
 
 def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
     points = LiDAR.getLiDARScan(lidar)
@@ -134,12 +136,16 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
 
                 while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     stm.update()
+                    print(f"Current Heading: {stm.gyro.getValue().heading} deg, Target: {direction.value} deg")
 
                 stm.sts3032.stop()
 
                 firstFlag = True
+                stm.update()
+                
                 while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     if firstFlag:
+                        print(f"Adjusting turn to heading: {direction.value} deg, Current: {stm.gyro.getValue().heading} deg")
                         stm.sts3032.turnLeft(20) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnRight(20)
                         firstFlag = False
                     stm.update()
@@ -149,9 +155,10 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
 
         mapInstance.frontDirection = direction
     
-    stm.update()
+    points = LiDAR.getLiDARScan(lidar)
     
     if mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_FRONT:
+        stm.update()
         oldDist = stm.tof.getDistance()[0]
         stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
         littleFowardFlag = False
@@ -160,9 +167,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             stm.update()
             currentDist = stm.tof.getDistance()[0]
             
-            if any([p for p in stm.loadcell.getPressed().values()]):
-                escpapeObstacle()
-                return 
+
             
             if detectBlackTile():
                 stm.sts3032.stop()
@@ -175,8 +180,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     littleFowardFlag = True
                 break
 
-
-            
             """ 壁の工作精度が微妙だと不安定になるので一旦コメントアウト
             diff = sideDist[1] - sideDist[0]
             leftSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] - diff * mazeConsrains.P_GAIN 
@@ -186,7 +189,10 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             rightSpeed = max(0, min(100, rightSpeed))
             stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(leftSpeed), deviceEnums.Side.RIGHT: int(rightSpeed)}) #TODO: PD 制御にする?
             """
+
+
         if littleFowardFlag:
+            stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_LOW_SPEED)
             while True:
                 stm.update()
                 currentDist = stm.tof.getDistance()[0]

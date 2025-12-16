@@ -16,12 +16,9 @@ def main():
     try:
         while True:
             """
-            points = LiDAR.getLiDARScan(lidarInstance)
-            frontDist = LiDAR.getCertainAngleDist([0,90,180,270], points)
-            #print(f"Distances: {frontDist} cm")
-
             stmInstance.update()
-            print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
+            print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
+            #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
             """
             moveTile.detectWall(lidarInstance, mapInstance)
             print(mapInstance.wallTypes[20][20])
@@ -39,7 +36,6 @@ def main():
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     time.sleep(0.5) 
-            
     except:
         import traceback
         traceback.print_exc()

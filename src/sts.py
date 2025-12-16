@@ -9,12 +9,10 @@ import ydlidar
 import time
 
 def main():
-    stmInstance = stm.STM()
-    t = time.time()
-    stmInstance.sts3032.turnLeft(50)
-    while time.time() - t < deviceConstrains.TURN_SEC:
-        pass
-    stmInstance.sts3032.stop()
+    while True:
+        stmInstance = stm.STM()
+        stmInstance.update()
+        print(stmInstance.loadcell.pressed)
 
 if __name__ == "__main__":
     main()
