@@ -11,10 +11,32 @@ def escpapeObstacle():
 def detectBlackTile():
     pass
 
-def escapeFromObstacle():
-    pass
-    
+def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) -> None:
+    """
+    @brief Loadcell が押されたときに障害物から脱出する動作を行う
+    @param deviceEnumsSide: 押された Loadcell の側
+    @param stmInstance: 通信に使用する STM インスタンス
+    """
+    print(f"Escape from obstacle on {deviceEnumsSide} side")
+    stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -30, deviceEnums.Side.RIGHT: -30})
+    time.sleep(0.2)
+    if deviceEnumsSide == deviceEnums.Side.LEFT:
+        stmInstance.sts3032.turnRight(30)
+        time.sleep(0.2)
+    else:
+        stmInstance.sts3032.turnLeft(30)
+        time.sleep(0.2)
+    stmInstance.sts3032.stop()
 
+    
+def getTurnDirection(fromDir: mazeEnums.absDirection, toDir: mazeEnums.absDirection) -> mazeEnums.turnDirection:
+    turnAngle = (fromDir.value - toDir.value + 360) % 360
+
+    if turnAngle <= 180:
+        return mazeEnums.turnDirection.LEFT
+    else:
+        return mazeEnums.turnDirection.RIGHT
+    
 def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
     points = LiDAR.getLiDARScan(lidar)
     currentDirVal = mapInstance.frontDirection.value
@@ -127,17 +149,13 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     stm.sts3032.stop()
         
         if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
-                rightTurnAngle = (stm.gyro.getValue().heading - direction.value)%360
-                leftTurnAngle = (direction.value - stm.gyro.getValue().heading)%360
-                turnAngle = rightTurnAngle if rightTurnAngle < leftTurnAngle else leftTurnAngle
-                turnDirection = mazeEnums.turnDirection.RIGHT if turnAngle == rightTurnAngle else mazeEnums.turnDirection.LEFT
-                
+                turnDirection = getTurnDirection(mapInstance.frontDirection, direction)
+                print(f"Turning from {mapInstance.frontDirection} to {direction}, turnDirection: {turnDirection}")
                 stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
 
                 while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     stm.update()
-                    print(f"Current Heading: {stm.gyro.getValue().heading} deg, Target: {direction.value} deg")
-
+                
                 stm.sts3032.stop()
 
                 firstFlag = True
@@ -180,24 +198,34 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     littleFowardFlag = True
                 break
 
-            """ 壁の工作精度が微妙だと不安定になるので一旦コメントアウト
-            diff = sideDist[1] - sideDist[0]
-            leftSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] - diff * mazeConsrains.P_GAIN 
-            rightSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] + diff * mazeConsrains.P_GAIN 
-            print(f"Left Speed: {leftSpeed}, Right Speed: {rightSpeed}, Side Distances: {sideDist}, Diff: {diff}")
-            leftSpeed = max(0, min(100, leftSpeed))
-            rightSpeed = max(0, min(100, rightSpeed))
-            stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(leftSpeed), deviceEnums.Side.RIGHT: int(rightSpeed)}) #TODO: PD 制御にする?
-            """
+            if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] or stm.loadcell.getPressed()[deviceEnums.Side.RIGHT]:
+                pressedSide = deviceEnums.Side.LEFT if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
+                #escapeFromObstacle(pressedSide, stm)
+                print(stm.loadcell.getPressed())
+                stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
+
+        print(f"Moved forward. Old Distance: {oldDist} cm, Current Distance: {currentDist} cm")
+
+        """ 壁の工作精度が微妙だと不安定になるので一旦コメントアウト
+        diff = sideDist[1] - sideDist[0]
+        leftSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] - diff * mazeConsrains.P_GAIN 
+        rightSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] + diff * mazeConsrains.P_GAIN 
+        print(f"Left Speed: {leftSpeed}, Right Speed: {rightSpeed}, Side Distances: {sideDist}, Diff: {diff}")
+        leftSpeed = max(0, min(100, leftSpeed))
+        rightSpeed = max(0, min(100, rightSpeed))
+        stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(leftSpeed), deviceEnums.Side.RIGHT: int(rightSpeed)}) #TODO: PD 制御にする?
+        """
 
 
         if littleFowardFlag:
             stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_LOW_SPEED)
+            print("Little forward to adjust position")
             while True:
                 stm.update()
                 currentDist = stm.tof.getDistance()[0]
                 if currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
                     break
+            print(f"Final adjustment done. Current Distance: {currentDist} cm")
 
     elif mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_CORNER: # TODO: implement this method
         pass

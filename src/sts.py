@@ -9,11 +9,16 @@ import ydlidar
 import time
 
 def main():
-    while True:
-        stmInstance = stm.STM()
-        stmInstance.update()
-        print(stmInstance.loadcell.pressed)
-
+    try:
+        while True:
+            stmInstance = stm.STM()
+            stmInstance.update()
+            stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: 0, deviceEnums.Side.RIGHT: 0})
+            print(stmInstance.loadcell.pressed)
+    except:
+        import traceback
+        traceback.print_exc()
+        stmInstance.sts3032.stop()
 if __name__ == "__main__":
     main()
     
