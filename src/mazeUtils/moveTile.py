@@ -29,13 +29,17 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
     stmInstance.sts3032.stop()
 
     
-def getTurnDirection(fromDir: mazeEnums.absDirection, toDir: mazeEnums.absDirection) -> mazeEnums.turnDirection:
-    turnAngle = (fromDir.value - toDir.value + 360) % 360
-
-    if turnAngle <= 180:
-        return mazeEnums.turnDirection.LEFT
-    else:
+def getTurnDirection(fromDir: int, toDir: int) -> mazeEnums.turnDirection:
+    turnAngle = fromDir - toDir
+    if turnAngle > 180:
+        turnAngle -= 360
+    if turnAngle < -180:
+        turnAngle += 360
+    
+    if turnAngle > 0:
         return mazeEnums.turnDirection.RIGHT
+    else:
+        return mazeEnums.turnDirection.LEFT
     
 def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
     points = LiDAR.getLiDARScan(lidar)
@@ -149,22 +153,22 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     stm.sts3032.stop()
         
         if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
-                turnDirection = getTurnDirection(mapInstance.frontDirection, direction)
+                turnDirection = getTurnDirection(mapInstance.frontDirection.value, direction.value)
                 print(f"Turning from {mapInstance.frontDirection} to {direction}, turnDirection: {turnDirection}")
                 stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
 
                 while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     stm.update()
+                print(f"Current Heading: {stm.gyro.getValue().heading} deg, Target: {direction.value} deg")
                 
                 stm.sts3032.stop()
 
                 firstFlag = True
                 stm.update()
                 
-                while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
+                while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG_FIX:
                     if firstFlag:
-                        print(f"Adjusting turn to heading: {direction.value} deg, Current: {stm.gyro.getValue().heading} deg")
-                        stm.sts3032.turnLeft(20) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnRight(20)
+                        stm.sts3032.turnRight(10) if getTurnDirection(stm.gyro.getValue().heading, direction.value) == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(10)
                         firstFlag = False
                     stm.update()
 
@@ -177,31 +181,29 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     
     if mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_FRONT:
         stm.update()
-        oldDist = stm.tof.getDistance()[0]
+        nearestToFIndex = 0 if stm.tof.getDistance()[0] < stm.tof.getDistance()[2] else 2
+        oldDist = stm.tof.getDistance()[nearestToFIndex]
         stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
         littleFowardFlag = False
         while True:
 
             stm.update()
-            currentDist = stm.tof.getDistance()[0]
-            
-
+            currentDist = stm.tof.getDistance()[nearestToFIndex]
             
             if detectBlackTile():
                 stm.sts3032.stop()
                 mazeMap.setTileType(mazeEnums.tileType.BLACK)
                 return
             
-            if (oldDist) - (currentDist) > mazeConsrains.MOVE_THRESHOLD_CM or currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
+            if  abs((oldDist) - (currentDist))> mazeConsrains.MOVE_THRESHOLD_CM or stm.tof.getDistance()[0] < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
                 stm.sts3032.stop()
-                if mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM + 5:
+                if mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM + 10:
                     littleFowardFlag = True
                 break
 
             if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] or stm.loadcell.getPressed()[deviceEnums.Side.RIGHT]:
                 pressedSide = deviceEnums.Side.LEFT if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
-                #escapeFromObstacle(pressedSide, stm)
-                print(stm.loadcell.getPressed())
+                escapeFromObstacle(pressedSide, stm)
                 stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
 
         print(f"Moved forward. Old Distance: {oldDist} cm, Current Distance: {currentDist} cm")

@@ -222,7 +222,7 @@ class Loadcell:
         error = False
         for side, value in setData.items():
             self.raw[side] = value
-            if self.minValue < value < self.maxValue:
+            if self.minValue <= value < self.maxValue:
                 if value > self.THRESHOULD:
                     self.pressed[side] = True
                 else:
@@ -432,7 +432,7 @@ class STM:
             self.loadcell.setValue(
                 {
                     deviceEnums.Side.LEFT: data[2] & (1<<7),
-                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,
+                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,   
                 }
             )
             
@@ -444,7 +444,6 @@ class STM:
                 )
             )
             # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
-            print(data[2], data[3])
             self.switch.setValue(
                 pushSwitch1=bool((data[10] >> 7) & 0x01),
                 toggleSwitch1=bool((data[10] >> 6) & 0x01),
