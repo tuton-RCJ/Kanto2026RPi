@@ -156,18 +156,20 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 turnDirection = getTurnDirection(mapInstance.frontDirection.value, direction.value)
                 print(f"Turning from {mapInstance.frontDirection} to {direction}, turnDirection: {turnDirection}")
                 stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
-
+                print("current heading:", stm.gyro.getValue().heading, "target:", direction.value)
                 while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
                     stm.update()
-                print(f"Current Heading: {stm.gyro.getValue().heading} deg, Target: {direction.value} deg")
-                
+                    print(stm.gyro.getValue().heading)
+                assert abs(stm.gyro.getValue().heading - direction.value) <= mazeConsrains.TURN_THRESHOLD_DEG, f"Gyro turn failed to reach target heading, current: {stm.gyro.getValue().heading}, target: {direction.value}"
                 stm.sts3032.stop()
 
+                print("stopped turning at heading:", stm.gyro.getValue().heading, "diff:" , abs(stm.gyro.getValue().heading - direction.value))
                 firstFlag = True
                 stm.update()
                 
                 while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG_FIX:
                     if firstFlag:
+                        print("Fine adjustment")
                         stm.sts3032.turnRight(10) if getTurnDirection(stm.gyro.getValue().heading, direction.value) == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(10)
                         firstFlag = False
                     stm.update()

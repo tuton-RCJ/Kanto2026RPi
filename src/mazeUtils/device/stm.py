@@ -301,7 +301,8 @@ class Gyro:
         self.headingOffset = offset
 
     def getValue(self) -> gyroData:
-        res = self.data
+
+        res = gyroData(heading=self.data.heading, pitch=self.data.pitch, roll=self.data.roll)
         res.heading -= self.headingOffset
         res.heading %= 360
         return res
