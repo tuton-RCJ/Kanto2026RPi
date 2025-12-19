@@ -69,8 +69,19 @@ class mazeMap:
         return self.wallTypes[y][x]
     
 
-    def setTileType(self, type: mazeEnums.tileType) -> None:
-        x, y = self.currentPosition
+    def setTileType(self, type: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
+        if direction is None:
+            x, y = self.currentPosition
+        else:
+            x, y = self.currentPosition
+            if direction == mazeEnums.absDirection.NORTH:
+                y -= 1
+            elif direction == mazeEnums.absDirection.EAST:
+                x += 1
+            elif direction == mazeEnums.absDirection.SOUTH:
+                y += 1
+            elif direction == mazeEnums.absDirection.WEST:
+                x -= 1
         self.tileTypes[y][x] = type
 
         if type == mazeEnums.tileType.BLACK:

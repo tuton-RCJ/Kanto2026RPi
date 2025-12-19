@@ -1,15 +1,36 @@
-import ydlidar
-import numpy as np
-from . import mazeConsrains, mazeEnums, mazeMap
-from .device import LiDAR, deviceEnums, stm, deviceConstrains
 import time
-import matplotlib.pyplot as plt
-from typing import Sequence
-def escpapeObstacle():
-    pass
 
-def detectBlackTile():
-    pass
+import ydlidar
+
+from . import mazeConsrains, mazeEnums, mazeMap
+from .device import LiDAR, deviceEnums, stm
+
+
+colorSensor = None
+
+
+def detectBlackTile() -> bool:
+    """
+    @brief カラーセンサで黒タイルを検出する
+    @return: 黒タイルが検出されたら True、そうでなければ False
+    """
+    global colorSensor
+    if colorSensor is None:
+        # Lazy import to avoid import/serial errors on non-RPi environments.
+        from .device import colorsensor
+
+        colorSensor = colorsensor.ColorSensor()
+
+    try:
+        if not colorSensor.update():
+            return False
+        r, g, b = colorSensor._colorRGB
+    except Exception as e:
+        print(f"ColorSensor read failed: {e}")
+        return False
+
+    brightness = (r + g + b) / 3.0
+    return brightness <= mazeEnums.BLACK_TILE_BRIGHTNESS_THRESHOLD
 
 def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) -> None:
     """
@@ -29,7 +50,7 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
     stmInstance.sts3032.stop()
 
     
-def getTurnDirection(fromDir: int, toDir: int) -> mazeEnums.turnDirection:
+def getTurnDirection(fromDir: float, toDir: float) -> mazeEnums.turnDirection:
     turnAngle = fromDir - toDir
     if turnAngle > 180:
         turnAngle -= 360
@@ -56,33 +77,111 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
 
 def detectTileType(mapInstance: mazeMap.mazeMap) -> None: #TODO: implement this
     mapInstance.setTileType(mazeEnums.tileType.EMPTY)
-    pass
 
-def plotPointCloudPolar(points: Sequence[LiDAR.Point], title: str = "LiDAR point cloud", block: bool = False) -> None:
-    """Plot LiDAR points in polar coordinates for quick visual inspection.
 
-    Example:
-        plotPointCloudPolar(LiDAR.getLiDARScan(lidar))
+def turnToDirection(stmInstance: stm.STM, direction: mazeEnums.absDirection) -> None:
+    turnDirection = getTurnDirection(stmInstance.gyro.getValue().heading, direction.value)
+    stmInstance.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(50)
+
+    while abs(stmInstance.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
+        stmInstance.update()
+        print(stmInstance.gyro.getValue().heading)
+
+    assert abs(stmInstance.gyro.getValue().heading - direction.value) <= mazeConsrains.TURN_THRESHOLD_DEG, (
+        f"Gyro turn failed to reach target heading, current: {stmInstance.gyro.getValue().heading}, target: {direction.value}"
+    )
+    stmInstance.sts3032.stop()
+
+    print(
+        "stopped turning at heading:",
+        stmInstance.gyro.getValue().heading,
+        "diff:",
+        abs(stmInstance.gyro.getValue().heading - direction.value),
+    )
+
+    firstFlag = True
+    stmInstance.update()
+    while abs(stmInstance.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG_FIX:
+        if firstFlag:
+            print("Fine adjustment")
+            stmInstance.sts3032.turnRight(10) if getTurnDirection(stmInstance.gyro.getValue().heading, direction.value) == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(10)
+            firstFlag = False
+        stmInstance.update()
+
+
+def driveForwardUntilTile(stmInstance: stm.STM) -> bool:
     """
-    if not points:
-        print("No LiDAR points to plot.")
-        return
+    @brief 次のタイルまで前進する
+    @param stmInstance: 通信に使用する STM インスタンス
+    @return: 黒タイルが検出されたら True、そうでなければ False
+    """
+    stmInstance.update()
+    nearestToFIndex = 0 if stmInstance.tof.getDistance()[0] < stmInstance.tof.getDistance()[2] else 2
+    oldDist = stmInstance.tof.getDistance()[nearestToFIndex]
+    stmInstance.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
 
-    angles = np.radians([p.angle for p in points])
-    ranges = [p.range for p in points]
+    littleForwardFlag = False
+    while True:
+        stmInstance.update()
+        currentDist = stmInstance.tof.getDistance()[nearestToFIndex]
 
-    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
-    pcm = ax.scatter(angles, ranges, c=ranges, s=10, cmap="viridis", alpha=0.8)
-    ax.set_theta_zero_location("N")
-    ax.set_theta_direction(-1)
-    ax.set_title(title)
-    ax.set_rmax(80)
-    ax.set_rlabel_position(90)
-    fig.colorbar(pcm, ax=ax, pad=0.1, label="Distance (cm)")
-    fig.tight_layout()
-    plt.savefig(f"{title}.png")
+        if detectBlackTile():
+            stmInstance.sts3032.stop()
+            return True
 
-def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
+        if (
+            abs(oldDist - currentDist) > mazeConsrains.MOVE_THRESHOLD_CM
+            or stmInstance.tof.getDistance()[0] < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM
+        ):
+            stmInstance.sts3032.stop()
+            if mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM + 10:
+                littleForwardFlag = True
+            break
+
+        if (
+            stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT]
+            or stmInstance.loadcell.getPressed()[deviceEnums.Side.RIGHT]
+        ):
+            pressedSide = (deviceEnums.Side.LEFT if stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT)
+            escapeFromObstacle(pressedSide, stmInstance)
+            stmInstance.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
+
+        print(f"Moved forward. Old Distance: {oldDist} cm, Current Distance: {currentDist} cm")
+
+        if littleForwardFlag:
+            stmInstance.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_LOW_SPEED)
+            print("Little forward to adjust position")
+            while True:
+                stmInstance.update()
+                currentDist = stmInstance.tof.getDistance()[0]
+                if currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
+                    break
+            print(f"Final adjustment done. Current Distance: {currentDist} cm")
+
+    stmInstance.sts3032.stop()
+    return False
+
+def backToPreviousTile(stmInstance: stm.STM, driveDist: float) -> None:
+    """
+    @brief 指定された距離後退するか、後ろの壁との距離が mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM 以下になるまで後退する
+    @param stmInstance: 通信に使用する STM インスタンス
+    @param driveDist: 後退する距離 (cm)
+    """
+    stmInstance.update()
+    nearstToFIndex = 0 if stmInstance.tof.getDistance()[0] < stmInstance.tof.getDistance()[2] else 2
+    oldDist = stmInstance.tof.getDistance()[nearstToFIndex]    
+    stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT],
+                                        deviceEnums.Side.RIGHT: -mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT]})
+    while stmInstance.tof.getDistance()[2] > mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM or abs(oldDist - stmInstance.tof.getDistance()[nearstToFIndex]) < driveDist:
+        stmInstance.update()
+        currentDist = stmInstance.tof.getDistance()[nearstToFIndex]
+
+    print(f"Moved backward. Old Distance: {oldDist} cm, Current Distance: {currentDist} cm")
+    stmInstance.sts3032.stop()
+
+    
+
+def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stm: stm.STM, lidar: ydlidar.CYdLidar) -> bool:
     """
     @brief direction の方向へ一マス移動する
     @param direction: 移動方向
@@ -93,148 +192,20 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
 
     stm.update()
     print(f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}")
-    if mapInstance.frontDirection != direction:
-        if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_LiDAR:
-                points = LiDAR.getLiDARScan(lidar)
-                minDist = 1e9
-                minDirection = None
-                
-                for d in mazeEnums.absDirection:
-                    dist = LiDAR.getCertainAngleDist(d.value, points)
-                    if dist < minDist:
-                        minDist = dist
-                        minDirection = d
-                
-                front_dir_value = mapInstance.frontDirection.value
-                use_direction = (minDirection.value - front_dir_value) % 360
-                relativeAngle = LiDAR.getRelativeAngle(minDirection.value, front_dir_value, use_direction, 5, points)
-                print(f"Initial Relative Angle: {relativeAngle} deg")
-                print(f"Min Direction: {minDirection}, Min Distance: {minDist} cm")
-                print(f"Turning from {mapInstance.frontDirection} to {direction}")
-                print(f"Angle Difference: {(mapInstance.frontDirection - direction).value} deg")
 
-                if abs(relativeAngle) > 10:
-                    plotPointCloudPolar(points, title=str(time.time()), block=False)
+    turnDirection = getTurnDirection(mapInstance.frontDirection.value, direction.value)
+    print(f"Turning from {mapInstance.frontDirection} to {direction}, turnDirection: {turnDirection}")
+    print("current heading:", stm.gyro.getValue().heading, "target:", direction.value)
 
+    turnToDirection(stm, direction)
 
+    stm.update()
+    print(f"Turned to heading: {stm.gyro.getValue().heading} deg")
 
-                minDeg = min((mapInstance.frontDirection - direction).value, 360 - (mapInstance.frontDirection - direction).value)
-                if minDeg == (mapInstance.frontDirection - direction).value:
-                    turnDirection = mazeEnums.turnDirection.LEFT
-                else:
-                    turnDirection = mazeEnums.turnDirection.RIGHT
-                coeff = 1 if turnDirection == mazeEnums.turnDirection.RIGHT else -1
+    mapInstance.frontDirection = direction
 
-                stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
-                t = time.time()
-
-                while (time.time() - t) < deviceConstrains.TURN_SEC*((minDeg + relativeAngle*coeff)/90):
-                    pass
-                stm.sts3032.stop()
-
-                new_front_dir_value = direction.value
-                use_direction = 0
-                relativeAngle = LiDAR.getRelativeAngle(direction.value, new_front_dir_value, use_direction, 5, points)
-                
-                while abs(relativeAngle) > mazeConsrains.TURN_THRESHOLD_DEG:
-                    points = LiDAR.getLiDARScan(lidar)
-                    new_front_dir_value = direction.value
-                    use_direction = 0
-                    relativeAngle = LiDAR.getRelativeAngle(direction.value, new_front_dir_value, use_direction, 5, points)
-                    
-                    print(f"Adjusting Relative Angle: {relativeAngle} deg")
-                    if relativeAngle > 0:
-                        stm.sts3032.turnRight(30)
-                    else:
-                        stm.sts3032.turnLeft(30)
-                    t = time.time()
-                    while (time.time() - t) < deviceConstrains.TURN_SEC*(abs(relativeAngle)/90):
-                        pass
-                    stm.sts3032.stop()
-        
-        if mazeConsrains.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
-                turnDirection = getTurnDirection(mapInstance.frontDirection.value, direction.value)
-                print(f"Turning from {mapInstance.frontDirection} to {direction}, turnDirection: {turnDirection}")
-                stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
-                print("current heading:", stm.gyro.getValue().heading, "target:", direction.value)
-                while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG:
-                    stm.update()
-                    print(stm.gyro.getValue().heading)
-                assert abs(stm.gyro.getValue().heading - direction.value) <= mazeConsrains.TURN_THRESHOLD_DEG, f"Gyro turn failed to reach target heading, current: {stm.gyro.getValue().heading}, target: {direction.value}"
-                stm.sts3032.stop()
-
-                print("stopped turning at heading:", stm.gyro.getValue().heading, "diff:" , abs(stm.gyro.getValue().heading - direction.value))
-                firstFlag = True
-                stm.update()
-                
-                while abs(stm.gyro.getValue().heading - direction.value) > mazeConsrains.TURN_THRESHOLD_DEG_FIX:
-                    if firstFlag:
-                        print("Fine adjustment")
-                        stm.sts3032.turnRight(10) if getTurnDirection(stm.gyro.getValue().heading, direction.value) == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(10)
-                        firstFlag = False
-                    stm.update()
-
-                stm.update()
-                print(f"Turned to heading: {stm.gyro.getValue().heading} deg")
-
-        mapInstance.frontDirection = direction
-    
-    points = LiDAR.getLiDARScan(lidar)
-    
-    if mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_FRONT:
-        stm.update()
-        nearestToFIndex = 0 if stm.tof.getDistance()[0] < stm.tof.getDistance()[2] else 2
-        oldDist = stm.tof.getDistance()[nearestToFIndex]
-        stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
-        littleFowardFlag = False
-        while True:
-
-            stm.update()
-            currentDist = stm.tof.getDistance()[nearestToFIndex]
-            
-            if detectBlackTile():
-                stm.sts3032.stop()
-                mazeMap.setTileType(mazeEnums.tileType.BLACK)
-                return
-            
-            if  abs((oldDist) - (currentDist))> mazeConsrains.MOVE_THRESHOLD_CM or stm.tof.getDistance()[0] < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
-                stm.sts3032.stop()
-                if mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM + 10:
-                    littleFowardFlag = True
-                break
-
-            if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] or stm.loadcell.getPressed()[deviceEnums.Side.RIGHT]:
-                pressedSide = deviceEnums.Side.LEFT if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
-                escapeFromObstacle(pressedSide, stm)
-                stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
-
-        print(f"Moved forward. Old Distance: {oldDist} cm, Current Distance: {currentDist} cm")
-
-        """ 壁の工作精度が微妙だと不安定になるので一旦コメントアウト
-        diff = sideDist[1] - sideDist[0]
-        leftSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] - diff * mazeConsrains.P_GAIN 
-        rightSpeed = mazeConsrains.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] + diff * mazeConsrains.P_GAIN 
-        print(f"Left Speed: {leftSpeed}, Right Speed: {rightSpeed}, Side Distances: {sideDist}, Diff: {diff}")
-        leftSpeed = max(0, min(100, leftSpeed))
-        rightSpeed = max(0, min(100, rightSpeed))
-        stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(leftSpeed), deviceEnums.Side.RIGHT: int(rightSpeed)}) #TODO: PD 制御にする?
-        """
-
-
-        if littleFowardFlag:
-            stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_LOW_SPEED)
-            print("Little forward to adjust position")
-            while True:
-                stm.update()
-                currentDist = stm.tof.getDistance()[0]
-                if currentDist < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
-                    break
-            print(f"Final adjustment done. Current Distance: {currentDist} cm")
-
-    elif mazeConsrains.USE_MOVE_METHOD == mazeEnums.moveMethod.SEE_CORNER: # TODO: implement this method
-        pass
-
-    stm.sts3032.stop()
+    blackDetected = driveForwardUntilTile(stm)
+    return blackDetected
 
 def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
     """
@@ -244,9 +215,15 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
     @param stm: 通信に使用する STM インスタンス
     @param lidar: 使用する LiDAR インスタンス
     """
-    res = moveTile(direction, mapInstance, stm, lidar)
-    mapInstance.moveTo(direction)
+    blackDetected = moveTile(direction, mapInstance, stm, lidar)
+    if not blackDetected:
+        mapInstance.moveTo(direction)
+    else:
+        mapInstance
+        mapInstance.setTileType(mazeEnums.tileType.BLACK, mapInstance.getNextPosition(direction))
+        return
+
     detectWall(lidar, mapInstance)
     detectTileType(mapInstance)
-    return res
+    return
 

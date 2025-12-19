@@ -69,3 +69,5 @@ class moveMethod(Enum):
     SEE_CORNER = 0
     SEE_FRONT = 1
 
+BLACK_TILE_BRIGHTNESS_THRESHOLD: int = 50
+
