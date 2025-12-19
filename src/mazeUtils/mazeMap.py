@@ -100,7 +100,6 @@ class mazeMap:
                 elif direction == mazeEnums.absDirection.WEST and x > 0:
                     self.mazeAsGraph[y][x].discard((x-1, y))
                     self.mazeAsGraph[y][x-1].discard((x, y))
-            print(self.renderKnownTileAndWall())
 
     
 

@@ -137,7 +137,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -30, deviceEnums.Side.RIGHT: -30})
                 stm.update()
             debugPrint(f"Escape maneuver complete. Current Distance: {stm.tof.getDistance()[nearestToFIndex]} cm")
-            break
+            return True
         
         if  abs((oldDist) - (currentDist))> mazeConsrains.MOVE_THRESHOLD_CM or stm.tof.getDistance()[0] < mazeConsrains.MOVE_STRAIGHT_THRESHOLD_CM:
             stm.sts3032.stop()
@@ -164,6 +164,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
 
 
     stm.sts3032.stop()
+    return False
 
 def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
     """
@@ -174,8 +175,9 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
     @param lidar: 使用する LiDAR インスタンス
     """
     isBlack = moveTile(direction, mapInstance, stm, lidar)
-    mapInstance.moveTo(direction)
-    detectWall(lidar, mapInstance)
+
     if not isBlack:
+        mapInstance.moveTo(direction)    
+        detectWall(lidar, mapInstance)
         detectTileType(mapInstance)
     return isBlack

@@ -27,7 +27,7 @@ def main():
             while nextDirection is not None:
                 for direction in nextDirection:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                    #print(mapInstance.renderKnownTileAndWall())
+                    print(mapInstance.renderKnownTileAndWall())
                 nextDirection = mapInstance.getNearestUnexploredTile()
 
             returnPath = mapInstance.getPathTo((20, 20))
