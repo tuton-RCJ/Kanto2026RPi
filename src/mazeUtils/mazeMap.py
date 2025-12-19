@@ -69,7 +69,7 @@ class mazeMap:
         return self.wallTypes[y][x]
     
 
-    def setTileType(self, type: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
+    def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
         if direction is None:
             x, y = self.currentPosition
         else:
@@ -82,9 +82,9 @@ class mazeMap:
                 y += 1
             elif direction == mazeEnums.absDirection.WEST:
                 x -= 1
-        self.tileTypes[y][x] = type
+        self.tileTypes[y][x] = tiletype
 
-        if type == mazeEnums.tileType.BLACK:
+        if tiletype == mazeEnums.tileType.BLACK:
             # 黒タイルならその周囲の通路を塞ぐ
             for direction in mazeEnums.absDirection:
                 self.wallTypes[y][x][direction] = mazeEnums.wallType.WALL
@@ -100,6 +100,8 @@ class mazeMap:
                 elif direction == mazeEnums.absDirection.WEST and x > 0:
                     self.mazeAsGraph[y][x].discard((x-1, y))
                     self.mazeAsGraph[y][x-1].discard((x, y))
+            print(self.renderKnownTileAndWall())
+
     
 
     def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
@@ -201,3 +203,88 @@ class mazeMap:
 
     def saveCache(self) -> None: #TODO: cache の実装
         pass
+
+    def _is_known_cell(self, x: int, y: int) -> bool:
+        if self.tileTypes[y][x] != mazeEnums.tileType.UNKNOWN:
+            return True
+        wt = self.wallTypes[y][x]
+        return any(v != mazeEnums.wallType.UNKNOWN for v in wt.values())
+
+    def _get_known_bounds(self) -> tuple[int, int, int, int]:
+        """known な情報(タイル/壁)が存在する範囲に切り詰めた bbox を返す。
+
+        戻り値: (min_x, min_y, max_x, max_y) いずれも inclusive。
+        """
+        min_x = self.maxSize
+        min_y = self.maxSize
+        max_x = -1
+        max_y = -1
+
+        for y in range(self.maxSize):
+            for x in range(self.maxSize):
+                if self._is_known_cell(x, y):
+                    if x < min_x:
+                        min_x = x
+                    if y < min_y:
+                        min_y = y
+                    if x > max_x:
+                        max_x = x
+                    if y > max_y:
+                        max_y = y
+
+        # 少なくとも START が known のはずだが、念のため。
+        if max_x < 0:
+            cx, cy = self.currentPosition
+            return cx, cy, cx, cy
+        return min_x, min_y, max_x, max_y
+
+    def _wall_as_bool(self, wall: mazeEnums.wallType) -> bool:
+        """表示用: wall / noWall の2分類。UNKNOWNは表示上 noWall と同等に扱う。"""
+        if wall == mazeEnums.wallType.NO_WALL:
+            return False
+        if wall == mazeEnums.wallType.WALL:
+            return True
+        # victim などは壁扱い
+        if wall != mazeEnums.wallType.UNKNOWN:
+            return True
+        return False
+
+    def renderKnownTileAndWall(self) -> str:
+        """tileTypes と wallTypes をまとめて、UNKNOWNのみの行列が出ない範囲でASCII表示する。"""
+        min_x, min_y, max_x, max_y = self._get_known_bounds()
+
+        def tile_char(x: int, y: int) -> str:
+            t = self.tileTypes[y][x]
+            # tileType は __str__ 実装済み(U/E/R/...)。
+            return str(t)
+
+        def wall_at(x: int, y: int, d: mazeEnums.absDirection) -> bool:
+            return self._wall_as_bool(self.wallTypes[y][x][d])
+
+        lines: list[str] = []
+        lines.append(f"Known map area: x={min_x}..{max_x}, y={min_y}..{max_y}")
+
+        # 上端(NORTH)
+        top = ["+"]
+        for x in range(min_x, max_x + 1):
+            top.append("---" if wall_at(x, min_y, mazeEnums.absDirection.NORTH) else "   ")
+            top.append("+")
+        lines.append("".join(top))
+
+        for y in range(min_y, max_y + 1):
+            row = []
+            # 左端(WEST)
+            row.append("|" if wall_at(min_x, y, mazeEnums.absDirection.WEST) else " ")
+            for x in range(min_x, max_x + 1):
+                row.append(f" {tile_char(x, y)} ")
+                row.append("|" if wall_at(x, y, mazeEnums.absDirection.EAST) else " ")
+            lines.append("".join(row))
+
+            # 下端(SOUTH)
+            sep = ["+"]
+            for x in range(min_x, max_x + 1):
+                sep.append("---" if wall_at(x, y, mazeEnums.absDirection.SOUTH) else "   ")
+                sep.append("+")
+            lines.append("".join(sep))
+
+        return "\n".join(lines)

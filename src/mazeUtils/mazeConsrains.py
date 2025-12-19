@@ -20,3 +20,9 @@ MOVE_THRESHOLD_CM: int = 30  # 直進時に　(前方との距離) mod 30 がこ
 MOVE_STRAIGHT_THRESHOLD_CM: int = 13  # 直進時に前方との距離がこの値以下になったら停止する
 
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
+
+TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
+
+BLACKTILE_RGB: tuple[int, int, int] = (10, 12, 20)  # 黒タイルと判定するRGB値の閾値
+
+DEBUG_MODE: bool = False  # デバッグモードの有効化

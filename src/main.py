@@ -27,15 +27,22 @@ def main():
             while nextDirection is not None:
                 for direction in nextDirection:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    #print(mapInstance.renderKnownTileAndWall())
                 nextDirection = mapInstance.getNearestUnexploredTile()
 
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
             
-            if returnPath is not None:
+            if len(returnPath) > 0:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     time.sleep(0.5) 
+            else:
+                print("Robot now at the starting position, Congratulations!")
+                LiDAR.liDARShutdown(lidarInstance)
+                stmInstance.sts3032.stop()
+                
+                exit(0)
     except:
         import traceback
         traceback.print_exc()

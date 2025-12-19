@@ -37,6 +37,7 @@ class absDirection(Enum):
                     return direction
             raise ValueError("No matching absDirection for value {}".format(new_value))
         return NotImplemented
+        
 class wallType(Enum):
     UNKNOWN = 0
     NO_WALL = 1
@@ -49,12 +50,14 @@ class wallType(Enum):
     R_VICTIM = 8
 
 class tileType(Enum):
-    UNKNOWN = 0
-    EMPTY = 1
-    RED = 2
-    BLACK = 3
-    BLUE = 4
-    START = 5
+    UNKNOWN = "U"
+    EMPTY = "E"
+    RED = "R"
+    BLACK = "B"
+    BLUE = "L"
+    START = "S"
+    def __str__(self):
+        return self.value
 
 class turnMethod(Enum):
     ONLY_LiDAR = 0

@@ -13,7 +13,7 @@ class ColorSensor:
         setLEDColor(r: int, g: int, b: int) -> bool:
             LEDの色を設定する
     """
-    def __init__(self, port: str = "/dev/ttyAMA3"):
+    def __init__(self, port: str = "/dev/ttyAMA5"):
         self.port = port
 
         self._serial = serial.Serial(port=self.port, baudrate=115200)
