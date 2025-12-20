@@ -51,6 +51,53 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
         time.sleep(0.2)
     stmInstance.sts3032.stop()
 
+def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
+    """
+    @brief 指定した絶対方向に向く
+    @param targetDir: 目標の絶対方向 (0-359)
+    @param stmInstance: 通信に使用する STM インスタンス
+    """
+
+    stmInstance.update()
+    if not mazeConsrains.USE_PD_FOR_TURNING:
+        turnDirection = getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
+        stmInstance.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(50)
+        debugPrint("current heading:", stmInstance.gyro.getValue().heading, "target:", targetDir)
+        while abs(stmInstance.gyro.getValue().heading - targetDir) > mazeConsrains.TURN_THRESHOLD_DEG:
+            stmInstance.update()
+        assert abs(stmInstance.gyro.getValue().heading - targetDir) <= mazeConsrains.TURN_THRESHOLD_DEG, f"Gyro turn failed to reach target heading, current: {stmInstance.gyro.getValue().heading}, target: {targetDir}"
+        stmInstance.sts3032.stop()
+
+        debugPrint("stopped turning at heading:", stmInstance.gyro.getValue().heading, "diff:" , abs(stmInstance.gyro.getValue().heading - targetDir))
+        firstFlag = True
+        stmInstance.update()
+        
+        while abs(stmInstance.gyro.getValue().heading - targetDir) > mazeConsrains.TURN_THRESHOLD_DEG_FIX:
+            if firstFlag:
+                debugPrint("Fine adjustment")
+                stmInstance.sts3032.turnRight(5) if getTurnDirection(stmInstance.gyro.getValue().heading, targetDir) == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(5)
+                firstFlag = False
+            stmInstance.update()
+        stmInstance.sts3032.stop()
+    else:
+        turnAngle = stmInstance.gyro.getValue().heading - targetDir
+        if turnAngle > 180:
+            turnAngle -= 360
+        if turnAngle < -180:
+            turnAngle += 360
+        debugPrint(f"Turning to {targetDir} deg, current heading: {stmInstance.gyro.getValue().heading} deg, turnAngle: {turnAngle} deg")
+        # pd
+        oldError = stmInstance.gyro.getValue().heading - targetDir
+        while abs(stmInstance.gyro.getValue().heading - targetDir) > mazeConsrains.TURN_THRESHOLD_DEG:
+            stmInstance.update()
+            error = (stmInstance.gyro.getValue().heading - targetDir + 180) % 360 - 180
+            deribative = error - oldError
+            oldError = error
+            turnSpeed = mazeConsrains.TURN_P * error + mazeConsrains.TURN_D * deribative
+            turnSpeed = max(min(turnSpeed, 50), -50)
+            stmInstance.sts3032.turnRight(abs(int(turnSpeed))) if turnSpeed > 0 else stmInstance.sts3032.turnLeft(abs(int(turnSpeed)))
+        stmInstance.sts3032.stop()
+    debugPrint(f"Turned to heading: {stmInstance.gyro.getValue().heading} deg")
     
 def getTurnDirection(fromDir: int, toDir: int) -> mazeEnums.turnDirection:
     turnAngle = fromDir - toDir
@@ -80,6 +127,32 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
 def detectTileType(mapInstance: mazeMap.mazeMap) -> None: #TODO: implement this
     mapInstance.setTileType(mazeEnums.tileType.EMPTY)
     pass
+
+def getVictimInfo(stmInstance: stm.STM) -> dict[deviceEnums.Side,deviceEnums.UnitVStatus]:
+    """ 
+    @brief unitv から被災者の情報を取得する
+    @param stmInstance: 通信に使用する STM インスタンス
+    @return: 各サイドの被災者の種類を示す辞書
+    """
+    victimData = stmInstance.unitv.getStatus()
+    return victimData
+
+def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo: dict[deviceEnums.Side,deviceEnums.UnitVStatus], side: deviceEnums.Side) -> None:
+    """
+    @brief 指定した側に救助キットを投下する
+    @param stmInstance: 通信に使用する STM インスタンス
+    @param side: 救助キットを投下する側
+    """
+    needRescueKitCount = (victimInfo[side].value - 1)%3 
+    if mapInstance.nowRescueKitCount[side] >= needRescueKitCount and needRescueKitCount > 0:
+        mapInstance.dropRescueKit(side, needRescueKitCount)
+        stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side)
+    elif mapInstance.nowRescueKitCount[side.opposite()] >= needRescueKitCount and needRescueKitCount > 0:
+        turnToCertainDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360, stmInstance)
+        mapInstance.dropRescueKit(side.opposite(), needRescueKitCount)
+        stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side.opposite())
+    else:
+        debugPrint(f"Not enough rescue kits to drop on {side} side.")
 
 def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
     """
@@ -180,4 +253,9 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
         mapInstance.moveTo(direction)    
         detectWall(lidar, mapInstance)
         detectTileType(mapInstance)
+        victimInfo = getVictimInfo(stm)
+        if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING:
+            mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), mazeEnums.wallType[victimInfo[deviceEnums.Side.LEFT].name])
+        if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING:
+            mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), mazeEnums.wallType[victimInfo[deviceEnums.Side.RIGHT].name])
     return isBlack

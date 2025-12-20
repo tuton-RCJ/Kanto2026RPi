@@ -13,16 +13,22 @@ GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 50,
 
 GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30} # ゆっくり直進時のスピード
 
-NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value]
+NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value] 
 
 MOVE_THRESHOLD_CM: int = 30  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
-
 MOVE_STRAIGHT_THRESHOLD_CM: int = 13  # 直進時に前方との距離がこの値以下になったら停止する
-
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[int, int, int] = (10, 12, 20)  # 黒タイルと判定するRGB値の閾値
 
+TURN_P = 0.5  # 回転制御の比例ゲイン
+TURN_I = 0.00  # 回転制御の積分ゲイン
+TURN_D = 0.02  # 回転制御の微分ゲイン
+
+DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
+
 DEBUG_MODE: bool = False  # デバッグモードの有効化
+
+USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか

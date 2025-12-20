@@ -4,11 +4,20 @@ from enum import Enum
 class Side(Enum):
     LEFT = 0
     RIGHT = 1
+    def opposite(self):
+        if self == Side.LEFT:
+            return Side.RIGHT
+        else:
+            return Side.LEFT
 
 
 class UnitVStatus(Enum):
-    UNKNOWN = 0
-    NOTHING = 1
+    U_VICTIM = 1
+    S_VICTIM = 2
+    H_VICTIM = 3
+    G_VICTIM = 4
+    Y_VICTIM = 5
+    R_VICTIM = 6
 
 
 class ActuatorControlType(Enum):

@@ -1,4 +1,6 @@
 from . import mazeEnums
+from . import mazeConsrains
+from .device import deviceEnums
 from collections import deque
 
 def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> list[tuple[int, int]] | None:
@@ -24,20 +26,19 @@ def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> li
 
     return None
 
-# 初期位置は必ずロボットの前方が開くように設定。
 class mazeMap:
-    def __init__(self, maxSize:int = 40, loadCache:bool = False, cacheAbsPath:str = "mazeCache.json"):
+    def __init__(self, maxSize:int = 40):
         self.maxSize = maxSize
-        self.cacheAbsPath = cacheAbsPath
-        self.loadCache = loadCache
         self.currentPosition = (maxSize // 2, maxSize // 2)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
-        if loadCache: #TODO: cache の実装
-            pass 
+        self.nowRescueKitCount = mazeConsrains.DEFAULT_RESCUE_KIT_COUNT.copy()
+        self.savedCache = dict()
+        self.lastCheckpoint = self.currentPosition
+        self.saveCache()
 
     def setWallType(self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType) -> None:
         x, y = self.currentPosition
@@ -134,7 +135,6 @@ class mazeMap:
         path = BFS(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection))
 
         if path is None:
-            print("None!!!!!!")
             return None
         
         directions = []
@@ -196,13 +196,25 @@ class mazeMap:
         elif direction == mazeEnums.absDirection.WEST:
             self.currentPosition = (x-1, y)
         self.frontDirection = direction
+        self.moveCount += 1
         
     def setFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         self.frontDirection = direction
 
-    def saveCache(self) -> None: #TODO: cache の実装
-        pass
+    def dropRescueKit(self, side: deviceEnums.Side, count: int) -> None:
+        assert self.nowRescueKitCount[side] >= count, "Not enough rescue kits to drop."
+        self.nowRescueKitCount[side] -= count
 
+    def saveCache(self) -> None:
+        self.savedCache['tileTypes'] = [row.copy() for row in self.tileTypes]
+        self.savedCache['wallTypes'] = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.wallTypes]
+
+    def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
+        if 'tileTypes' in self.savedCache and 'wallTypes' in self.savedCache:
+            self.tileTypes = [row.copy() for row in self.savedCache['tileTypes']]
+            self.wallTypes = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.savedCache['wallTypes']]
+            self.frontDirection = nowDirection
+            
     def _is_known_cell(self, x: int, y: int) -> bool:
         if self.tileTypes[y][x] != mazeEnums.tileType.UNKNOWN:
             return True
