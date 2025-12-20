@@ -9,30 +9,38 @@ def debugPrint(*message: object) -> None:
     if mazeConsrains.DEBUG_MODE:
         print(*message)
     
-def detectBlackTile() -> bool:
+def detectTileColor() -> mazeEnums.tileType:
     """
-    @brief カラーセンサで黒タイルを検出する
-    @return: 黒タイルが検出されたら True、そうでなければ False
+    @brief カラーセンサでタイルの色を検出する
+    @return: 検出されたタイルの色
     """
     global colorSensor
     if colorSensor is None:
-        # Lazy import to avoid import/serial errors on non-RPi environments.
         from .device import colorsensor
 
         colorSensor = colorsensor.ColorSensor()
-
     try:
         if not colorSensor.update():
-            return False
+            return mazeEnums.tileType.UNKNOWN
         r, g, b = colorSensor._colorRGB
+        debugPrint(f"ColorSensor RGB: R={r}, G={g}, B={b}")
+        if ((mazeConsrains.BLACKTILE_RGB[1][0] < r < mazeConsrains.BLACKTILE_RGB[0][0]) and
+            (mazeConsrains.BLACKTILE_RGB[1][1] < g < mazeConsrains.BLACKTILE_RGB[0][1])and
+            (mazeConsrains.BLACKTILE_RGB[1][2] < b < mazeConsrains.BLACKTILE_RGB[0][2])):
+            return mazeEnums.tileType.BLACK
+        elif ((mazeConsrains.BLUETILE_RGB[1][0] < r < mazeConsrains.BLUETILE_RGB[0][0]) and
+              (mazeConsrains.BLUETILE_RGB[1][1] < g < mazeConsrains.BLUETILE_RGB[0][1]) and
+              (mazeConsrains.BLUETILE_RGB[1][2] < b < mazeConsrains.BLUETILE_RGB[0][2])):
+            return mazeEnums.tileType.BLUE
+        elif ((mazeConsrains.SILVERTILE_RGB[1][0] < r < mazeConsrains.SILVERTILE_RGB[0][0]) and
+              (mazeConsrains.SILVERTILE_RGB[1][1] < g < mazeConsrains.SILVERTILE_RGB[0][1]) and
+              (mazeConsrains.SILVERTILE_RGB[1][2] < b < mazeConsrains.SILVERTILE_RGB[0][2])):
+            return mazeEnums.tileType.SILVER
+        else:
+            return mazeEnums.tileType.EMPTY
     except Exception as e:
         debugPrint(f"ColorSensor read failed: {e}")
-        return False
-    
-    res = (r < mazeConsrains.BLACKTILE_RGB[0] and
-            g < mazeConsrains.BLACKTILE_RGB[1] and
-            b < mazeConsrains.BLACKTILE_RGB[2])
-    return res
+        return mazeEnums.tileType.UNKNOWN
 
 def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) -> None:
     """
@@ -202,7 +210,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         stm.update()
         currentDist = stm.tof.getDistance()[nearestToFIndex]
         
-        if detectBlackTile():
+        if detectTileColor() == mazeEnums.tileType.BLACK:
             stm.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
             debugPrint("Black tile detected! Stopping movement. Starting escape maneuver.")
@@ -268,7 +276,8 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
     if not isBlack:
         mapInstance.moveTo(direction)    
         detectWall(lidar, mapInstance)
-        detectTileType(mapInstance)
+        tileType = detectTileColor()
+        mapInstance.setTileType(tileType)
         victimInfo = getVictimInfo(stm)
         if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)) != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]):
             dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
