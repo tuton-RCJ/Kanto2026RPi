@@ -3,7 +3,7 @@ from . import mazeConsrains
 from .device import deviceEnums
 from collections import deque
 
-def BFS(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> list[tuple[int, int]] | None:
+def dijkstra(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> list[tuple[int, int]] | None:
 
     queue = deque([start])
     visited = {start: None}
@@ -132,7 +132,7 @@ class mazeMap:
         @return: 未探索タイルへの方向リスト。未探索タイルが存在しない場合は None を返す
         """
         x, y = self.currentPosition
-        path = BFS(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection))
+        path = dijkstra(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection))
 
         if path is None:
             return None
@@ -161,7 +161,7 @@ class mazeMap:
         @return: 目的地への方向リスト。到達不可能な場合は None を返す
         """
         x, y = self.currentPosition
-        path = BFS(self.mazeAsGraph, (x, y), lambda pos: pos == target)
+        path = dijkstra(self.mazeAsGraph, (x, y), lambda pos: pos == target)
 
         if path is None:
             return None
