@@ -56,6 +56,7 @@ class tileType(Enum):
     BLACK = "B"
     BLUE = "L"
     START = "S"
+    SILVER = "V"
     def __str__(self):
         return self.valuez
 
@@ -71,6 +72,4 @@ class turnDirection(Enum):
 class moveMethod(Enum):
     SEE_CORNER = 0
     SEE_FRONT = 1
-
-BLACK_TILE_BRIGHTNESS_THRESHOLD: int = 50
 

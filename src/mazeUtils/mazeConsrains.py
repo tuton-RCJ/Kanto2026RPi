@@ -21,7 +21,13 @@ WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
-BLACKTILE_RGB: tuple[int, int, int] = (10, 12, 20)  # 黒タイルと判定するRGB値の閾値
+BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+BLUETILE_RGB: tuple[tuple[int, int, int]] = ((20, 25, 60), (0, 0, 30))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((40, 40, 60), (255, 255, 255))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
+MOVE_STRAIGHT_SEC: float = 0.70  # 1マス直進にかかる時間
+
+USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
 
 TURN_P = 0.5  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン
@@ -30,5 +36,3 @@ TURN_D = 0.02  # 回転制御の微分ゲイン
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
 DEBUG_MODE: bool = False  # デバッグモードの有効化
-
-USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか

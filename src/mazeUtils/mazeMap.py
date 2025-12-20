@@ -1,28 +1,87 @@
 from . import mazeEnums
 from . import mazeConsrains
 from .device import deviceEnums
-from collections import deque
+import heapq
+from typing import Callable
 
-def dijkstra(mazeGraph: list[list[set]], start: tuple[int, int], goalCondition) -> list[tuple[int, int]] | None:
+def _turn_quarters(from_dir: mazeEnums.absDirection, to_dir: mazeEnums.absDirection) -> int:
+    """Return minimal number of 90-degree turns needed to rotate from from_dir to to_dir."""
+    diff = (to_dir.value - from_dir.value) % 360
+    diff = min(diff, (360 - diff) % 360)
+    return int(diff // 90)
 
-    queue = deque([start])
-    visited = {start: None}
 
-    while queue:
-        current = queue.popleft()
-        # print(current, visited)
-        if goalCondition(current):
-            path = []
-            while current is not None:
-                path.append(current)
-                current = visited[current]
-            return path[::-1]
+def _step_direction(
+    current: tuple[int, int],
+    neighbor: tuple[int, int],
+) -> mazeEnums.absDirection:
+    cx, cy = current
+    nx, ny = neighbor
+    dx = nx - cx
+    dy = ny - cy
+    if dx == 0 and dy == -1:
+        return mazeEnums.absDirection.NORTH
+    if dx == 1 and dy == 0:
+        return mazeEnums.absDirection.EAST
+    if dx == 0 and dy == 1:
+        return mazeEnums.absDirection.SOUTH
+    if dx == -1 and dy == 0:
+        return mazeEnums.absDirection.WEST
+    raise ValueError(f"neighbor must be adjacent: {current} -> {neighbor}")
 
-        # mazeGraph is accessed as [y][x], current is (x, y)
-        for neighbor in mazeGraph[current[1]][current[0]]:
-            if neighbor not in visited:
-                visited[neighbor] = current
-                queue.append(neighbor)
+
+def dijkstra(
+    mazeGraph: list[list[set[tuple[int, int]]]],
+    start: tuple[int, int],
+    startDirection: mazeEnums.absDirection,
+    goalCondition: Callable[[tuple[int, int]], bool],
+) -> list[tuple[int, int]] | None:
+    """Rotation-aware Dijkstra.
+
+    State includes heading. Edge cost = (turn quarters * mazeEnums.TURN_90_SEC) + mazeEnums.MOVE_STRAIGHT_SEC.
+    Returns a path as list of (x, y) positions.
+    """
+
+    start_state = (start[0], start[1], startDirection)
+    dist: dict[tuple[int, int, mazeEnums.absDirection], float] = {start_state: 0.0}
+    prev: dict[tuple[int, int, mazeEnums.absDirection], tuple[int, int, mazeEnums.absDirection] | None] = {start_state: None}
+
+    heap: list[tuple[float, int, int, mazeEnums.absDirection]] = [(0.0, start[0], start[1], startDirection)]
+
+    while heap:
+        cost, x, y, heading = heapq.heappop(heap)
+        state = (x, y, heading)
+        if cost != dist.get(state):
+            continue
+
+        pos = (x, y)
+        if goalCondition(pos):
+            # Reconstruct via state chain, then drop heading.
+            states: list[tuple[int, int, mazeEnums.absDirection]] = []
+            cur: tuple[int, int, mazeEnums.absDirection] | None = state
+            while cur is not None:
+                states.append(cur)
+                cur = prev[cur]
+            states.reverse()
+
+            path: list[tuple[int, int]] = []
+            for sx, sy, _ in states:
+                if not path or path[-1] != (sx, sy):
+                    path.append((sx, sy))
+            return path
+
+        for neighbor in mazeGraph[y][x]:
+            move_dir = _step_direction(pos, neighbor)
+            turn_q = _turn_quarters(heading, move_dir)
+            step_cost = (turn_q * float(mazeEnums.TURN_90_SEC)) + float(mazeEnums.MOVE_STRAIGHT_SEC)
+            new_cost = cost + step_cost
+            nx, ny = neighbor
+            new_state = (nx, ny, move_dir)
+
+            if new_cost < dist.get(new_state, float("inf")):
+                dist[new_state] = new_cost
+                prev[new_state] = state
+                heapq.heappush(heap, (new_cost, nx, ny, move_dir))
 
     return None
 
@@ -41,6 +100,11 @@ class mazeMap:
         self.saveCache()
 
     def setWallType(self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType) -> None:
+        """
+        @brief 指定した方向の壁タイプを設定する
+        @param direction: 設定する方向
+        @param wallType: 設定する壁タイプ
+        """
         x, y = self.currentPosition
 
         # もし壁がないならグラフを更新
@@ -66,11 +130,20 @@ class mazeMap:
 
 
     def getWallType(self) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
+        """
+        @brief 現在位置の壁タイプを取得する
+        @return: 現在位置の壁タイプの辞書
+        """
         x, y = self.currentPosition
         return self.wallTypes[y][x]
     
 
     def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
+        """
+        @brief 指定した方向のタイルタイプを設定する。directionがNoneの場合は現在位置に設定する
+        @param tiletype: 設定するタイルタイプ
+        @param direction: 設定する方向
+        """
         if direction is None:
             x, y = self.currentPosition
         else:
@@ -105,7 +178,10 @@ class mazeMap:
     
 
     def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
-        
+        """
+        @brief 現在位置の周囲のタイルタイプを取得する
+        @return: 周囲のタイルタイプの辞書
+        """
         x, y = self.currentPosition
         aroundTiles = {d: mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection}
         
@@ -122,6 +198,10 @@ class mazeMap:
 
 
     def getCurrentTileType(self) -> mazeEnums.tileType:
+        """
+        @brief 現在位置のタイルタイプを取得する
+        @return: 現在位置のタイルタイプ
+        """
         x, y = self.currentPosition
         return self.tileTypes[y][x]
 
@@ -132,7 +212,12 @@ class mazeMap:
         @return: 未探索タイルへの方向リスト。未探索タイルが存在しない場合は None を返す
         """
         x, y = self.currentPosition
-        path = dijkstra(self.mazeAsGraph, (x, y), lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection))
+        path = dijkstra(
+            self.mazeAsGraph,
+            (x, y),
+            self.frontDirection,
+            lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection),
+        )
 
         if path is None:
             return None
@@ -161,7 +246,7 @@ class mazeMap:
         @return: 目的地への方向リスト。到達不可能な場合は None を返す
         """
         x, y = self.currentPosition
-        path = dijkstra(self.mazeAsGraph, (x, y), lambda pos: pos == target)
+        path = dijkstra(self.mazeAsGraph, (x, y), self.frontDirection, lambda pos: pos == target)
 
         if path is None:
             return None
@@ -184,6 +269,10 @@ class mazeMap:
         return directions
     
     def moveTo(self, direction: mazeEnums.absDirection) -> None:
+        """
+        @brief 指定した方向に移動する
+        @param direction: 移動する方向
+        """
         x, y = self.currentPosition
         assert self.wallTypes[y][x][direction] == mazeEnums.wallType.NO_WALL, "Cannot move in the specified direction; wall is present."
 
@@ -199,17 +288,33 @@ class mazeMap:
         self.moveCount += 1
         
     def setFrontDirection(self, direction: mazeEnums.absDirection) -> None:
+        """
+        @brief 前方方向を設定する
+        @param direction: 設定する方向
+        """
         self.frontDirection = direction
 
     def dropRescueKit(self, side: deviceEnums.Side, count: int) -> None:
+        """
+        @brief 指定したサイドからレスキューキットを落とす
+        @param side: レスキューキットを落とすサイド
+        @param count: 落とすレスキューキットの数
+        """
         assert self.nowRescueKitCount[side] >= count, "Not enough rescue kits to drop."
         self.nowRescueKitCount[side] -= count
 
     def saveCache(self) -> None:
+        """
+        @brief 現在のマップ状態をキャッシュに保存する
+        """
         self.savedCache['tileTypes'] = [row.copy() for row in self.tileTypes]
         self.savedCache['wallTypes'] = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.wallTypes]
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
+        """
+        @brief キャッシュからマップ状態を復元する
+        @param nowDirection: 現在の前方方向
+        """
         if 'tileTypes' in self.savedCache and 'wallTypes' in self.savedCache:
             self.tileTypes = [row.copy() for row in self.savedCache['tileTypes']]
             self.wallTypes = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.savedCache['wallTypes']]
