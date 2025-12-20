@@ -57,7 +57,7 @@ class tileType(Enum):
     BLUE = "L"
     START = "S"
     def __str__(self):
-        return self.value
+        return self.valuez
 
 class turnMethod(Enum):
     ONLY_LiDAR = 0
