@@ -177,8 +177,8 @@ class UnitV:
         self,
     ):
         self.status: dict[deviceEnums.Side, deviceEnums.UnitVStatus] = {
-            deviceEnums.Side.LEFT: deviceEnums.UnitVStatus.UNKNOWN,
-            deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus.UNKNOWN,
+            deviceEnums.Side.LEFT: deviceEnums.UnitVStatus.NOTHING,
+            deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus.NOTHING,
         }
 
     def setStatus(self, status: dict[deviceEnums.Side, deviceEnums.UnitVStatus]):

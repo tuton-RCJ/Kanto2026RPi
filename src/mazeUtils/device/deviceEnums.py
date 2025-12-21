@@ -12,6 +12,7 @@ class Side(Enum):
 
 
 class UnitVStatus(Enum):
+    NOTHING = 0
     U_VICTIM = 1
     S_VICTIM = 2
     H_VICTIM = 3

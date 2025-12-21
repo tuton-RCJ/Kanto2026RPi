@@ -60,6 +60,13 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
         time.sleep(0.2)
     stmInstance.sts3032.stop()
 
+def regulationAngle(angle: int) -> int:
+    if angle > 180:
+        angle -= 360
+    if angle < -180:
+        angle += 360
+    return angle
+
 def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
     """
     @brief 指定した絶対方向に向く
@@ -68,8 +75,9 @@ def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
     """
 
     stmInstance.update()
-    if not mazeConsrains.USE_PD_FOR_TURNING:
+    if not mazeConsrains.USE_PD_FOR_TURNING: 
         turnDirection = getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
+
         stmInstance.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(50)
         debugPrint("current heading:", stmInstance.gyro.getValue().heading, "target:", targetDir)
         while abs(stmInstance.gyro.getValue().heading - targetDir) > mazeConsrains.TURN_THRESHOLD_DEG:
@@ -88,18 +96,14 @@ def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
                 firstFlag = False
             stmInstance.update()
         stmInstance.sts3032.stop()
-    else:
-        turnAngle = stmInstance.gyro.getValue().heading - targetDir
-        if turnAngle > 180:
-            turnAngle -= 360
-        if turnAngle < -180:
-            turnAngle += 360
+    else: # PD制御
+        turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
         debugPrint(f"Turning to {targetDir} deg, current heading: {stmInstance.gyro.getValue().heading} deg, turnAngle: {turnAngle} deg")
-        # pd
-        oldError = stmInstance.gyro.getValue().heading - targetDir
-        while abs(stmInstance.gyro.getValue().heading - targetDir) > mazeConsrains.TURN_THRESHOLD_DEG:
+
+        oldError = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
+        while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConsrains.TURN_THRESHOLD_DEG:
             stmInstance.update()
-            error = (stmInstance.gyro.getValue().heading - targetDir + 180) % 360 - 180
+            error = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
             deribative = error - oldError
             oldError = error
             turnSpeed = mazeConsrains.TURN_P * error + mazeConsrains.TURN_D * deribative
@@ -239,7 +243,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         if not isRamp and abs(stm.gyro.getValue().pitch) > mazeConsrains.RAMP_DEG_THRESHOLD:
             isRamp = True
             debugPrint(f"Ramp detected! Pitch: {stm.gyro.getValue().pitch} deg")
-            
+
         if practicalMoveTime > mazeConsrains.MOVE_STRAIGHT_SEC and isRamp:
             stm.sts3032.stop()
             break

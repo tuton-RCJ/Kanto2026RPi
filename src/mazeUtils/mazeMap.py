@@ -285,7 +285,6 @@ class mazeMap:
         elif direction == mazeEnums.absDirection.WEST:
             self.currentPosition = (x-1, y)
         self.frontDirection = direction
-        self.moveCount += 1
         
     def setFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         """
