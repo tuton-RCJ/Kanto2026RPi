@@ -2,6 +2,7 @@ import ydlidar
 from . import mazeConsrains, mazeEnums, mazeMap
 from .device import LiDAR, deviceEnums, stm, deviceConstrains
 import time
+import numpy as np
 
 colorSensor = None
 
@@ -205,6 +206,10 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     oldDist = stm.tof.getDistance()[nearestToFIndex]
     stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
     littleFowardFlag = False
+    isRamp = False
+    startTime = time.time()
+    practicalMoveTime = 0.0
+    oldTime = startTime
     while True:
 
         stm.update()
@@ -230,6 +235,17 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             pressedSide = deviceEnums.Side.LEFT if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
             escapeFromObstacle(pressedSide, stm)
             stm.sts3032.setMotorSpeed(mazeConsrains.GO_STRAIGHT_MAX_SPEED)
+        
+        if not isRamp and abs(stm.gyro.getValue().pitch) > mazeConsrains.RAMP_DEG_THRESHOLD:
+            isRamp = True
+            debugPrint(f"Ramp detected! Pitch: {stm.gyro.getValue().pitch} deg")
+            
+        if practicalMoveTime > mazeConsrains.MOVE_STRAIGHT_SEC and isRamp:
+            stm.sts3032.stop()
+            break
+
+        practicalMoveTime += (time.time() - oldTime)*np.cos(np.radians(abs(stm.gyro.getValue().pitch)))
+        oldTime = time.time()
 
     debugPrint(f"Moved forward. Old Distance: {oldDist} cm, Current Distance: {currentDist} cm")
 

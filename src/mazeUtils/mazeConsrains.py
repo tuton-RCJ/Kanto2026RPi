@@ -24,6 +24,9 @@ TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許�
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 BLUETILE_RGB: tuple[tuple[int, int, int]] = ((20, 25, 60), (0, 0, 30))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((40, 40, 60), (255, 255, 255))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+
+RAMP_DEG_THRESHOLD: float = 10.0  # 傾斜検出の閾値(度)
+
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
 MOVE_STRAIGHT_SEC: float = 0.70  # 1マス直進にかかる時間
 
