@@ -73,7 +73,7 @@ def dijkstra(
         for neighbor in mazeGraph[y][x]:
             move_dir = _step_direction(pos, neighbor)
             turn_q = _turn_quarters(heading, move_dir)
-            step_cost = (turn_q * float(mazeEnums.TURN_90_SEC)) + float(mazeEnums.MOVE_STRAIGHT_SEC)
+            step_cost = (turn_q * float(mazeConsrains.TURN_90_SEC)) + float(mazeConsrains.MOVE_STRAIGHT_SEC)
             new_cost = cost + step_cost
             nx, ny = neighbor
             new_state = (nx, ny, move_dir)
