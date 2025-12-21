@@ -176,29 +176,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     stm.update()
     debugPrint(f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}")
 
-    if mazeConstraints.USE_TURN_METHOD == mazeEnums.turnMethod.ONLY_GYRO:
-            turnDirection = getTurnDirection(mapInstance.frontDirection.value, direction.value)
-            debugPrint(f"Turning from {mapInstance.frontDirection} to {direction}, turnDirection: {turnDirection}")
-            stm.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(50)
-            debugPrint("current heading:", stm.gyro.getValue().heading, "target:", direction.value)
-            while abs(regulationAngle(stm.gyro.getValue().heading - direction.value)) > mazeConstraints.TURN_THRESHOLD_DEG:
-                stm.update()
-            assert abs(regulationAngle(stm.gyro.getValue().heading - direction.value)) <= mazeConstraints.TURN_THRESHOLD_DEG, f"Gyro turn failed to reach target heading, current: {stm.gyro.getValue().heading}, target: {direction.value}"
-            stm.sts3032.stop()
-
-            debugPrint("stopped turning at heading:", stm.gyro.getValue().heading, "diff:" , abs(stm.gyro.getValue().heading - direction.value))
-            firstFlag = True
-            stm.update()
-            
-            while abs(regulationAngle(stm.gyro.getValue().heading - direction.value)) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
-                if firstFlag:
-                    debugPrint("Fine adjustment")
-                    stm.sts3032.turnRight(5) if getTurnDirection(stm.gyro.getValue().heading, direction.value) == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(5)
-                    firstFlag = False
-                stm.update()
-
-            stm.update()
-            debugPrint(f"Turned to heading: {stm.gyro.getValue().heading} deg")
+    turnToCertainDirection(direction.value, stm)
 
     mapInstance.frontDirection = direction
     
