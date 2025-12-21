@@ -179,6 +179,10 @@ class mazeMap:
             # 黒タイルならその周囲の通路を塞ぐ
             for direction in mazeEnums.absDirection:
                 self.wallTypes[y][x][direction] = mazeEnums.wallType.WALL
+                nx, ny = x + (1 if direction == mazeEnums.absDirection.EAST else -1 if direction == mazeEnums.absDirection.WEST else 0), y + (1 if direction == mazeEnums.absDirection.SOUTH else -1 if direction == mazeEnums.absDirection.NORTH else 0)
+                self.wallTypes[ny][nx][direction.opposite()] = mazeEnums.wallType.WALL
+                assert 0 <= nx < self.maxSize and 0 <= ny < self.maxSize, "Neighbor tile position out of bounds. You should increase maze size."
+                # グラフからも削除
                 if direction == mazeEnums.absDirection.NORTH and y > 0:
                     self.mazeAsGraph[y][x].discard((x, y-1))
                     self.mazeAsGraph[y-1][x].discard((x, y))
@@ -325,6 +329,7 @@ class mazeMap:
         """
         self.savedCache['tileTypes'] = [row.copy() for row in self.tileTypes]
         self.savedCache['wallTypes'] = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.wallTypes]
+        self.savedCache['mazeAsGraph'] = [[neighbors.copy() for neighbors in row] for row in self.mazeAsGraph]
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
         """
@@ -334,6 +339,7 @@ class mazeMap:
         if 'tileTypes' in self.savedCache and 'wallTypes' in self.savedCache:
             self.tileTypes = [row.copy() for row in self.savedCache['tileTypes']]
             self.wallTypes = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.savedCache['wallTypes']]
+            self.mazeAsGraph = [[neighbors.copy() for neighbors in row] for row in self.savedCache['mazeAsGraph']]
             self.frontDirection = nowDirection
             
     def _is_known_cell(self, x: int, y: int) -> bool:

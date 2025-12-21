@@ -190,7 +190,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             firstFlag = True
             stm.update()
             
-            while abs(stm.gyro.getValue().heading - direction.value) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
+            while abs(regulationAngle(stm.gyro.getValue().heading - direction.value)) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
                 if firstFlag:
                     debugPrint("Fine adjustment")
                     stm.sts3032.turnRight(5) if getTurnDirection(stm.gyro.getValue().heading, direction.value) == mazeEnums.turnDirection.RIGHT else stm.sts3032.turnLeft(5)
@@ -280,7 +280,7 @@ def vitimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
     else:
         return mazeEnums.wallType.UNKNOWN
 
-def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stm: stm.STM, lidar: ydlidar.CYdLidar) -> None:
+def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stm: stm.STM, lidar: ydlidar.CYdLidar) -> bool:
     """
     @brief direction の方向のタイルへ一マス移動する
     @param direction: 移動方向
@@ -297,9 +297,9 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
         mapInstance.setTileType(tileType)
         victimInfo = getVictimInfo(stm)
         if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]):
-            dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
             mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
+            dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
         if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]):
-            dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
             mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
+            dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
     return isBlack

@@ -12,6 +12,13 @@ class Point:
     range: int
     angle: int
 
+def regulationAngle(angle: int) -> int:
+    if angle > 180:
+        angle -= 360
+    if angle < -180:
+        angle += 360
+    return angle
+
 
 
 def initializeLidar(port: str = "/dev/ttyAMA2", baudrate: int = 230400) -> ydlidar.CYdLidar:
@@ -69,57 +76,14 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
     for a in angle:
         dist = -1
         for p in points:
-            if abs(p.angle - a) % 360 <= deviceConstraints.LiDAR_DIST_ANGLE_RANGE:
+            if abs(regulationAngle(p.angle - a)) <= deviceConstraints.LiDAR_DIST_ANGLE_RANGE:
                 if p.range == 0:
                     continue
                 dist = max(dist, p.range)
+        if dist == -1:
+            dist = 10000  # 測定不能の場合は大きな値を返す
         distances.append(dist)
     return distances[0] if single else distances
-
-def getRelativeAngle(nowDirection: int, angleRange: int, points: list[Point]) -> int:
-    """
-    @brief 相対角度で指定した方向の +-angleRange 内にある点群を用いて、 nowDirection からの相対角度を計算する。壁は nowDirection 方向にあると仮定する。
-    @param nowDirection: ロボットの現在の絶対角度(度)
-    @param angleRange: nowDirection からの許容範囲(度)
-    @param points: LiDAR のスキャンデータのリスト
-    """
-    if points is None:
-        raise ValueError("points must not be None")
-
-    def normalize(angle: float) -> float:
-        return (angle + 180.0) % 360.0 - 180.0
-
-    sector: list[tuple[float, float]] = []
-    for point in points:
-        if point.range <= 0:
-            continue
-        relative_angle = normalize(point.angle)
-        if abs(relative_angle) > angleRange:
-            continue
-        rad = np.deg2rad(relative_angle)
-        x = point.range * np.cos(rad)
-        y = point.range * np.sin(rad)
-        sector.append((x, y))
-
-    if not sector:
-        return nowDirection
-
-    coords = np.array(sector, dtype=np.float64)
-
-    # 十分な点がない場合は単一点の角度を採用して補正する
-    if coords.shape[0] == 1:
-        rel_heading = np.degrees(np.arctan2(coords[0, 1], coords[0, 0]))
-    else:
-        centered = coords - coords.mean(axis=0)
-        covariance = centered.T @ centered
-        eigvals, eigvecs = np.linalg.eigh(covariance)
-        normal_vec = eigvecs[:, np.argmin(eigvals)]
-        if normal_vec[0] < 0:
-            normal_vec *= -1
-        rel_heading = np.degrees(np.arctan2(normal_vec[1], normal_vec[0]))
-
-    rel_heading = normalize(rel_heading)
-    return rel_heading
 
 def liDARShutdown(lidar: ydlidar.CYdLidar):
     """

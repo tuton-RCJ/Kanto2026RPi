@@ -37,6 +37,16 @@ class absDirection(Enum):
                     return direction
             raise ValueError("No matching absDirection for value {}".format(new_value))
         return NotImplemented
+    
+    def opposite(self):
+        if self == absDirection.NORTH:
+            return absDirection.SOUTH
+        elif self == absDirection.EAST:
+            return absDirection.WEST
+        elif self == absDirection.SOUTH:
+            return absDirection.NORTH
+        elif self == absDirection.WEST:
+            return absDirection.EAST
         
 class wallType(Enum):
     UNKNOWN = 0

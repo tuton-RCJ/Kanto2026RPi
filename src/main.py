@@ -37,12 +37,11 @@ def main():
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     time.sleep(0.5) 
-            else:
-                print("Robot now at the starting position, Congratulations!")
-                LiDAR.liDARShutdown(lidarInstance)
-                stmInstance.sts3032.stop()
-                
-                exit(0)
+                break
+        print("Robot now at the starting position, Congratulations!")
+        LiDAR.liDARShutdown(lidarInstance)
+        stmInstance.sts3032.stop()
+        exit(0)
     except:
         import traceback
         traceback.print_exc()
