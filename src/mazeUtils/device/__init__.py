@@ -1,3 +1,3 @@
-from . import LiDAR, colorsensor, deviceConstrains, deviceEnums, stm
+from . import LiDAR, colorsensor, deviceConstraints, deviceEnums, stm
 
-__all__ = ["LiDAR", "colorsensor", "deviceConstrains", "deviceEnums", "stm"]
+__all__ = ["LiDAR", "colorsensor", "deviceConstraints", "deviceEnums", "stm"]

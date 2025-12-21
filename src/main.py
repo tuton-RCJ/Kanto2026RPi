@@ -3,7 +3,7 @@ from mazeUtils import moveTile
 from mazeUtils.device import stm
 from mazeUtils.device import LiDAR
 from mazeUtils import mazeEnums
-from mazeUtils import mazeConsrains
+from mazeUtils import mazeConstraints
 import ydlidar
 import time
 

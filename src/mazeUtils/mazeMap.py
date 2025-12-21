@@ -1,5 +1,5 @@
 from . import mazeEnums
-from . import mazeConsrains
+from . import mazeConstraints
 from .device import deviceEnums
 import heapq
 from typing import Callable
@@ -38,7 +38,7 @@ def dijkstra(
 ) -> list[tuple[int, int]] | None:
     """Rotation-aware Dijkstra.
 
-    State includes heading. Edge cost = (turn quarters * mazeEnums.TURN_90_SEC) + mazeEnums.MOVE_STRAIGHT_SEC.
+    State includes heading. Edge cost = (turn quarters * mazeConsrains.TURN_90_SEC) + mazeConsrains.MOVE_STRAIGHT_SEC.
     Returns a path as list of (x, y) positions.
     """
 
@@ -73,7 +73,7 @@ def dijkstra(
         for neighbor in mazeGraph[y][x]:
             move_dir = _step_direction(pos, neighbor)
             turn_q = _turn_quarters(heading, move_dir)
-            step_cost = (turn_q * float(mazeConsrains.TURN_90_SEC)) + float(mazeConsrains.MOVE_STRAIGHT_SEC)
+            step_cost = (turn_q * float(mazeConstraints.TURN_90_SEC)) + float(mazeConstraints.MOVE_STRAIGHT_SEC)
             new_cost = cost + step_cost
             nx, ny = neighbor
             new_state = (nx, ny, move_dir)
@@ -94,7 +94,7 @@ class mazeMap:
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
-        self.nowRescueKitCount = mazeConsrains.DEFAULT_RESCUE_KIT_COUNT.copy()
+        self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
         self.saveCache()
@@ -107,26 +107,42 @@ class mazeMap:
         """
         x, y = self.currentPosition
 
-        # もし壁がないならグラフを更新
-        if wallType == mazeEnums.wallType.NO_WALL:
-            if direction == mazeEnums.absDirection.NORTH and y > 0:
-                if self.tileTypes[y-1][x] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[y][x].add((x, y-1))
-                    self.mazeAsGraph[y-1][x].add((x, y))
-            elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
-                if self.tileTypes[y][x+1] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[y][x].add((x+1, y))
-                    self.mazeAsGraph[y][x+1].add((x, y))
-            elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
-                if self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[y][x].add((x, y+1))
-                    self.mazeAsGraph[y+1][x].add((x, y))
-            elif direction == mazeEnums.absDirection.WEST and x > 0:
-                if self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[y][x].add((x-1, y))
-                    self.mazeAsGraph[y][x-1].add((x, y))
+        opposite: dict[mazeEnums.absDirection, mazeEnums.absDirection] = {
+            mazeEnums.absDirection.NORTH: mazeEnums.absDirection.SOUTH,
+            mazeEnums.absDirection.EAST: mazeEnums.absDirection.WEST,
+            mazeEnums.absDirection.SOUTH: mazeEnums.absDirection.NORTH,
+            mazeEnums.absDirection.WEST: mazeEnums.absDirection.EAST,
+        }
+
+        dx, dy = 0, 0
+        if direction == mazeEnums.absDirection.NORTH:
+            dy = -1
+        elif direction == mazeEnums.absDirection.EAST:
+            dx = 1
+        elif direction == mazeEnums.absDirection.SOUTH:
+            dy = 1
+        elif direction == mazeEnums.absDirection.WEST:
+            dx = -1
+
+        nx, ny = x + dx, y + dy
+        in_bounds = 0 <= nx < self.maxSize and 0 <= ny < self.maxSize
 
         self.wallTypes[y][x][direction] = wallType
+        if in_bounds:
+            self.wallTypes[ny][nx][opposite[direction]] = wallType
+
+        if not in_bounds:
+            return
+
+        if wallType == mazeEnums.wallType.NO_WALL:
+            if self.tileTypes[ny][nx] != mazeEnums.tileType.BLACK and self.tileTypes[y][x] != mazeEnums.tileType.BLACK:
+                self.mazeAsGraph[y][x].add((nx, ny))
+                self.mazeAsGraph[ny][nx].add((x, y))
+        elif wallType == mazeEnums.wallType.UNKNOWN:
+            return
+        else:
+            self.mazeAsGraph[y][x].discard((nx, ny))
+            self.mazeAsGraph[ny][nx].discard((x, y))
 
 
     def getWallType(self) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
@@ -156,6 +172,7 @@ class mazeMap:
                 y += 1
             elif direction == mazeEnums.absDirection.WEST:
                 x -= 1
+        assert 0 <= x < self.maxSize and 0 <= y < self.maxSize, "Tile position out of bounds"
         self.tileTypes[y][x] = tiletype
 
         if tiletype == mazeEnums.tileType.BLACK:
@@ -216,7 +233,7 @@ class mazeMap:
             self.mazeAsGraph,
             (x, y),
             self.frontDirection,
-            lambda pos: any(self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection),
+            lambda pos: self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
         )
 
         if path is None:

@@ -2,7 +2,7 @@ import os
 import ydlidar
 import numpy as np
 from dataclasses import dataclass
-from . import deviceConstrains
+from . import deviceConstraints
 @dataclass
 class Point:
     """
@@ -49,11 +49,6 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
         return res
     else:
         raise Exception("Failed to get LiDAR scan")
-    
-def shutdownLidar(lidar: ydlidar.CYdLidar):
-    lidar.turnOff()
-    lidar.disconnecting()
-
 
 def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | dict[int]:
     """
@@ -74,7 +69,7 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
     for a in angle:
         dist = -1
         for p in points:
-            if abs(p.angle - a) % 360 <= deviceConstrains.LiDAR_DIST_ANGLE_RANGE:
+            if abs(p.angle - a) % 360 <= deviceConstraints.LiDAR_DIST_ANGLE_RANGE:
                 if p.range == 0:
                     continue
                 dist = max(dist, p.range)

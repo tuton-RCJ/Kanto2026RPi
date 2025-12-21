@@ -68,8 +68,8 @@ class ColorSensor:
         self._serial.write(bytes([g]))
         self._serial.write(bytes([b]))
         checkDigit = 0x01 ^ self._seq
-        for b in [r, g, b]:
-            checkDigit ^= b
+        for bb in [r, g, b]:
+            checkDigit ^= bb
         self._serial.write(bytes([checkDigit]))
 
         # レスポンス待機

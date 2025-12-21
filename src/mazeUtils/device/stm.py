@@ -3,11 +3,11 @@ import time
 
 import serial
 
-from . import deviceConstrains as deviceConst
+from . import deviceConstraints as deviceConst
 from . import deviceEnums
 
 class STMUART:
-    def __init__(self, port: str = "/dev/ttyAMA2", timeout: float = 0.5):
+    def __init__(self, port: str = "/dev/ttyAMA0", timeout: float = 0.5):
         self._port = port
         self._serial = serial.Serial(
             port=self._port,
@@ -257,6 +257,7 @@ class ToF:
         @param distances: 距離のリスト[float(cm)]
         @return: 正常にセットできればTrue, エラーがあればFalse
         """
+        # 今のところ 4 つしか tof ついてないので
         if len(distances) != 4:
             return False
         self.distance = distances
@@ -430,6 +431,7 @@ class STM:
                     deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus(data[1]),
                 }
             )
+            ## ロードセルでなくタッチセンサの値を取得している
             self.loadcell.setValue(
                 {
                     deviceEnums.Side.LEFT: data[2] & (1<<7),
