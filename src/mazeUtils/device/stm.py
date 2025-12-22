@@ -447,7 +447,7 @@ class STM:
                     deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,   
                 }
             )
-            heading, pitch, roll = struct.unpack(">hhh", data[4:10])
+            heading, pitch, roll = struct.unpack(">Hhh", data[4:10])
             self.gyro.setValue(
                 gyroData=gyroData(
                     heading=heading / 100.0,

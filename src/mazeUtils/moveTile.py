@@ -114,7 +114,7 @@ def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
                 stmInstance.sts3032.stop()
                 return
             error = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
-            deribative = error - oldError
+            deribative = regulationAngle(error - oldError)
             oldError = error
             turnSpeed = mazeConstraints.TURN_P * error + mazeConstraints.TURN_D * deribative
             turnSpeed = max(min(turnSpeed, 100), -100)
