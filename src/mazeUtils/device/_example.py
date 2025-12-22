@@ -1,7 +1,7 @@
-import stm
+import sts
 
-myStm = stm.STM()
-print(myStm.sts3032.setMotorSpeed({stm.deviceEnums.Side.LEFT: -80, stm.deviceEnums.Side.RIGHT: 80}))
+myStm = sts.STM()
+print(myStm.sts3032.setMotorSpeed({sts.deviceEnums.Side.LEFT: -80, sts.deviceEnums.Side.RIGHT: 80}))
 try:
     while True:
         myStm.update()

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import time
+import struct
 
 import serial
 
@@ -293,19 +294,27 @@ class Gyro:
     ):
         self.data: gyroData = gyroData(0.0, 0.0, 0.0)
         self.headingOffset: float = 0.0
+        self.pitchOffset: float = 0.0
+        self.rollOffset: float = 0.0
         pass
 
     def setValue(self, gyroData: gyroData):
         self.data = gyroData
 
-    def setHeadingOffset(self, offset: float):
-        self.headingOffset = offset
+    def setOffset(self, offset: gyroData):
+        self.headingOffset = offset.heading
+        self.pitchOffset = offset.pitch
+        self.rollOffset = offset.roll
 
     def getValue(self) -> gyroData:
 
         res = gyroData(heading=self.data.heading, pitch=self.data.pitch, roll=self.data.roll)
         res.heading -= self.headingOffset
+        res.pitch -= self.pitchOffset
+        res.roll -= self.rollOffset
         res.heading %= 360
+        res.pitch %= 360
+        res.roll %= 360
         return res
 
 
@@ -438,12 +447,12 @@ class STM:
                     deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,   
                 }
             )
-            
+            heading, pitch, roll = struct.unpack(">hhh", data[4:10])
             self.gyro.setValue(
                 gyroData=gyroData(
-                    heading=((data[4] << 8) | data[5]) / 100.0,
-                    pitch=((data[6] << 8) | data[7]) / 100.0,
-                    roll=((data[8] << 8) | data[9]) / 100.0,
+                    heading=heading / 100.0,
+                    pitch=-pitch / 100.0,
+                    roll=-roll / 100.0,
                 )
             )
             # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値

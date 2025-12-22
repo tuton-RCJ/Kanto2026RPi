@@ -2,6 +2,7 @@ from . import mazeEnums
 from . import mazeConstraints
 from .device import deviceEnums
 import heapq
+import itertools
 from typing import Callable
 
 def _turn_quarters(from_dir: mazeEnums.absDirection, to_dir: mazeEnums.absDirection) -> int:
@@ -46,10 +47,16 @@ def dijkstra(
     dist: dict[tuple[int, int, mazeEnums.absDirection], float] = {start_state: 0.0}
     prev: dict[tuple[int, int, mazeEnums.absDirection], tuple[int, int, mazeEnums.absDirection] | None] = {start_state: None}
 
-    heap: list[tuple[float, int, int, mazeEnums.absDirection]] = [(0.0, start[0], start[1], startDirection)]
+    # heapq compares tuple elements left-to-right. If earlier fields tie, it would
+    # eventually compare absDirection, which isn't orderable -> TypeError.
+    # Add a unique tiebreaker to guarantee comparability.
+    push_id = itertools.count()
+    heap: list[tuple[float, int, int, int, mazeEnums.absDirection]] = [
+        (0.0, next(push_id), start[0], start[1], startDirection)
+    ]
 
     while heap:
-        cost, x, y, heading = heapq.heappop(heap)
+        cost, _, x, y, heading = heapq.heappop(heap)
         state = (x, y, heading)
         if cost != dist.get(state):
             continue
@@ -81,7 +88,7 @@ def dijkstra(
             if new_cost < dist.get(new_state, float("inf")):
                 dist[new_state] = new_cost
                 prev[new_state] = state
-                heapq.heappush(heap, (new_cost, nx, ny, move_dir))
+                heapq.heappush(heap, (new_cost, next(push_id), nx, ny, move_dir))
 
     return None
 
@@ -100,50 +107,28 @@ class mazeMap:
         self.saveCache()
 
     def setWallType(self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType) -> None:
-        """
-        @brief 指定した方向の壁タイプを設定する
-        @param direction: 設定する方向
-        @param wallType: 設定する壁タイプ
-        """
         x, y = self.currentPosition
 
-        opposite: dict[mazeEnums.absDirection, mazeEnums.absDirection] = {
-            mazeEnums.absDirection.NORTH: mazeEnums.absDirection.SOUTH,
-            mazeEnums.absDirection.EAST: mazeEnums.absDirection.WEST,
-            mazeEnums.absDirection.SOUTH: mazeEnums.absDirection.NORTH,
-            mazeEnums.absDirection.WEST: mazeEnums.absDirection.EAST,
-        }
-
-        dx, dy = 0, 0
-        if direction == mazeEnums.absDirection.NORTH:
-            dy = -1
-        elif direction == mazeEnums.absDirection.EAST:
-            dx = 1
-        elif direction == mazeEnums.absDirection.SOUTH:
-            dy = 1
-        elif direction == mazeEnums.absDirection.WEST:
-            dx = -1
-
-        nx, ny = x + dx, y + dy
-        in_bounds = 0 <= nx < self.maxSize and 0 <= ny < self.maxSize
+        # もし壁がないならグラフを更新
+        if wallType == mazeEnums.wallType.NO_WALL:
+            if direction == mazeEnums.absDirection.NORTH and y > 0:
+                if self.tileTypes[y-1][x] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x, y-1))
+                    self.mazeAsGraph[y-1][x].add((x, y))
+            elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
+                if self.tileTypes[y][x+1] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x+1, y))
+                    self.mazeAsGraph[y][x+1].add((x, y))
+            elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
+                if self.tileTypes[y+1][x] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x, y+1))
+                    self.mazeAsGraph[y+1][x].add((x, y))
+            elif direction == mazeEnums.absDirection.WEST and x > 0:
+                if self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
+                    self.mazeAsGraph[y][x].add((x-1, y))
+                    self.mazeAsGraph[y][x-1].add((x, y))
 
         self.wallTypes[y][x][direction] = wallType
-        if in_bounds:
-            self.wallTypes[ny][nx][opposite[direction]] = wallType
-
-        if not in_bounds:
-            return
-
-        if wallType == mazeEnums.wallType.NO_WALL:
-            if self.tileTypes[ny][nx] != mazeEnums.tileType.BLACK and self.tileTypes[y][x] != mazeEnums.tileType.BLACK:
-                self.mazeAsGraph[y][x].add((nx, ny))
-                self.mazeAsGraph[ny][nx].add((x, y))
-        elif wallType == mazeEnums.wallType.UNKNOWN:
-            return
-        else:
-            self.mazeAsGraph[y][x].discard((nx, ny))
-            self.mazeAsGraph[ny][nx].discard((x, y))
-
 
     def getWallType(self) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
         """
@@ -173,15 +158,12 @@ class mazeMap:
             elif direction == mazeEnums.absDirection.WEST:
                 x -= 1
         assert 0 <= x < self.maxSize and 0 <= y < self.maxSize, "Tile position out of bounds"
-        assert 0 <= nx < self.maxSize and 0 <= ny < self.maxSize, "Neighbor tile position out of bounds. You should increase maze size."
         self.tileTypes[y][x] = tiletype
 
         if tiletype == mazeEnums.tileType.BLACK:
             # 黒タイルならその周囲の通路を塞ぐ
             for direction in mazeEnums.absDirection:
                 self.wallTypes[y][x][direction] = mazeEnums.wallType.WALL
-                nx, ny = x + (1 if direction == mazeEnums.absDirection.EAST else -1 if direction == mazeEnums.absDirection.WEST else 0), y + (1 if direction == mazeEnums.absDirection.SOUTH else -1 if direction == mazeEnums.absDirection.NORTH else 0)
-                self.wallTypes[ny][nx][direction.opposite()] = mazeEnums.wallType.WALL
                 if direction == mazeEnums.absDirection.NORTH and y > 0:
                     self.mazeAsGraph[y][x].discard((x, y-1))
                     self.mazeAsGraph[y-1][x].discard((x, y))

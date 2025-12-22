@@ -10,9 +10,15 @@ import ydlidar
 import time
 
 def main():
-    cl = colorsensor.ColorSensor()
+    stmInstance = stm.STM()
+    stmInstance.update()
+    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
+    cs = colorsensor.ColorSensor()
     while True:
-        cl.update()
-        print(cl._colorRGB)
+        stmInstance.update()
+        cs.update()
+        print(f"gyro Heading: {stmInstance.gyro.getValue().heading} deg, Pitch: {stmInstance.gyro.getValue().pitch} deg, Roll: {stmInstance.gyro.getValue().roll} deg")
+
+
 if __name__ == "__main__":
     main()

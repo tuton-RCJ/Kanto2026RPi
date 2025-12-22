@@ -10,7 +10,7 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.gyro.setHeadingOffset(stmInstance.gyro.getValue().heading)
+    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     mapInstance = mazeMap.mazeMap()
     lidarInstance = LiDAR.initializeLidar()
     try:
@@ -28,25 +28,41 @@ def main():
                 for direction in nextDirection:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
-                nextDirection = mapInstance.getNearestUnexploredTile()
-                if stmInstance.switch.getToggleSwitch1():
-                    print("Paused. Back to last silver tile")
-                    mapInstance.loadCache()
-                while stmInstance.switch.getToggleSwitch1():
-                    time.sleep(0.1)
+                    toggleswitchFlag = False
                     stmInstance.update()
-                
-                
-
+                    if stmInstance.switch.getToggleSwitch1():
+                        print("Exploration paused. Toggle switch 1 to resume.")
+                    while stmInstance.switch.getToggleSwitch1():
+                        stmInstance.update()
+                        toggleswitchFlag = True
+                    if toggleswitchFlag:
+                        print("Exploration resumed.")
+                        toggleswitchFlag = False
+                        nowAngle = stmInstance.gyro.getValue().heading
+                        nowDirection = None
+                        error = 1e9
+                        for direction in mazeEnums.absDirection:
+                            diff = abs(nowAngle - direction.value)
+                            if diff > 180:
+                                diff = 360 - diff
+                            if diff < error:
+                                error = diff
+                                nowDirection = direction
+                        mapInstance.loadCache(nowDirection=nowDirection)
+                        mapInstance.renderKnownTileAndWall()
+                        time.sleep(1)  # Allow time for stabilization after resuming
+                        break
+                nextDirection = mapInstance.getNearestUnexploredTile()
+                    
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
             
             if len(returnPath) > 0:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                    time.sleep(0.5) 
                 break
         print("Robot now at the starting position, Congratulations!")
+        moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5)
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()
         exit(0)
