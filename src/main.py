@@ -29,6 +29,14 @@ def main():
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
                 nextDirection = mapInstance.getNearestUnexploredTile()
+                if stmInstance.switch.getToggleSwitch1():
+                    print("Paused. Back to last silver tile")
+                    mapInstance.loadCache()
+                while stmInstance.switch.getToggleSwitch1():
+                    time.sleep(0.1)
+                    stmInstance.update()
+                
+                
 
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")

@@ -274,10 +274,13 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
         tileType = detectTileColor()
         mapInstance.setTileType(tileType)
         victimInfo = getVictimInfo(stm)
+        if tileType == mazeEnums.tileType.BLUE:
+            time.sleep(5)
         if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]):
             mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
             dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
         if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]):
             mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
             dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
+    stm.update()
     return isBlack

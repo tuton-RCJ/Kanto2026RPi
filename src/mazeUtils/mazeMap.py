@@ -174,7 +174,6 @@ class mazeMap:
                 x -= 1
         assert 0 <= x < self.maxSize and 0 <= y < self.maxSize, "Tile position out of bounds"
         assert 0 <= nx < self.maxSize and 0 <= ny < self.maxSize, "Neighbor tile position out of bounds. You should increase maze size."
-
         self.tileTypes[y][x] = tiletype
 
         if tiletype == mazeEnums.tileType.BLACK:
@@ -195,6 +194,10 @@ class mazeMap:
                 elif direction == mazeEnums.absDirection.WEST and x > 0:
                     self.mazeAsGraph[y][x].discard((x-1, y))
                     self.mazeAsGraph[y][x-1].discard((x, y))
+
+        if tiletype == mazeEnums.tileType.SILVER:
+            self.saveCache()
+            
 
     
 
