@@ -238,7 +238,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             pressedSide = deviceEnums.Side.LEFT if stm.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
             escapeFromObstacle(pressedSide, stm)
             stm.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-        if not isRamp and 90 > stm.gyro.getValue().pitch > mazeConstraints.RAMP_DEG_THRESHOLD:
+        if not isRamp and ((90 > min(stm.gyro.getValue().pitch, 360 - stm.gyro.getValue().pitch)) > mazeConstraints.RAMP_DEG_THRESHOLD):
             isRamp = True
             debugPrint(f"Ramp detected! Pitch: {stm.gyro.getValue().pitch} deg")
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
