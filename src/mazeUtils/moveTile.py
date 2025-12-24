@@ -6,6 +6,33 @@ import numpy as np
 
 colorSensor = None
 
+def turnOnLED(stmInstance: stm.STM) -> None:
+    """
+    @brief LEDを点灯する
+    @param stmInstance: 通信に使用する STM インスタンス
+    """
+    stmInstance.led.setColor(255,255,255)
+
+def turnOffLED(stmInstance: stm.STM) -> None:
+    """
+    @brief LEDを消灯する
+    @param stmInstance: 通信に使用する STM インスタンス
+    """
+    stmInstance.led.setColor(0,0,0)
+
+def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float) -> None:
+    """
+    @brief LEDを点滅させる
+    @param stmInstance: 通信に使用する STM インスタンス
+    @param durationSec: 点滅させる時間 (秒)
+    @param intervalSec: 点灯と消灯の間隔 (秒)
+    """
+    for _ in range(loopCount):
+        turnOnLED(stmInstance)
+        time.sleep(intervalSec)
+        turnOffLED(stmInstance)
+        time.sleep(intervalSec)
+
 def debugPrint(*message: object) -> None:
     if mazeConstraints.DEBUG_MODE:
         print(*message)
@@ -155,6 +182,7 @@ def getVictimInfo(stmInstance: stm.STM) -> dict[deviceEnums.Side,deviceEnums.Uni
     @param stmInstance: 通信に使用する STM インスタンス
     @return: 各サイドの被災者の種類を示す辞書
     """
+    stmInstance.update()
     victimData = stmInstance.unitv.getStatus()
     return victimData
 
@@ -165,6 +193,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
+    flashLED(stmInstance, 5, 0.5)
     if mapInstance.nowRescueKitCount[side] >= needRescueKitCount and needRescueKitCount > 0:
         mapInstance.dropRescueKit(side, needRescueKitCount)
         stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side)
@@ -214,7 +243,8 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             stm.sts3032.stop()
             return False, False
         currentDist = stm.tof.getDistance()[nearestToFIndex]
-        
+        turnAngle = regulationAngle(stm.gyro.getValue().heading - direction.value)
+        stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] + int(turnAngle*mazeConstraints.P_GAIN), deviceEnums.Side.RIGHT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] - int(turnAngle*mazeConstraints.P_GAIN)})
         if detectTileColor() == mazeEnums.tileType.BLACK:
             stm.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
@@ -300,15 +330,18 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
         detectWall(lidar, mapInstance)
         tileType = detectTileColor()
         mapInstance.setTileType(tileType)
+        time.sleep(0.5)  # Allow time for color sensor stabilization
         victimInfo = getVictimInfo(stm)
         if tileType == mazeEnums.tileType.BLUE:
             time.sleep(5)
-        if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]):
+        if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL:
             mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
             dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
-        if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]):
+            print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+        if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL:
             mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
             dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
+            print(f"Dropped rescue kit, detected victim info: {victimInfo}")
         debugPrint("Moved to", mapInstance.currentPosition, "facing", mapInstance.frontDirection, "Tile type:", tileType)
     stm.update()
     if stm.switch.getToggleSwitch1():
@@ -316,29 +349,3 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
         return
     return isBlack, timeoutReached
 
-def turnOnLED(stmInstance: stm.STM) -> None:
-    """
-    @brief LEDを点灯する
-    @param stmInstance: 通信に使用する STM インスタンス
-    """
-    stmInstance.led.setColor(255,255,255)
-
-def turnOffLED(stmInstance: stm.STM) -> None:
-    """
-    @brief LEDを消灯する
-    @param stmInstance: 通信に使用する STM インスタンス
-    """
-    stmInstance.led.setColor(0,0,0)
-
-def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float) -> None:
-    """
-    @brief LEDを点滅させる
-    @param stmInstance: 通信に使用する STM インスタンス
-    @param durationSec: 点滅させる時間 (秒)
-    @param intervalSec: 点灯と消灯の間隔 (秒)
-    """
-    for _ in range(loopCount):
-        turnOnLED(stmInstance)
-        time.sleep(intervalSec)
-        turnOffLED(stmInstance)
-        time.sleep(intervalSec)

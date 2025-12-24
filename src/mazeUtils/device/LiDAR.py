@@ -74,14 +74,12 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
 
     distances = []
     for a in angle:
-        dist = -1
+        dist = 10000
         for p in points:
             if abs(regulationAngle(p.angle - a)) <= deviceConstraints.LiDAR_DIST_ANGLE_RANGE:
                 if p.range == 0:
                     continue
-                dist = max(dist, p.range)
-        if dist == -1:
-            dist = 10000  # 測定不能の場合は大きな値を返す
+                dist = min(dist, p.range)
         distances.append(dist)
     return distances[0] if single else distances
 

@@ -1,7 +1,7 @@
 from . import mazeEnums
 from .device import deviceEnums
 
-P_GAIN: float = 0.2
+P_GAIN: float = 1.0
 I_GAIN: float = 0.0
 D_GAIN: float = 0.01
 
@@ -15,7 +15,7 @@ GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30,
 
 NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value] 
 
-MOVE_THRESHOLD_CM: int = 32  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+MOVE_THRESHOLD_CM: int = 30  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 MOVE_STRAIGHT_THRESHOLD_CM: int = 13  # 直進時に前方との距離がこの値以下になったら停止する
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 
@@ -25,19 +25,20 @@ BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タ
 BLUETILE_RGB: tuple[tuple[int, int, int]] = ((65, 100, 200), (3, 40, 100))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((170, 255, 255), (70, 10, 50))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-RAMP_DEG_THRESHOLD: float = 10.0  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.4  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.1  # 1マス直進にかかる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
-
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
+
+USE_FORWARD_LIDAR: bool = False  # 直進時にLiDARを使用するかどうか
 
 TURN_P = 2  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン
 TURN_D = 0.00  # 回転制御の微分ゲイン
 
-DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
+DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 0, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
 DEBUG_MODE: bool = True  # デバッグモードの有効化

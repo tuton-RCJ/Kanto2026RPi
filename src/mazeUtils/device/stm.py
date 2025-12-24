@@ -434,6 +434,7 @@ class STM:
         if data is None:
             return False
         else:
+            print(f"unitv Data: {data[0],data[1]}")
             self.unitv.setStatus(
                 {
                     deviceEnums.Side.LEFT: deviceEnums.UnitVStatus(data[0]),
@@ -464,7 +465,7 @@ class STM:
             # uart1.print(distance);
             # uart1.print(" ")
             self.tof.setDistance(
-                [(data[11+i*2] << 8 | data[12+i*2])/10 for i in range(4)]
+                [((data[11+i*2] << 8) + (data[12+i*2]))/10 for i in range(4)]
             )
 
             return True

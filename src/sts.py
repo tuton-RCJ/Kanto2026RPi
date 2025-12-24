@@ -12,13 +12,10 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
-    cs = colorsensor.ColorSensor()
+    stmInstance.rescuekitservo.dropRescueKit(1, deviceEnums.Side.LEFT)
     while True:
         stmInstance.update()
-        cs.update()
-        print(f"gyro Heading: {stmInstance.gyro.getValue().heading} deg, Pitch: {stmInstance.gyro.getValue().pitch} deg, Roll: {stmInstance.gyro.getValue().roll} deg")
-
-
+        print(f"unitv: {stmInstance.unitv.getStatus()}")
+        #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
 if __name__ == "__main__":
     main()
