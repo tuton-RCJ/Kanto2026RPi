@@ -20,10 +20,7 @@ def main():
         print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
         #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
         """
-        while stmInstance.switch.getToggleSwitch1():
-            stmInstance.update()
         moveTile.detectWall(lidarInstance, mapInstance)
-        
         tileType = moveTile.detectTileColor()
         mapInstance.setTileType(tileType)
         if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN or mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
