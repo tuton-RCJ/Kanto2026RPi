@@ -12,7 +12,9 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.rescuekitservo.dropRescueKit(1, deviceEnums.Side.RIGHT)
-        #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
+    LiDARInstance = LiDAR.initializeLidar()
+    while True:
+        stmInstance.update()
+        print(f"tofDistance: {stmInstance.unitv.getStatus()} cm")
 if __name__ == "__main__":
     main()

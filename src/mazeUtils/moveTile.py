@@ -3,15 +3,15 @@ from . import mazeConstraints, mazeEnums, mazeMap
 from .device import LiDAR, deviceConstraints, deviceEnums, stm
 import time
 import numpy as np
-
+import math
 colorSensor = None
 
-def turnOnLED(stmInstance: stm.STM) -> None:
+def turnOnLED(stmInstance: stm.STM, color: list[int]) -> None:
     """
     @brief LEDを点灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
-    stmInstance.led.setColor(255,255,255)
+    stmInstance.led.setColor(*color)
 
 def turnOffLED(stmInstance: stm.STM) -> None:
     """
@@ -20,7 +20,7 @@ def turnOffLED(stmInstance: stm.STM) -> None:
     """
     stmInstance.led.setColor(0,0,0)
 
-def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float) -> None:
+def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float, color: list[int]) -> None:
     """
     @brief LEDを点滅させる
     @param stmInstance: 通信に使用する STM インスタンス
@@ -28,7 +28,7 @@ def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float) -> None:
     @param intervalSec: 点灯と消灯の間隔 (秒)
     """
     for _ in range(loopCount):
-        turnOnLED(stmInstance)
+        turnOnLED(stmInstance, color)
         time.sleep(intervalSec)
         turnOffLED(stmInstance)
         time.sleep(intervalSec)
@@ -167,12 +167,12 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
     points = LiDAR.getLiDARScan(lidar)
     currentDirVal = mapInstance.frontDirection.value
     for direction in mazeEnums.absDirection:
-        angle = (direction.value - currentDirVal) % 360
+        angle = (direction.value - currentDirVal + 360) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
-        debugPrint(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
-        if not mapInstance.getWallType()[direction].value >= mazeEnums.wallType.H_VICTIM.value:
+        print(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
+        if not mapInstance.getWallType()[direction].value >= mazeEnums.wallType.WALL.value:
             if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
-                mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+                mapInstance.setWallType(direction, mazeEnums.wallType.WALL_BUT_NOSEEN)
             else: 
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
 
@@ -193,7 +193,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
-    flashLED(stmInstance, 10, 0.5)
+    flashLED(stmInstance, 10, 0.1,color=[255 if i <= needRescueKitCount else 0 for i in range(3)])
     if mapInstance.nowRescueKitCount[side] >= needRescueKitCount and needRescueKitCount > 0:
         mapInstance.dropRescueKit(side, needRescueKitCount)
         stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side)
@@ -336,19 +336,59 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
         detectWall(lidar, mapInstance)
         tileType = detectTileColor()
         mapInstance.setTileType(tileType)
-        time.sleep(0.5)  # Allow time for color sensor stabilization
-        victimInfo = getVictimInfo(stm)
+        if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN or mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
+            time.sleep(0.1)
+            t = time.time()
+            leftFlag = True
+            rightFlag = True
+            while time.time() - t < 0.5:
+                victimInfo = getVictimInfo(stm)
+                if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and leftFlag:
+                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
+                    dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
+                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+                    leftFlag = False
+
+                if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and rightFlag:
+                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
+                    dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
+                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+                    rightFlag = False
+            if leftFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
+                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), mazeEnums.wallType.WALL)
+            if rightFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
+                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), mazeEnums.wallType.WALL)
+        if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN or mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
+            turnToCertainDirection((mapInstance.frontDirection.value + 90) % 360, stm)
+            mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)
+            time.sleep(0.1)
+            t = time.time()
+            leftFlag = True
+            rightFlag = True
+            while time.time() - t < 0.5:                
+                victimInfo = getVictimInfo(stm)
+                if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and leftFlag:
+                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
+                    dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
+                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+                    leftFlag = False
+
+                if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and rightFlag:
+                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
+                    dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
+                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+                    rightFlag = False
+
+            if leftFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
+                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), mazeEnums.wallType.WALL)
+            if rightFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
+                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), mazeEnums.wallType.WALL)
+                
+        debugPrint("Moved to", mapInstance.currentPosition, "facing", mapInstance.frontDirection, "Tile type:", tileType)
+
         if tileType == mazeEnums.tileType.BLUE:
             time.sleep(5)
-        if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL:
-            mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
-            dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.LEFT)
-            print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-        if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL:
-            mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
-            dropRescueKit(stm, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
-            print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-        debugPrint("Moved to", mapInstance.currentPosition, "facing", mapInstance.frontDirection, "Tile type:", tileType)
+
     stm.update()
     if stm.switch.getToggleSwitch1():
         stm.sts3032.stop()

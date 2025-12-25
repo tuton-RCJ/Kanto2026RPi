@@ -49,6 +49,7 @@ class absDirection(Enum):
             return absDirection.EAST
         
 class wallType(Enum):
+    WALL_BUT_NOSEEN = -1
     UNKNOWN = 0
     NO_WALL = 1
     WALL = 2
