@@ -434,7 +434,6 @@ class STM:
         if data is None:
             return False
         else:
-            print(f"unitv Data: {data[0],data[1]}")
             self.unitv.setStatus(
                 {
                     deviceEnums.Side.LEFT: deviceEnums.UnitVStatus(data[0]),

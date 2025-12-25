@@ -170,11 +170,11 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap) -> None:
         angle = (direction.value - currentDirVal) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
         debugPrint(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
-
-        if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
-            mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
-        else: 
-            mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+        if not mapInstance.getWallType()[direction].value >= mazeEnums.wallType.H_VICTIM.value:
+            if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
+                mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+            else: 
+                mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
 
 def getVictimInfo(stmInstance: stm.STM) -> dict[deviceEnums.Side,deviceEnums.UnitVStatus]:
     """ 
@@ -193,15 +193,17 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
-    flashLED(stmInstance, 5, 0.5)
+    flashLED(stmInstance, 10, 0.5)
     if mapInstance.nowRescueKitCount[side] >= needRescueKitCount and needRescueKitCount > 0:
         mapInstance.dropRescueKit(side, needRescueKitCount)
         stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side)
+        time.sleep(2)
     elif mapInstance.nowRescueKitCount[side.opposite()] >= needRescueKitCount and needRescueKitCount > 0:
         turnToCertainDirection((mapInstance.frontDirection.value + 180) % 360, stmInstance)
         mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
         mapInstance.dropRescueKit(side.opposite(), needRescueKitCount)
         stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side.opposite())
+        time.sleep(2)
     else:
         debugPrint(f"Not enough rescue kits to drop on {side} side.")
 
@@ -244,7 +246,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             return False, False
         currentDist = stm.tof.getDistance()[nearestToFIndex]
         turnAngle = regulationAngle(stm.gyro.getValue().heading - direction.value)
-        stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] + int(turnAngle*mazeConstraints.P_GAIN), deviceEnums.Side.RIGHT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] - int(turnAngle*mazeConstraints.P_GAIN)})
+        tofDiff = stm.tof.getDistance()[1] - stm.tof.getDistance()[3]
+        if abs(tofDiff) < mazeConstraints.USE_P_GAIN_FOR_TOF_DIST:
+            stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] + int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN+tofDiff*mazeConstraints.STRAGIHT_TOF_P_GAIN) , deviceEnums.Side.RIGHT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] - int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN+tofDiff*mazeConstraints.STRAGIHT_TOF_P_GAIN)})
+        else:
+            stm.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] + int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN) , deviceEnums.Side.RIGHT: mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] - int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN)})
         if detectTileColor() == mazeEnums.tileType.BLACK:
             stm.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)

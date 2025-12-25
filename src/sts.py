@@ -12,10 +12,7 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.rescuekitservo.dropRescueKit(1, deviceEnums.Side.LEFT)
-    while True:
-        stmInstance.update()
-        print(f"unitv: {stmInstance.unitv.getStatus()}")
+    stmInstance.rescuekitservo.dropRescueKit(1, deviceEnums.Side.RIGHT)
         #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
 if __name__ == "__main__":
     main()
