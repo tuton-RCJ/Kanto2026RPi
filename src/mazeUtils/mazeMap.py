@@ -98,6 +98,7 @@ class mazeMap:
         self.currentPosition = (maxSize // 2, maxSize // 2)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
+        self.wallSeenCount = [[{d: 0 for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
@@ -138,7 +139,22 @@ class mazeMap:
         x, y = self.currentPosition
         return self.wallTypes[y][x]
     
+    def getSeenCount(self) -> dict[mazeEnums.absDirection, int]:
+        """
+        @brief 現在位置の壁の検出回数を取得する
+        @return: 現在位置の壁の検出回数の辞書
+        """
+        x, y = self.currentPosition
+        return self.wallSeenCount[y][x]
 
+    def addSeenCount(self) -> None:
+        """
+        @brief: nowDirection に対して水平な壁の検出回数を増やす
+        """
+        x, y = self.currentPosition
+        for direction in mazeEnums.absDirection:
+            if direction == mazeEnums.absDirection((self.frontDirection.value + 90) % 360) or direction == mazeEnums.absDirection((self.frontDirection.value + 270) % 360):
+                self.wallSeenCount[y][x][direction] += 1
     def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
         """
         @brief 指定した方向のタイルタイプを設定する。directionがNoneの場合は現在位置に設定する
@@ -212,7 +228,7 @@ class mazeMap:
         return self.tileTypes[y][x]
 
 
-    def getNearestUnexploredTile(self) -> list[mazeEnums.absDirection]:
+    def getNearestUnexploredTile(self) -> list[mazeEnums.absDirection] | None:
         """
         @brief 最も近い未探索タイルへのパスを取得する
         @return: 未探索タイルへの方向リスト。未探索タイルが存在しない場合は None を返す
@@ -222,7 +238,8 @@ class mazeMap:
             self.mazeAsGraph,
             (x, y),
             self.frontDirection,
-            lambda pos: self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
+            lambda pos: pos != (x, y)
+            and self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
         )
 
         if path is None:
@@ -379,6 +396,8 @@ class mazeMap:
         min_x, min_y, max_x, max_y = self._get_known_bounds()
 
         def tile_char(x: int, y: int) -> str:
+            if (x, y) == self.currentPosition:
+                return "@"
             t = self.tileTypes[y][x]
             # tileType は __str__ 実装済み(U/E/R/...)。
             return str(t)
@@ -387,7 +406,8 @@ class mazeMap:
             return self._wall_as_bool(self.wallTypes[y][x][d])
 
         lines: list[str] = []
-        lines.append(f"Known map area: x={min_x}..{max_x}, y={min_y}..{max_y}")
+        cx, cy = self.currentPosition
+        lines.append(f"Known map area: x={min_x}..{max_x}, y={min_y}..{max_y} (current=@ at {cx},{cy})")
 
         # 上端(NORTH)
         top = ["+"]

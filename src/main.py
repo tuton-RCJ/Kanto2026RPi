@@ -21,6 +21,9 @@ def main():
             print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
             #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
             """
+            stmInstance.update()
+            while stmInstance.switch.getToggleSwitch1():
+                stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
             mapInstance.setTileType(tileType)
@@ -32,9 +35,7 @@ def main():
             nextDirection = mapInstance.getNearestUnexploredTile()
             print(f"Next Direction: {nextDirection}")
             
-            stmInstance.update()
-            while stmInstance.switch.getToggleSwitch1():
-                stmInstance.update()
+
             print("Exploration started.")
             while nextDirection is not None:
                 for direction in nextDirection:
@@ -73,7 +74,7 @@ def main():
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
             
-            if returnPath is not None:
+            if returnPath:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
             print("Robot now at the starting position, Congratulations!")

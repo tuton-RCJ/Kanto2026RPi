@@ -14,7 +14,7 @@ GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30,
 
 NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value] 
 
-MOVE_THRESHOLD_CM: int = 30  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+MOVE_THRESHOLD_CM: int = 28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 MOVE_STRAIGHT_THRESHOLD_CM: int = 15  # 直進時に前方との距離がこの値以下になったら停止する
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
