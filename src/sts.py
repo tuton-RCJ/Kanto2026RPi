@@ -15,6 +15,6 @@ def main():
     LiDARInstance = LiDAR.initializeLidar()
     while True:
         stmInstance.update()
-        print(f"tofDistance: {stmInstance.unitv.getStatus()} cm")
+        print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
 if __name__ == "__main__":
     main()

@@ -173,7 +173,7 @@ class mazeMap:
                 y += 1
             elif direction == mazeEnums.absDirection.WEST:
                 x -= 1
-        assert 0 <= x < self.maxSize and 0 <= y < self.maxSize, "Tile position out of bounds"
+        assert 0 <= x < self.maxSize and 0 <= y < self.maxSize, self.renderKnownTileAndWall()
         self.tileTypes[y][x] = tiletype
 
         if tiletype == mazeEnums.tileType.BLACK:
@@ -297,7 +297,8 @@ class mazeMap:
         @param direction: 移動する方向
         """
         x, y = self.currentPosition
-        assert self.wallTypes[y][x][direction] == mazeEnums.wallType.NO_WALL, "Cannot move in the specified direction; wall is present."
+        if self.wallTypes[y][x][direction] != mazeEnums.wallType.NO_WALL:
+            print(self.renderKnownTileAndWall())
 
         if direction == mazeEnums.absDirection.NORTH:
             self.currentPosition = (x, y-1)
@@ -403,7 +404,34 @@ class mazeMap:
             return str(t)
 
         def wall_at(x: int, y: int, d: mazeEnums.absDirection) -> bool:
-            return self._wall_as_bool(self.wallTypes[y][x][d])
+            """(x,y) の d 方向の壁を、両側タイルの情報で OR 判定して返す。
+
+            片側だけ更新されて不整合が起きても、「どちらかが壁」なら壁として描画する。
+            """
+            w1 = self.wallTypes[y][x][d]
+
+            nx, ny = x, y
+            od: mazeEnums.absDirection | None = None
+            if d == mazeEnums.absDirection.NORTH:
+                nx, ny = x, y - 1
+                od = mazeEnums.absDirection.SOUTH
+            elif d == mazeEnums.absDirection.EAST:
+                nx, ny = x + 1, y
+                od = mazeEnums.absDirection.WEST
+            elif d == mazeEnums.absDirection.SOUTH:
+                nx, ny = x, y + 1
+                od = mazeEnums.absDirection.NORTH
+            elif d == mazeEnums.absDirection.WEST:
+                nx, ny = x - 1, y
+                od = mazeEnums.absDirection.EAST
+
+            b1 = self._wall_as_bool(w1)
+            if od is None or not (0 <= nx < self.maxSize and 0 <= ny < self.maxSize):
+                return b1
+
+            w2 = self.wallTypes[ny][nx][od]
+            b2 = self._wall_as_bool(w2)
+            return b1 or b2
 
         lines: list[str] = []
         cx, cy = self.currentPosition
