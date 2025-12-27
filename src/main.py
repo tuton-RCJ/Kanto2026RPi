@@ -4,6 +4,7 @@ from mazeUtils.device import stm
 from mazeUtils.device import LiDAR
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
+from mazeUtils.device import deviceEnums
 import ydlidar
 import time
 
@@ -20,21 +21,36 @@ def main():
             print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
             #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
             """
+            stmInstance.update()
+            while stmInstance.switch.getToggleSwitch1():
+                stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
-            print(mapInstance.wallTypes[20][20])
+            tileType = moveTile.detectTileColor()
+            mapInstance.setTileType(tileType)
+            moveTile.rescueVictim(mapInstance, stmInstance)
+
+            print("Initial Map:")
+            print(mapInstance.renderKnownTileAndWall())
+
             nextDirection = mapInstance.getNearestUnexploredTile()
             print(f"Next Direction: {nextDirection}")
+            
+
+            print("Exploration started.")
             while nextDirection is not None:
                 for direction in nextDirection:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
                     toggleswitchFlag = False
                     stmInstance.update()
+
                     if stmInstance.switch.getToggleSwitch1():
                         print("Exploration paused. Toggle switch 1 to resume.")
+
                     while stmInstance.switch.getToggleSwitch1():
                         stmInstance.update()
                         toggleswitchFlag = True
+                    
                     if toggleswitchFlag:
                         print("Exploration resumed.")
                         toggleswitchFlag = False
@@ -52,20 +68,20 @@ def main():
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
                         break
+
                 nextDirection = mapInstance.getNearestUnexploredTile()
                     
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
             
-            if len(returnPath) > 0:
+            if returnPath:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                break
-        print("Robot now at the starting position, Congratulations!")
-        moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5)
-        LiDAR.liDARShutdown(lidarInstance)
-        stmInstance.sts3032.stop()
-        exit(0)
+            print("Robot now at the starting position, Congratulations!")
+            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[0, 255, 0])
+            LiDAR.liDARShutdown(lidarInstance)
+            stmInstance.sts3032.stop()
+            exit(0)
     except:
         import traceback
         traceback.print_exc()

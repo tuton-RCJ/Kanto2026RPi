@@ -1,4 +1,4 @@
 
 LOADCELL_THRESHOULD = 100  # ADCのしきい値
 
-LiDAR_DIST_ANGLE_RANGE = 5  # LiDARで距離を測定する際の角度範囲 
+LiDAR_DIST_ANGLE_RANGE = 2  # LiDARで距離を測定する際の角度範囲 
