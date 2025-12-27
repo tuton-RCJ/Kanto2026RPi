@@ -23,68 +23,28 @@ def main():
         moveTile.detectWall(lidarInstance, mapInstance)
         tileType = moveTile.detectTileColor()
         mapInstance.setTileType(tileType)
-        if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN or mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
-            time.sleep(0.1)
-            t = time.time()
-            leftFlag = True
-            rightFlag = True
-            while time.time() - t < 0.5:
-                victimInfo = moveTile.getVictimInfo(stmInstance)
-                if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and leftFlag:
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), moveTile.vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
-                    moveTile.dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.LEFT)
-                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-                    leftFlag = False
+        moveTile.rescueVictim(mapInstance, stmInstance)
 
-                if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != moveTile.vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and rightFlag:
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), moveTile.vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
-                    moveTile.dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
-                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-                    rightFlag = False
-            if leftFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
-                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), mazeEnums.wallType.WALL)
-            if rightFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
-                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), mazeEnums.wallType.WALL)
-        if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN or mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
-            moveTile.turnToCertainDirection((mapInstance.frontDirection.value + 90) % 360, stmInstance)
-            mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)
-            time.sleep(0.1)
-            t = time.time()
-            leftFlag = True
-            rightFlag = True
-            while time.time() - t < 0.5:                
-                victimInfo = moveTile.getVictimInfo(stmInstance)
-                if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != moveTile.vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and leftFlag:
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), moveTile.vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
-                    moveTile.dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.LEFT)
-                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-                    leftFlag = False
+        print("Initial Map:")
+        print(mapInstance.renderKnownTileAndWall())
 
-                if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != moveTile.vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN and rightFlag:
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), moveTile.vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
-                    moveTile.dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
-                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-                    rightFlag = False
-
-            if leftFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
-                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), mazeEnums.wallType.WALL)
-            if rightFlag and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL_BUT_NOSEEN:
-                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), mazeEnums.wallType.WALL)
-
-        print(mapInstance.wallTypes[20][20])
         nextDirection = mapInstance.getNearestUnexploredTile()
         print(f"Next Direction: {nextDirection}")
+        
         while nextDirection is not None:
             for direction in nextDirection:
                 moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                 print(mapInstance.renderKnownTileAndWall())
                 toggleswitchFlag = False
                 stmInstance.update()
+
                 if stmInstance.switch.getToggleSwitch1():
                     print("Exploration paused. Toggle switch 1 to resume.")
+
                 while stmInstance.switch.getToggleSwitch1():
                     stmInstance.update()
                     toggleswitchFlag = True
+                
                 if toggleswitchFlag:
                     print("Exploration resumed.")
                     toggleswitchFlag = False
@@ -102,6 +62,7 @@ def main():
                     mapInstance.renderKnownTileAndWall()
                     time.sleep(1)  # Allow time for stabilization after resuming
                     break
+
             nextDirection = mapInstance.getNearestUnexploredTile()
                 
         returnPath = mapInstance.getPathTo((20, 20))
