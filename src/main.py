@@ -78,7 +78,7 @@ def main():
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
             print("Robot now at the starting position, Congratulations!")
-            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[0, 255, 0])
+            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[255,255,255])  # Flash white LED to indicate completion
             LiDAR.liDARShutdown(lidarInstance)
             stmInstance.sts3032.stop()
             exit(0)

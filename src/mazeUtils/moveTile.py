@@ -206,7 +206,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
-    flashLED(stmInstance, 10, 0.1,color=[255 if i <= needRescueKitCount else 0 for i in range(3)])
+    flashLED(stmInstance, 10, 0.1,color=[(0,255,0),(255,255,255),(255,0,0)][needRescueKitCount])
     if mapInstance.nowRescueKitCount[side] >= needRescueKitCount and needRescueKitCount > 0:
         mapInstance.dropRescueKit(side, needRescueKitCount)
         stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side)
