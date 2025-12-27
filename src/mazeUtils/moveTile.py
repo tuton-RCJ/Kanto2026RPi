@@ -300,7 +300,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
-        return False, False
+        return False
     points = LiDAR.getLiDARScan(lidar)
     nearestLiDARAngle = 0 if LiDAR.getCertainAngleDist(0, points) < LiDAR.getCertainAngleDist(180, points) else 180
     oldDist = LiDAR.getCertainAngleDist(nearestLiDARAngle, points)
@@ -316,7 +316,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         stmInstance.update()
         if stmInstance.switch.getToggleSwitch1():
             stmInstance.sts3032.stop()
-            return False, False
+            return False
         currentDist = LiDAR.getCertainAngleDist(nearestLiDARAngle, LiDAR.getLiDARScan(lidar))
         turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - direction.value)
         tofDiff = stmInstance.tof.getDistance()[1] - stmInstance.tof.getDistance()[3]
@@ -329,14 +329,14 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             stmInstance.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
             debugPrint("Black tile detected! Stopping movement. Starting escape maneuver.")
-            while (abs(LiDAR.getCertainAngleDist(nearestLiDARAngle, LiDAR.getLiDARScan(lidar)) - oldDist) > mazeConstraints.TOF_BLACK_TILE_ESCAPE_DISTANCE_CM) and firstTime + mazeConstraints.MOVETILE_TIMEOUT_SEC > time.time():
+            while (abs(LiDAR.getCertainAngleDist(nearestLiDARAngle, LiDAR.getLiDARScan(lidar)) - oldDist) > mazeConstraints.TOF_BLACK_TILE_ESCAPE_DISTANCE_CM):
                 stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -30, deviceEnums.Side.RIGHT: -30})
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
                     return
             debugPrint(f"Escape maneuver complete. Current Distance: {LiDAR.getCertainAngleDist(nearestLiDARAngle, LiDAR.getLiDARScan(lidar))} cm")
-            return True, False
+            return True
         
         if  abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or stmInstance.tof.getDistance()[0] < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
             stmInstance.sts3032.stop()
@@ -369,11 +369,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     if littleFowardFlag:
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
         debugPrint("Little forward to adjust position")
-        while firstTime + mazeConstraints.MOVETILE_TIMEOUT_SEC > time.time():
+        while True:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
-                return False, False
+                return False
             currentDist = stmInstance.tof.getDistance()[0]
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
@@ -384,7 +384,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         stmInstance.update()
         if stmInstance.switch.getToggleSwitch1():
             stmInstance.sts3032.stop()
-            return False, False
+            return False
         victimInfo = getVictimInfo(stmInstance)
         for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
             if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
@@ -402,7 +402,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
                 mapInstance.addSeenCount()
     stmInstance.sts3032.stop()
-    return False, False
+    return False
 
 def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stmInstance: stm.STM, lidar: ydlidar.CYdLidar) -> bool:
     """
@@ -413,7 +413,7 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
     @param lidar: 使用する LiDAR インスタンス
     """
     firstTime = time.time()
-    isBlack, timeoutReached = moveTile(direction, mapInstance, stmInstance, lidar, firstTime)
+    isBlack = moveTile(direction, mapInstance, stmInstance, lidar, firstTime)
 
     if not isBlack:
         tileType = detectTileColor()
@@ -428,5 +428,5 @@ def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
         return
-    return isBlack, timeoutReached
+    return isBlack
 
