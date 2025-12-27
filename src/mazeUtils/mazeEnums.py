@@ -52,11 +52,11 @@ class wallType(Enum):
     UNKNOWN = 0
     NO_WALL = 1
     WALL = 2
-    H_VICTIM = 3
+    U_VICTIM = 3
     S_VICTIM = 4
-    U_VICTIM = 5
-    Y_VICTIM = 6
-    G_VICTIM = 7
+    H_VICTIM = 5
+    G_VICTIM = 6
+    Y_VICTIM = 7
     R_VICTIM = 8
 
 class tileType(Enum):

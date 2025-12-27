@@ -444,7 +444,7 @@ class STM:
             self.loadcell.setValue(
                 {
                     deviceEnums.Side.LEFT: data[2] & (1<<7),
-                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,   
+                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2, 
                 }
             )
             heading, pitch, roll = struct.unpack(">Hhh", data[4:10])
@@ -464,7 +464,7 @@ class STM:
             # uart1.print(distance);
             # uart1.print(" ")
             self.tof.setDistance(
-                [(data[11+i*2] << 8 | data[12+i*2])/10 for i in range(4)]
+                [((data[11+i*2] << 8) + (data[12+i*2]))/10 for i in range(4)]
             )
 
             return True

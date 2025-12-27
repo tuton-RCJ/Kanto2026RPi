@@ -12,13 +12,9 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
-    cs = colorsensor.ColorSensor()
+    LiDARInstance = LiDAR.initializeLidar()
     while True:
         stmInstance.update()
-        cs.update()
-        print(f"gyro Heading: {stmInstance.gyro.getValue().heading} deg, Pitch: {stmInstance.gyro.getValue().pitch} deg, Roll: {stmInstance.gyro.getValue().roll} deg")
-
-
+        print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
 if __name__ == "__main__":
     main()
