@@ -15,68 +15,72 @@ def main():
     mapInstance = mazeMap.mazeMap()
     lidarInstance = LiDAR.initializeLidar()
     try:
-        """
-        stmInstance.update()
-        print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
-        #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
-        """
-        moveTile.detectWall(lidarInstance, mapInstance)
-        tileType = moveTile.detectTileColor()
-        mapInstance.setTileType(tileType)
-        moveTile.rescueVictim(mapInstance, stmInstance)
+        while True:
+            """
+            stmInstance.update()
+            print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
+            #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
+            """
+            moveTile.detectWall(lidarInstance, mapInstance)
+            tileType = moveTile.detectTileColor()
+            mapInstance.setTileType(tileType)
+            moveTile.rescueVictim(mapInstance, stmInstance)
 
-        print("Initial Map:")
-        print(mapInstance.renderKnownTileAndWall())
-
-        nextDirection = mapInstance.getNearestUnexploredTile()
-        print(f"Next Direction: {nextDirection}")
-        
-        while nextDirection is not None:
-            for direction in nextDirection:
-                moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                print(mapInstance.renderKnownTileAndWall())
-                toggleswitchFlag = False
-                stmInstance.update()
-
-                if stmInstance.switch.getToggleSwitch1():
-                    print("Exploration paused. Toggle switch 1 to resume.")
-
-                while stmInstance.switch.getToggleSwitch1():
-                    stmInstance.update()
-                    toggleswitchFlag = True
-                
-                if toggleswitchFlag:
-                    print("Exploration resumed.")
-                    toggleswitchFlag = False
-                    nowAngle = stmInstance.gyro.getValue().heading
-                    nowDirection = None
-                    error = 1e9
-                    for direction in mazeEnums.absDirection:
-                        diff = abs(nowAngle - direction.value)
-                        if diff > 180:
-                            diff = 360 - diff
-                        if diff < error:
-                            error = diff
-                            nowDirection = direction
-                    mapInstance.loadCache(nowDirection=nowDirection)
-                    mapInstance.renderKnownTileAndWall()
-                    time.sleep(1)  # Allow time for stabilization after resuming
-                    break
+            print("Initial Map:")
+            print(mapInstance.renderKnownTileAndWall())
 
             nextDirection = mapInstance.getNearestUnexploredTile()
-                
-        returnPath = mapInstance.getPathTo((20, 20))
-        print(f"Return Path: {returnPath}")
-        
-        if len(returnPath) > 0:
-            for direction in returnPath:
-                moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                break
-        print("Robot now at the starting position, Congratulations!")
-        moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[0, 255, 0])
-        LiDAR.liDARShutdown(lidarInstance)
-        stmInstance.sts3032.stop()
-        exit(0)
+            print(f"Next Direction: {nextDirection}")
+            
+            stmInstance.update()
+            while stmInstance.switch.getToggleSwitch1():
+                stmInstance.update()
+            print("Exploration started.")
+            while nextDirection is not None:
+                for direction in nextDirection:
+                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    print(mapInstance.renderKnownTileAndWall())
+                    toggleswitchFlag = False
+                    stmInstance.update()
+
+                    if stmInstance.switch.getToggleSwitch1():
+                        print("Exploration paused. Toggle switch 1 to resume.")
+
+                    while stmInstance.switch.getToggleSwitch1():
+                        stmInstance.update()
+                        toggleswitchFlag = True
+                    
+                    if toggleswitchFlag:
+                        print("Exploration resumed.")
+                        toggleswitchFlag = False
+                        nowAngle = stmInstance.gyro.getValue().heading
+                        nowDirection = None
+                        error = 1e9
+                        for direction in mazeEnums.absDirection:
+                            diff = abs(nowAngle - direction.value)
+                            if diff > 180:
+                                diff = 360 - diff
+                            if diff < error:
+                                error = diff
+                                nowDirection = direction
+                        mapInstance.loadCache(nowDirection=nowDirection)
+                        mapInstance.renderKnownTileAndWall()
+                        time.sleep(1)  # Allow time for stabilization after resuming
+                        break
+
+                nextDirection = mapInstance.getNearestUnexploredTile()
+                    
+            returnPath = mapInstance.getPathTo((20, 20))
+            print(f"Return Path: {returnPath}")
+            
+            if returnPath is not None:
+                for direction in returnPath:
+                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+            print("Robot now at the starting position, Congratulations!")
+            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[0, 255, 0])
+            LiDAR.liDARShutdown(lidarInstance)
+            stmInstance.sts3032.stop()
+            exit(0)
     except:
         import traceback
         traceback.print_exc()

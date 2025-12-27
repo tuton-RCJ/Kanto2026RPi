@@ -443,8 +443,8 @@ class STM:
             ## ロードセルでなくタッチセンサの値を取得している
             self.loadcell.setValue(
                 {
-                    deviceEnums.Side.LEFT: data[2] & (1<<7),
-                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2,   
+                    deviceEnums.Side.LEFT: 0,
+                    deviceEnums.Side.RIGHT: 0,   
                 }
             )
             heading, pitch, roll = struct.unpack(">Hhh", data[4:10])
