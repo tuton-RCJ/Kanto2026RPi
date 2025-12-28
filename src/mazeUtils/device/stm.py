@@ -9,6 +9,7 @@ from . import deviceEnums
 from .buzzerSongs import MusicData, detectedVictim
 
 
+from . import  buzzerSongs
 class STMUART:
     def __init__(self, port: str = "/dev/ttyAMA0", timeout: float = 0.5):
         self._port = port
@@ -102,6 +103,40 @@ class STMUART:
 port: str = "/dev/ttyAMA0"
 stmUART: STMUART = STMUART(port)
 
+class Buzzer:
+    """
+    @brief Buzzerのクラス。
+    """
+
+    def __init__(
+        self,
+    ):
+        pass
+
+    def playMusic(self, music: buzzerSongs.MusicData) -> bool:
+        """
+        @brief 音楽を再生する
+        @param music: 再生する音楽データ
+        @return: 成功したらTrue、失敗したらFalse
+        """
+        global stmUART
+        # データの作成
+        # 音符数(1byte) + 各音符(周波数2byte, 長さ2byte)
+        data=[len(music.notes)]
+ 
+        print(len(music.notes))
+        for note in music.notes:
+            freq = note[0]
+            length = note[1]
+            data.append(freq>>8 & 0xFF)
+            data.append(freq & 0xFF)
+            data.append(length>>8 & 0xFF)
+            data.append(length & 0xFF)
+        print(data)
+        data = bytes(data)
+        return stmUART.requestActuatorControl(
+            deviceEnums.ActuatorControlType.BUZZER, data
+        )
 
 class STS3032:
     def __init__(

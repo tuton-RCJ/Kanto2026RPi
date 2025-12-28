@@ -4,6 +4,7 @@ from mazeUtils.device import deviceConstraints, stm
 from mazeUtils.device import LiDAR
 from mazeUtils.device import colorsensor
 from mazeUtils.device import deviceEnums
+from mazeUtils.device import buzzerSongs
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
 import ydlidar
@@ -12,7 +13,8 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    LiDARInstance = LiDAR.initializeLidar()
+    # LiDARInstance = LiDAR.initializeLidar()
+    stmInstance.buzzer.playMusic(buzzerSongs.matuken)
     while True:
         stmInstance.update()
         print(f"tofDistance: {stmInstance.unitv.getStatus()} cm")
