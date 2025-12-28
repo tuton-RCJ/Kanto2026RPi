@@ -75,6 +75,7 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
     distances = []
     for a in angle:
         minerror = 1e9
+        dist = 1e9
         for p in points:
             if p.range < 10:
                 continue
