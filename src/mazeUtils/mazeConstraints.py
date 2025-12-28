@@ -22,8 +22,8 @@ USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用す
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-BLUETILE_RGB: tuple[tuple[int, int, int]] = ((65, 100, 200), (3, 40, 100))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((170, 255, 255), (70, 10, 50))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+BLUETILE_RGB: tuple[tuple[int, int, int]] = ((20, 40, 120), (3, 3, 60))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((170, 255, 255), (60, 70, 120))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
 
