@@ -6,6 +6,7 @@ import serial
 
 from . import deviceConstraints as deviceConst
 from . import deviceEnums
+from .buzzerSongs import MusicData, detectedVictim
 
 
 class STMUART:
@@ -61,7 +62,8 @@ class STMUART:
     ) -> bool:
 
         # データ長のチェック
-        if len(data) != type.dataLength():
+        expected_len = type.dataLength()
+        if expected_len is not None and expected_len >= 0 and len(data) != expected_len:
             print("Actuator Control data length error")
             return False
 
@@ -338,16 +340,6 @@ class Gyro:
 #         pass
 
 
-@dataclass
-class MusicData:
-    """
-    @brief Buzzerの音楽データ構造体。
-    """
-
-    musicID: int
-    notes: list[list[int]]  # [[周波数(Hz), 長さ(ms)], ...]
-
-
 class Buzzer:
     """
     @brief Buzzerのクラス。
@@ -477,6 +469,7 @@ class STM:
         self.rescuekitservo: RescueKitServo = RescueKitServo()
         self.led: LED = LED()
         self.tof: ToF = ToF()
+        self.buzzer: Buzzer = Buzzer()
 
     def update(self) -> bool:
         global stmUART
