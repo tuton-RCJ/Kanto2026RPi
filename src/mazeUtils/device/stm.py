@@ -6,6 +6,8 @@ import serial
 
 from . import deviceConstraints as deviceConst
 from . import deviceEnums
+from .buzzerSongs import MusicData, detectedVictim
+
 
 class STMUART:
     def __init__(self, port: str = "/dev/ttyAMA0", timeout: float = 0.5):
@@ -60,7 +62,8 @@ class STMUART:
     ) -> bool:
 
         # データ長のチェック
-        if len(data) != type.dataLength():
+        expected_len = type.dataLength()
+        if expected_len is not None and expected_len >= 0 and len(data) != expected_len:
             print("Actuator Control data length error")
             return False
 
@@ -128,7 +131,7 @@ class STS3032:
         return stmUART.requestActuatorControl(
             deviceEnums.ActuatorControlType.STS_MOTOR, data
         )
-    
+
     def turnRight(self, motorSpeed: int) -> bool:
         """
         @brief 右旋回する
@@ -136,11 +139,13 @@ class STS3032:
         """
         global stmUART
 
-        return self.setMotorSpeed({
-            deviceEnums.Side.LEFT: motorSpeed,
-            deviceEnums.Side.RIGHT: -motorSpeed,
-        })
-    
+        return self.setMotorSpeed(
+            {
+                deviceEnums.Side.LEFT: motorSpeed,
+                deviceEnums.Side.RIGHT: -motorSpeed,
+            }
+        )
+
     def turnLeft(self, motorSpeed: int) -> bool:
         """
         @brief 左旋回する
@@ -148,22 +153,25 @@ class STS3032:
         """
         global stmUART
 
-        return self.setMotorSpeed({
-            deviceEnums.Side.LEFT: -motorSpeed,
-            deviceEnums.Side.RIGHT: motorSpeed,
-        })
-    
+        return self.setMotorSpeed(
+            {
+                deviceEnums.Side.LEFT: -motorSpeed,
+                deviceEnums.Side.RIGHT: motorSpeed,
+            }
+        )
+
     def stop(self) -> bool:
         """
         @brief モーターを停止する
         """
         global stmUART
 
-        return self.setMotorSpeed({
-            deviceEnums.Side.LEFT: 0,
-            deviceEnums.Side.RIGHT: 0,
-        })
-
+        return self.setMotorSpeed(
+            {
+                deviceEnums.Side.LEFT: 0,
+                deviceEnums.Side.RIGHT: 0,
+            }
+        )
 
     # def setEncoderValue(self, encoderValue: dict[deviceEnums.Side, int]):
     #     """
@@ -246,12 +254,13 @@ class Loadcell:
         """
         return self.pressed
 
+
 class ToF:
     def __init__(
         self,
     ):
-        self.distance: list[float] = [-1 for _ in range(8)] # 時計回り
-    
+        self.distance: list[float] = [-1 for _ in range(8)]  # 時計回り
+
     def setDistance(self, distances: list[float]) -> bool:
         """
         @brief センサの距離をセットする
@@ -263,13 +272,14 @@ class ToF:
             return False
         self.distance = distances
         return True
-    
+
     def getDistance(self) -> list[float]:
         """
         @brief センサの距離を取得する
         @return: 距離のリスト[float(cm)]
         """
         return self.distance
+
 
 @dataclass
 class gyroData:
@@ -308,7 +318,9 @@ class Gyro:
 
     def getValue(self) -> gyroData:
 
-        res = gyroData(heading=self.data.heading, pitch=self.data.pitch, roll=self.data.roll)
+        res = gyroData(
+            heading=self.data.heading, pitch=self.data.pitch, roll=self.data.roll
+        )
         res.heading -= self.headingOffset
         res.pitch -= self.pitchOffset
         res.roll -= self.rollOffset
@@ -326,6 +338,35 @@ class Gyro:
 #         self,
 #     ):
 #         pass
+
+
+class Buzzer:
+    """
+    @brief Buzzerのクラス。
+    """
+
+    def __init__(
+        self,
+    ):
+        pass
+
+    def playMusic(self, music: MusicData) -> bool:
+        """
+        @brief 音楽を再生する
+        @param music: 再生する音楽データ
+        @return: 成功したらTrue、失敗したらFalse
+        """
+        global stmUART
+        # データの作成
+        # 音符数(1byte) + 各音符(周波数2byte, 長さ2byte)
+        data: bytes = bytes([len(music.notes)])
+        for note in music.notes:
+            freq = note[0]
+            length = note[1]
+            data += struct.pack(">HH", freq, length)
+        return stmUART.requestActuatorControl(
+            deviceEnums.ActuatorControlType.BUZZER, data
+        )
 
 
 class Switch:
@@ -375,7 +416,9 @@ class RescueKitServo:
                 num,
             ]
         )
-        return stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.RESCUE_KIT, data)
+        return stmUART.requestActuatorControl(
+            deviceEnums.ActuatorControlType.RESCUE_KIT, data
+        )
 
 
 class LED:
@@ -426,6 +469,7 @@ class STM:
         self.rescuekitservo: RescueKitServo = RescueKitServo()
         self.led: LED = LED()
         self.tof: ToF = ToF()
+        self.buzzer: Buzzer = Buzzer()
 
     def update(self) -> bool:
         global stmUART
@@ -443,8 +487,8 @@ class STM:
             ## ロードセルでなくタッチセンサの値を取得している
             self.loadcell.setValue(
                 {
-                    deviceEnums.Side.LEFT: data[2] & (1<<7),
-                    deviceEnums.Side.RIGHT: (data[2] & (1<<6))*2, 
+                    deviceEnums.Side.LEFT: data[2] & (1 << 7),
+                    deviceEnums.Side.RIGHT: (data[2] & (1 << 6)) * 2,
                 }
             )
             heading, pitch, roll = struct.unpack(">Hhh", data[4:10])
@@ -464,7 +508,7 @@ class STM:
             # uart1.print(distance);
             # uart1.print(" ")
             self.tof.setDistance(
-                [((data[11+i*2] << 8) + (data[12+i*2]))/10 for i in range(4)]
+                [(data[11 + i * 2] << 8 | data[12 + i * 2]) / 10 for i in range(4)]
             )
 
             return True
