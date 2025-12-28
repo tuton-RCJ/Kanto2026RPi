@@ -24,6 +24,8 @@ def main():
             stmInstance.update()
             while stmInstance.switch.getToggleSwitch1():
                 stmInstance.update()
+            time.sleep(1) 
+             # Allow time for stabilization after starting
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
             mapInstance.setTileType(tileType)

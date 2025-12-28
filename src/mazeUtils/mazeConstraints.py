@@ -2,7 +2,7 @@ from . import mazeEnums
 from .device import deviceEnums
 
 STRAGIHT_GYRO_P_GAIN: float = 2
-STRAGIHT_TOF_P_GAIN: float = 1
+STRAGIHT_TOF_P_GAIN: float = 2
 
 USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_GYRO # 回転時の制御方法
 USE_MOVE_METHOD: mazeEnums.moveMethod = mazeEnums.moveMethod.SEE_FRONT # 直進時の制御方法
@@ -43,4 +43,4 @@ TURN_D = 0.00  # 回転制御の微分ゲイン
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
-DEBUG_MODE: bool = False  # デバッグモードの有効化
+DEBUG_MODE: bool = True  # デバッグモードの有効化
