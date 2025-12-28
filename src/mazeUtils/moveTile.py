@@ -279,7 +279,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         stmInstance.sts3032.stop()
         return False, False
     debugPrint(f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}")
-
     if isUturn(mapInstance.frontDirection.value, direction.value, mapInstance):
         if mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1:
             turnToCertainDirection((mapInstance.frontDirection.value + 90) % 360, stmInstance)
@@ -293,7 +292,16 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)
     else:
         turnToCertainDirection(direction.value, stmInstance)
-
+    stmInstance.sts3032.stop()
+    
+    if mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1 or mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] <= 1:
+        time.sleep(0.2)
+        victimInfo = getVictimInfo(stmInstance)
+        for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+            if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != vitimToWallType(victimInfo[side]) and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
+                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
+                dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                print(f"Dropped rescue kit, detected victim info: {victimInfo}")
 
     mapInstance.frontDirection = direction
     
@@ -322,7 +330,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         tofDiff = stmInstance.tof.getDistance()[1] - stmInstance.tof.getDistance()[3]
         targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (stmInstance.tof.getDistance()[0]-15)/15),0))
         if abs(tofDiff) < mazeConstraints.USE_P_GAIN_FOR_TOF_DIST:
-            stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] * targetDistDiff) + int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN-tofDiff*mazeConstraints.STRAGIHT_TOF_P_GAIN) + 20, deviceEnums.Side.RIGHT: int(mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT]*targetDistDiff) - int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN+tofDiff*mazeConstraints.STRAGIHT_TOF_P_GAIN) + 20})
+            stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] * targetDistDiff) + int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN+tofDiff*mazeConstraints.STRAGIHT_TOF_P_GAIN) + 20, deviceEnums.Side.RIGHT: int(mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT]*targetDistDiff) - int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN-tofDiff*mazeConstraints.STRAGIHT_TOF_P_GAIN) + 20})
         else:
             stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: int(mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] * targetDistDiff) + int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN) + 20 , deviceEnums.Side.RIGHT: int(mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] * targetDistDiff) - int(turnAngle*mazeConstraints.STRAGIHT_GYRO_P_GAIN) + 20})
         if detectTileColor() == mazeEnums.tileType.BLACK:

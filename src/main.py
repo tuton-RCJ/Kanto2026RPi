@@ -77,6 +77,7 @@ def main():
             if returnPath:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    print(mapInstance.renderKnownTileAndWall())
             print("Robot now at the starting position, Congratulations!")
             moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[255,255,255])  # Flash white LED to indicate completion
             LiDAR.liDARShutdown(lidarInstance)

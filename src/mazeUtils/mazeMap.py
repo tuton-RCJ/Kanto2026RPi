@@ -179,7 +179,6 @@ class mazeMap:
         if tiletype == mazeEnums.tileType.BLACK:
             # 黒タイルならその周囲の通路を塞ぐ
             for direction in mazeEnums.absDirection:
-                self.wallTypes[y][x][direction] = mazeEnums.wallType.WALL
                 if direction == mazeEnums.absDirection.NORTH and y > 0:
                     self.mazeAsGraph[y][x].discard((x, y-1))
                     self.mazeAsGraph[y-1][x].discard((x, y))
