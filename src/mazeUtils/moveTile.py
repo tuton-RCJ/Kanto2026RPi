@@ -358,6 +358,13 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
                 if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                     getVictimDict[side][victimInfo[side]] += 1
+        elif 30 - abs(oldDist - currentDist) > mazeConstraints.MOVE_THRESHOLD_CM * 0.4 and not isRamp:
+            victimInfo = stmInstance.unitv.getStatus()
+            for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] <= 1 or mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL):
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
+                    debugPrint(f"Detected victim info during movement: {victimInfo}")
 
         debugPrint(f"isramp: {isRamp}, pitch: {stmInstance.gyro.getValue().pitch} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
         practicalMoveTime += (time.time() - oldTime)*np.cos(np.radians(abs(stmInstance.gyro.getValue().pitch)))
