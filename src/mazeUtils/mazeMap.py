@@ -147,6 +147,14 @@ class mazeMap:
         x, y = self.currentPosition
         return self.wallSeenCount[y][x]
 
+    def getTileType(self) -> mazeEnums.tileType:
+        """
+        @brief 現在位置のタイルタイプを取得する
+        @return: 現在位置のタイルタイプ
+        """
+        x, y = self.currentPosition
+        return self.tileTypes[y][x]
+        
     def addSeenCount(self) -> None:
         """
         @brief: nowDirection に対して水平な壁の検出回数を増やす

@@ -15,8 +15,11 @@ def main():
     stmInstance.update()
     # LiDARInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.matuken)
+    colorsensorInstance = colorsensor.ColorSensor()
+    
     while True:
+        colorsensorInstance.update()
         stmInstance.update()
-        print(f"tofDistance: {stmInstance.unitv.getStatus()} cm")
+        print(moveTile.detectTileColor())
 if __name__ == "__main__":
     main()

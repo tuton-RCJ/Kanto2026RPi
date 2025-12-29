@@ -22,8 +22,8 @@ USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用す
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-BLUETILE_RGB: tuple[tuple[int, int, int]] = ((20, 40, 120), (3, 3, 60))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((170, 255, 255), (60, 70, 120))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+BLUETILE_RGB: tuple[tuple[int, int, int]] = ((20, 40, 150), (3, 3, 60))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((255, 255, 255), (80, 100, 70))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
 
@@ -43,4 +43,4 @@ TURN_D = 0.00  # 回転制御の微分ゲイン
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
-DEBUG_MODE: bool = True  # デバッグモードの有効化
+DEBUG_MODE: bool = False  # デバッグモードの有効化

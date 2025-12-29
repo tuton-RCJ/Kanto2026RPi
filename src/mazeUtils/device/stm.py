@@ -151,10 +151,10 @@ class STS3032:
         """
         global stmUART
         if not (-100 <= motorSpeed[deviceEnums.Side.LEFT] <= 100):
-            print("invalid motor speed")
+            print("invalid motor speed:" + str(motorSpeed[deviceEnums.Side.LEFT]))
             return False
         if not (-100 <= motorSpeed[deviceEnums.Side.RIGHT] <= 100):
-            print("invalid motor speed")
+            print("invalid motor speed:" + str(motorSpeed[deviceEnums.Side.RIGHT]))
             return False
 
         data: bytes = bytes(
