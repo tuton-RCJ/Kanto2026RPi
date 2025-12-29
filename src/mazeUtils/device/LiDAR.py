@@ -21,7 +21,7 @@ def regulationAngle(angle: int) -> int:
 
 
 
-def initializeLidar(port: str = "/dev/ttyAMA2", baudrate: int = 230400) -> ydlidar.CYdLidar:
+def initializeLidar(port: str = "/dev/ttyAMA3", baudrate: int = 230400) -> ydlidar.CYdLidar:
     ydlidar.os_init()
     print("Available ports:", *ydlidar.lidarPortList())
     lidar = ydlidar.CYdLidar()

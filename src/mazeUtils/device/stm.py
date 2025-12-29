@@ -8,7 +8,7 @@ from . import deviceConstraints as deviceConst
 from . import deviceEnums
 
 class STMUART:
-    def __init__(self, port: str = "/dev/ttyAMA0", timeout: float = 0.5):
+    def __init__(self, port: str = "/dev/ttyAMA1", timeout: float = 0.5):
         self._port = port
         self._serial = serial.Serial(
             port=self._port,
@@ -96,7 +96,7 @@ class STMUART:
         self._seq = self._seq % 256
 
 
-port: str = "/dev/ttyAMA0"
+port: str = "/dev/ttyAMA1"
 stmUART: STMUART = STMUART(port)
 
 

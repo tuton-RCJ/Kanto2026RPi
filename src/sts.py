@@ -14,7 +14,7 @@ def main():
     stmInstance.update()
     LiDARInstance = LiDAR.initializeLidar()
     while True:
-        stmInstance.update()
-        print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
+        points = LiDAR.getLiDARScan(LiDARInstance)
+        print(LiDAR.getCertainAngleDist([0, 90, 180, 270], points))
 if __name__ == "__main__":
     main()
