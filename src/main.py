@@ -11,9 +11,13 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     mapInstance = mazeMap.mazeMap()
-    lidarInstance = LiDAR.initializeLidar()
+    lidarInstance = LiDAR.initializeLidar()    
+    stmInstance.update()
+    while stmInstance.switch.getToggleSwitch1():
+        stmInstance.update()    
+    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
+    time.sleep(1) 
     try:
         while True:
             """
@@ -22,9 +26,6 @@ def main():
             #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
             """
             stmInstance.update()
-            while stmInstance.switch.getToggleSwitch1():
-                stmInstance.update()
-            time.sleep(1) 
              # Allow time for stabilization after starting
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
