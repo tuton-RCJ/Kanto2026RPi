@@ -19,6 +19,8 @@ MOVE_STRAIGHT_THRESHOLD_CM: int = 14  # 直進時に前方との距離がこの�
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
 
+MIN_TILE_DETECTION_THERESHOLD: int = 5  # タイル検出の最小回数閾値
+
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る

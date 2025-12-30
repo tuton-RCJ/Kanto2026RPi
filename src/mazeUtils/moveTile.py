@@ -411,7 +411,12 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 if maxVictimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                     dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
         mapInstance.addSeenCount()
-    mapInstance.setTileType(max(getTileColorDict, key=getTileColorDict.get))
+    tileType = mazeEnums.tileType.EMPTY
+    for t in getTileColorDict:
+        if getTileColorDict[t] > getTileColorDict[tileType] and getTileColorDict[t] >= mazeConstraints.MIN_TILE_DETECTION_THERESHOLD:
+            tileType = t
+    mapInstance.setTileType(tileType)
+    
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
         time.sleep(5)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
