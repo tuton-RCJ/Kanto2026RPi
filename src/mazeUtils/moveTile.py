@@ -221,6 +221,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
             time.sleep(1)
         else:
             debugPrint(f"Not enough rescue kits to drop on {side} side.")
+    turnToCertainDirection(mapInstance.frontDirection.value, stmInstance)
 
 
 def vitimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
