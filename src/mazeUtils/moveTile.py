@@ -206,7 +206,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
-    flashLED(stmInstance, 10, 0.1,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
+    flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
     if mapInstance.nowRescueKitCount[side] >= needRescueKitCount and needRescueKitCount > 0:
         mapInstance.dropRescueKit(side, needRescueKitCount)
         stmInstance.rescuekitservo.dropRescueKit(needRescueKitCount, side)
@@ -416,7 +416,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         if getTileColorDict[t] > getTileColorDict[tileType] and getTileColorDict[t] >= mazeConstraints.MIN_TILE_DETECTION_THERESHOLD:
             tileType = t
     mapInstance.setTileType(tileType)
-    
+
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
         time.sleep(5)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
