@@ -26,7 +26,6 @@ def main():
             #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
             """
             stmInstance.update()
-             # Allow time for stabilization after starting
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
             mapInstance.setTileType(tileType)
