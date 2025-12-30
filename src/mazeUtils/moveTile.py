@@ -207,13 +207,14 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
     flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
-    for _ in range(needRescueKitCount):
+    for i in range(needRescueKitCount):
         if mapInstance.nowRescueKitCount[side] >= 1:
+            turnToCertainDirection((mapInstance.frontDirection.value + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
             mapInstance.dropRescueKit(side, 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side)
             time.sleep(1)
         elif mapInstance.nowRescueKitCount[side.opposite()] >= 1:
-            turnToCertainDirection((mapInstance.frontDirection.value + 180) % 360, stmInstance)
+            turnToCertainDirection((mapInstance.frontDirection.value + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
             mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
             mapInstance.dropRescueKit(side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side.opposite())
