@@ -13,13 +13,11 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    # LiDARInstance = LiDAR.initializeLidar()
-    stmInstance.buzzer.playMusic(buzzerSongs.matuken)
+    LiDARInstance = LiDAR.initializeLidar()
     colorsensorInstance = colorsensor.ColorSensor()
     
     while True:
-        colorsensorInstance.update()
         stmInstance.update()
-        print(moveTile.detectTileColor())
+        print(f"gyro value: {stmInstance.gyro.getValue()}")
 if __name__ == "__main__":
     main()

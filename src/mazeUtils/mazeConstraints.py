@@ -16,7 +16,7 @@ NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAS
 
 MOVE_THRESHOLD_CM: int = 28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 MOVE_STRAIGHT_THRESHOLD_CM: int = 14  # 直進時に前方との距離がこの値以下になったら停止する
-WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
+WALL_DETECTION_THRESHOLD_CM: int = 20  # LiDARで壁を検出する閾値
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = 15  # 複数の救助キットを投下する際に回転する角度
@@ -32,7 +32,7 @@ SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((255, 255, 255), (80, 100, 70))  
 RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.1  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.4  # 1マス直進にかかる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
