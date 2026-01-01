@@ -11,10 +11,8 @@ import time
 
 def main():
     stmInstance = stm.STM()
-    stmInstance.update()
-    LiDARInstance = LiDAR.initializeLidar()
     while True:
-        points = LiDAR.getLiDARScan(LiDARInstance)
-        print(LiDAR.getCertainAngleDist([0, 90, 180, 270], points))
+        stmInstance.update()
+        print(f"loadCellVoltage: {stmInstance.loadcell.getRawValue()} mV")
 if __name__ == "__main__":
     main()
