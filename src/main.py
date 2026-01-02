@@ -33,7 +33,7 @@ def main():
 
             print("Initial Map:")
             print(mapInstance.renderKnownTileAndWall())
-
+            
             nextDirection = mapInstance.getNearestUnexploredTile()
             print(f"Next Direction: {nextDirection}")
             
@@ -41,6 +41,7 @@ def main():
             print("Exploration started.")
             stopped = False
             while nextDirection is not None or stopped:
+                nextDirection = mapInstance.getNearestUnexploredTile()
                 for direction in nextDirection:
                     isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())

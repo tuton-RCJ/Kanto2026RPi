@@ -1,6 +1,6 @@
 import ydlidar
 from . import mazeConstraints, mazeEnums, mazeMap
-from .device import LiDAR, deviceConstraints, deviceEnums, stm
+from .device import LiDAR, deviceConstraints, deviceEnums, stm, camera
 import time
 import numpy as np
 import math
@@ -157,7 +157,17 @@ def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
         debugPrint(f"Turning to {targetDir} deg, current heading: {stmInstance.gyro.getValue().heading} deg, turnAngle: {turnAngle} deg")
 
         oldError = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
+        oldTime = time.time()
         while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
+            if time.time() - oldTime > mazeConstraints.TIMEOUT_FOR_TURNING_SEC:
+                debugPrint("Turn timeout reached.")
+                t = time.time()
+                while time.time() - t < 0.2:
+                    stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -50, deviceEnums.Side.RIGHT: -50})
+                    if stmInstance.switch.getToggleSwitch1():
+                        stmInstance.sts3032.stop()
+                        return
+                oldTime = time.time()
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
@@ -327,7 +337,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     oldTime = startTime
     getVictimDict = {deviceEnums.Side.LEFT: defaultdict(int), deviceEnums.Side.RIGHT: defaultdict(int)}
     getTileColorDict = defaultdict(int)
+    cameraBlackTileDetected = False
     while True:
+
+        isBlackTileByCam = camera.detectTileColor() == "BLACK"
+        cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
 
         stmInstance.update()
         if stmInstance.switch.getToggleSwitch1():
@@ -370,7 +384,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed})
         else:
             stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-        if detectTileColor() == mazeEnums.tileType.BLACK:
+        if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
             stmInstance.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
             debugPrint("Black tile detected! Stopping movement. Starting escape maneuver.")
@@ -387,7 +401,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             if tempTileColor != mazeEnums.tileType.EMPTY:
                 getTileColorDict[tempTileColor] += 1
         
-        if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + direction.value, LiDAR.getLiDARScan(lidar)) < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().pitch, 360 - stmInstance.gyro.getValue().pitch) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
+        if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + direction.value, scanPoints) < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().pitch, 360 - stmInstance.gyro.getValue().pitch) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
             stmInstance.sts3032.stop()
             if mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM + 15:
                 littleFowardFlag = True
@@ -399,28 +413,18 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             pressedSide = deviceEnums.Side.LEFT if stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
             escapeFromObstacle(pressedSide, stmInstance)
             stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-            practicalMoveTime -= (time.time() - oldTime)*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))*0.5
+            practicalMoveTime -= (time.time() - oldTime)*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))*0.2
             escapeFlag = True
 
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
             stmInstance.sts3032.stop()
             break
-
         if (30 - abs(oldDist - currentDist) < mazeConstraints.MOVE_THRESHOLD_CM * 0.2) and not isRamp:
             victimInfo = stmInstance.unitv.getStatus()
             for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
                 if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                     getVictimDict[side][victimInfo[side]] += 1
                     debugPrint(f"Detected victim info during movement: {victimInfo}")
-        elif (30 - abs(oldDist - currentDist) > mazeConstraints.MOVE_THRESHOLD_CM * 0.2) and not isRamp:
-            victimInfo = stmInstance.unitv.getStatus()
-            for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL):
-                    stmInstance.sts3032.stop()
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
-                    debugPrint(f"Detected victim info during movement: {victimInfo}")
-                    debugPrint(f"around wall type: {mapInstance.getWallType()}")
 
         debugPrint(f"isramp: {isRamp}, pitch: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
         practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))
