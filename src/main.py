@@ -20,11 +20,6 @@ def main():
     time.sleep(1) 
     try:
         while True:
-            """
-            stmInstance.update()
-            print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
-            #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
-            """
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
@@ -71,6 +66,11 @@ def main():
                         mapInstance.loadCache(nowDirection=nowDirection)
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
+                        stmInstance.update()
+                        moveTile.detectWall(lidarInstance, mapInstance)
+                        tileType = moveTile.detectTileColor()
+                        mapInstance.setTileType(tileType)
+                        moveTile.rescueVictim(mapInstance, stmInstance)
                         break
 
                 nextDirection = mapInstance.getNearestUnexploredTile()

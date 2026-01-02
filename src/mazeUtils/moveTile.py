@@ -232,14 +232,24 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
             turnToCertainDirection((mapInstance.frontDirection.value + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
             mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
-            time.sleep(1)
+            oldtime = time.time()
+            while time.time() - oldtime < 1:
+                stmInstance.update()
+                if stmInstance.switch.getToggleSwitch1():
+                    stmInstance.sts3032.stop()
+                    return
         elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
             turnToCertainDirection((mapInstance.frontDirection.value + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
             mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
             mapInstance.dropRescueKit(side.opposite() if not oppositeFlag else side, 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side.opposite() if not oppositeFlag else side)
             oppositeFlag = not oppositeFlag
-            time.sleep(1)
+            oldtime = time.time()
+            while time.time() - oldtime < 1:
+                stmInstance.update()
+                if stmInstance.switch.getToggleSwitch1():
+                    stmInstance.sts3032.stop()
+                    return
         else:
             debugPrint(f"Not enough rescue kits to drop on {side} side.")
     turnToCertainDirection(mapInstance.frontDirection.value, stmInstance)
@@ -273,7 +283,10 @@ def rescueVictim(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM) -> None:
         t = time.time()
         leftFlag = True
         rightFlag = True
-        while time.time() - t < 0.5:
+        while time.time() - t < 0.5:            
+            if stmInstance.switch.getToggleSwitch1():
+                stmInstance.sts3032.stop()
+                return
             victimInfo = getVictimInfo(stmInstance)
             if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL and leftFlag:
                 print(f"Find victim on LEFT side: {victimInfo[deviceEnums.Side.LEFT]}")
@@ -388,7 +401,8 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             stmInstance.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
             debugPrint("Black tile detected! Stopping movement. Starting escape maneuver.")
-            while (abs(LiDAR.getCertainAngleDist(nearestLiDARAngle, LiDAR.getLiDARScan(lidar)) - oldDist) > mazeConstraints.TOF_BLACK_TILE_ESCAPE_DISTANCE_CM):
+            sign = -1 if nearestLiDARAngle == 0 else 1
+            while sign * (LiDAR.getCertainAngleDist(nearestLiDARAngle - stmInstance.gyro.getValue().heading + direction.value, LiDAR.getLiDARScan(lidar)) - oldDist) > 0:
                 stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -30, deviceEnums.Side.RIGHT: -30})
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
