@@ -39,9 +39,10 @@ def main():
             
 
             print("Exploration started.")
-            while nextDirection is not None:
+            stopped = False
+            while nextDirection is not None or stopped:
                 for direction in nextDirection:
-                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
                     toggleswitchFlag = False
                     stmInstance.update()

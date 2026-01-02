@@ -5,19 +5,19 @@ from mazeUtils.device import LiDAR
 from mazeUtils.device import colorsensor
 from mazeUtils.device import deviceEnums
 from mazeUtils.device import buzzerSongs
+from mazeUtils.device import photoReflector
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
 import ydlidar
 import time
 
 def main():
-    stmInstance = stm.STM()
-    stmInstance.update()
-    LiDARInstance = LiDAR.initializeLidar()
-    colorsensorInstance = colorsensor.ColorSensor()
-    
+    fr = photoReflector.PhotoReflector()
     while True:
-        stmInstance.update()
-        print(f"gyro value: {stmInstance.gyro.getValue()}")
+        if fr.isReflecting():
+            print("Reflecting")
+        else:
+            print("Not Reflecting")
+        time.sleep(0.5)
 if __name__ == "__main__":
     main()

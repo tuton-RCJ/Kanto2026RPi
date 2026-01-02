@@ -1,8 +1,8 @@
 from . import mazeEnums
 from .device import deviceEnums
 
-STRAGIHT_GYRO_P_GAIN: float = 2
-STRAGIHT_TOF_P_GAIN: float = 2
+STRAGIHT_GYRO_P_GAIN: float = 0.5
+STRAGIHT_TOF_P_GAIN: float = 1
 
 USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_GYRO # 回転時の制御方法
 USE_MOVE_METHOD: mazeEnums.moveMethod = mazeEnums.moveMethod.SEE_FRONT # 直進時の制御方法
@@ -14,10 +14,17 @@ GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30,
 
 NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value] 
 
-MOVE_THRESHOLD_CM: int = 28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
-MOVE_STRAIGHT_THRESHOLD_CM: int = 14  # 直進時に前方との距離がこの値以下になったら停止する
-WALL_DETECTION_THRESHOLD_CM: int = 20  # LiDARで壁を検出する閾値
+MOVE_THRESHOLD_CM: int = 26  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+MOVE_STRAIGHT_THRESHOLD_CM: int = 16 # 直進時に前方との距離がこの値以下になったら停止する
+WALL_DETECTION_THRESHOLD_CM: int = 25  # LiDARで壁を検出する閾値
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
+
+# 直進中の壁追従(壁が近い時のみ)の制御パラメータ
+WALL_FOLLOW_ENABLE_DIST_CM: int = 20  # 片側でもこの距離以下なら壁距離制御を有効化
+WALL_FOLLOW_TARGET_DIST_CM: int = 15  # 片側のみ近い場合の目標距離
+WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
+WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
+WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = 15  # 複数の救助キットを投下する際に回転する角度
 
@@ -25,9 +32,8 @@ MIN_TILE_DETECTION_THERESHOLD: int = 5  # タイル検出の最小回数閾値
 
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
-BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 12, 20), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-BLUETILE_RGB: tuple[tuple[int, int, int]] = ((20, 40, 150), (3, 3, 60))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-SILVERTILE_RGB: tuple[tuple[int, int, int]] = ((255, 255, 255), (80, 100, 70))  # 銀タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((10, 10, 10), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+BLUETILE_RGB: tuple[tuple[int, int, int]] = ((10, 30, 90), (0, 0, 30))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
 
@@ -47,4 +53,4 @@ TURN_D = 0.00  # 回転制御の微分ゲイン
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
-DEBUG_MODE: bool = False  # デバッグモードの有効化
+DEBUG_MODE: bool = True  # デバッグモードの有効化
