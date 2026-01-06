@@ -439,6 +439,12 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                     getVictimDict[side][victimInfo[side]] += 1
                     debugPrint(f"Detected victim info during movement: {victimInfo}")
+        if (abs(oldDist - currentDist)/30 > mazeConstraints.MOVE_THRESHOLD_CM * 0.2) and not isRamp:
+            victimInfo = stmInstance.unitv.getStatus()
+            for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                    debugPrint(f"Dropped rescue kit during movement for victim info: {victimInfo}")
 
         debugPrint(f"isramp: {isRamp}, pitch: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
         practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))
