@@ -3,6 +3,7 @@ import ydlidar
 import numpy as np
 from dataclasses import dataclass
 from . import deviceConstraints
+from . import deviceEnums
 @dataclass
 class Point:
     """
@@ -84,6 +85,25 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
                 dist = p.range
         distances.append(dist)
     return distances[0] if single else distances
+
+def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
+    """
+    @brief 指定したサイドの前方に壁があるかどうかを判定する
+    @param points: LiDAR のスキャンデータのリスト
+    @param side: 判定するサイド
+    @return 壁がある場合は True, ない場合は False
+    """
+    res = True
+    for p in points:
+        if side == deviceEnums.Side.LEFT:
+            if p.angle >= 20 and p.angle <= 180:
+                if p.range*np.sin(np.deg2rad(p.angle-90)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+                    return False
+        elif side == deviceEnums.Side.RIGHT:
+            if p.angle >= 270 and p.angle <= 340:
+                if p.range*np.sin(np.deg2rad(p.angle-270)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+                    return False
+    return res
 
 def liDARShutdown(lidar: ydlidar.CYdLidar):
     """
