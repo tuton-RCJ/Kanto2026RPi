@@ -1,6 +1,6 @@
 import ydlidar
 from . import mazeConstraints, mazeEnums, mazeMap
-from .device import LiDAR, deviceConstraints, deviceEnums, stm, camera
+from .device import LiDAR, deviceConstraints, deviceEnums, stm, camera,buzzerSongs
 import time
 import numpy as np
 import math
@@ -654,6 +654,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     tileType = mazeEnums.tileType.EMPTY
     nowMaxCount = 0
     if isSilverTile():
+        stmInstance.buzzer.playMusic(buzzerSongs.checkpoint)
         mapInstance.setTileType(mazeEnums.tileType.SILVER)
         tileType = mazeEnums.tileType.SILVER
     else:
@@ -667,6 +668,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     print(f"Tile color detection counts: {dict(getTileColorDict)}, decided tile type: {tileType}")
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
+        stmInstance.buzzer.playMusic(buzzerSongs.swamp)
         time.sleep(5)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
         print(f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}")
