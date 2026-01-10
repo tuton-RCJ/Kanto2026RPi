@@ -586,10 +586,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and (not vitimToWallType(victimInfo[side]) in avoidVictim[side]) and consequentSearchRes[side] is None:
                     stmInstance.sts3032.stop()
                     t = time.time()
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                    print(f"Detected victim info ahead: {victimInfo}")
-                    practicalMoveTime -= (time.time() - t)
                     consequentSearchRes[side] = victimInfo[side]
+                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(consequentSearchRes[side]))
+                    print(f"Detected victim info ahead: {victimInfo}")
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                    practicalMoveTime -= (time.time() - t)
             else:
                 lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
                 if (30 - abs(oldDist - currentDist) < mazeConstraints.MOVE_THRESHOLD_CM * 0.20):
