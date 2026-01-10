@@ -14,10 +14,9 @@ import time
 
 def main():
     stmInstance = stm.STM()
-    t = time.time()
-    stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50})
-    while time.time() - t < 1:
-        pass
-    stmInstance.sts3032.stop()
+    while True:
+        stmInstance.update()
+        print(f"unitv:{stmInstance.unitv.getStatus()}")
+
 if __name__ == "__main__":
     main()
