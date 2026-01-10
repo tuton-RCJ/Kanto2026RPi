@@ -42,19 +42,19 @@ class STMUART:
 
         # レスポンス待機
         start_time = time.time()
-        while self._serial.in_waiting < 22:
+        while self._serial.in_waiting < 24:
             if time.time() - start_time > self._timeout:
                 print("STM UART timeout")
                 return None
 
-        data: bytes = self._serial.read(22)
+        data: bytes = self._serial.read(24)
         # データのチェック
         if data[0] == 0x00 and data[1] == self._seq:
             checkDigit = 0
-            for b in data[0:21]:
+            for b in data[0:23]:
                 checkDigit ^= b
-            if checkDigit == data[21]:
-                return data[2:21]
+            if checkDigit == data[23]:
+                return data[2:23]
         print("STM UART data error")
         return None
 
@@ -224,13 +224,18 @@ class UnitV:
             deviceEnums.Side.LEFT: deviceEnums.UnitVStatus.NOTHING,
             deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus.NOTHING,
         }
+        self.lastUpdateTime: dict[deviceEnums.Side, int] = {
+            deviceEnums.Side.LEFT: None,
+            deviceEnums.Side.RIGHT: None,
+        }
 
-    def setStatus(self, status: dict[deviceEnums.Side, deviceEnums.UnitVStatus]):
+    def setStatus(self, status: dict[deviceEnums.Side, deviceEnums.UnitVStatus], updateTime: dict[deviceEnums.Side, int] ):
         """
         @brief UnitVのステータスを設定する
         @param status: ステータスの辞書[Side, UnitVStatus]
         """
-        self.status = status
+        self.status = status.copy()
+        self.lastUpdateTime = updateTime.copy()
 
     def getStatus(self) -> dict[deviceEnums.Side, deviceEnums.UnitVStatus]:
         """
@@ -238,6 +243,13 @@ class UnitV:
         @return: ステータスの辞書[Side, UnitVStatus]
         """
         return self.status
+    
+    def getLastUpdateTime(self) -> dict[deviceEnums.Side, int]:
+        """
+        @brief UnitVのステータスの最終更新時間を取得する
+        @return: 最終更新時間の辞書[Side, 時間(ms)]
+        """
+        return self.lastUpdateTime
 
 
 class Loadcell:
@@ -517,16 +529,20 @@ class STM:
                 {
                     deviceEnums.Side.LEFT: deviceEnums.UnitVStatus(data[0]),
                     deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus(data[1]),
+                },
+                {
+                    deviceEnums.Side.LEFT: data[2],
+                    deviceEnums.Side.RIGHT: data[3],
                 }
             )
             ## ロードセルでなくタッチセンサの値を取得している
             self.loadcell.setValue(
                 {
-                    deviceEnums.Side.LEFT: data[2] & (1 << 7),
-                    deviceEnums.Side.RIGHT: (data[2] & (1 << 6)) * 2,
+                    deviceEnums.Side.LEFT: data[4] & (1 << 7),
+                    deviceEnums.Side.RIGHT: (data[4] & (1 << 6)) * 2,
                 }
             )
-            heading, pitch, roll = struct.unpack(">Hhh", data[4:10])
+            heading, pitch, roll = struct.unpack(">Hhh", data[6:12])
             self.gyro.setValue(
                 gyroData=gyroData(
                     heading=heading / 100.0,
@@ -536,14 +552,14 @@ class STM:
             )
             # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
             self.switch.setValue(
-                pushSwitch1=bool((data[10] >> 7) & 0x01),
-                toggleSwitch1=bool((data[10] >> 6) & 0x01),
+                pushSwitch1=bool((data[12] >> 7) & 0x01),
+                toggleSwitch1=bool((data[12] >> 6) & 0x01),
             )
             #   int distance = ((int)sensorData[11 + i * 2] << 8) + (int)sensorData[12 + i * 2];
             # uart1.print(distance);
             # uart1.print(" ")
             self.tof.setDistance(
-                [(data[11 + i * 2] << 8 | data[12 + i * 2]) / 10 for i in range(4)]
+                [(data[13 + i * 2] << 8 | data[14 + i * 2]) / 10 for i in range(4)]
             )
 
             return True

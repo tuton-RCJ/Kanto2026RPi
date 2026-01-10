@@ -98,6 +98,7 @@ class mazeMap:
         self.currentPosition = (maxSize // 2, maxSize // 2)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
+        self.wallTypesOnly45Deg = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)] 
         self.wallSeenCount = [[{d: 0 for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
@@ -131,11 +132,24 @@ class mazeMap:
 
         self.wallTypes[y][x][direction] = wallType
 
-    def getWallType(self) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
+    def getWallType(self, direction: mazeEnums.absDirection = None) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
         """
         @brief 現在位置の壁タイプを取得する
         @return: 現在位置の壁タイプの辞書
         """
+        if direction is not None:
+            if direction == mazeEnums.absDirection.NORTH:
+                y = self.currentPosition[1] - 1
+                return self.wallTypes[y][self.currentPosition[0]]
+            elif direction == mazeEnums.absDirection.EAST:
+                x = self.currentPosition[0] + 1
+                return self.wallTypes[self.currentPosition[1]][x]
+            elif direction == mazeEnums.absDirection.SOUTH:
+                y = self.currentPosition[1] + 1
+                return self.wallTypes[y][self.currentPosition[0]]
+            elif direction == mazeEnums.absDirection.WEST:
+                x = self.currentPosition[0] - 1
+                return self.wallTypes[self.currentPosition[1]][x]
         x, y = self.currentPosition
         return self.wallTypes[y][x]
     
