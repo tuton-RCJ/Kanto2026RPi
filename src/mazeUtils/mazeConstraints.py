@@ -55,4 +55,4 @@ TURN_D = 0.00  # 回転制御の微分ゲイン
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
-DEBUG_MODE: bool = True  # デバッグモードの有効化
+DEBUG_MODE: bool = False  # デバッグモードの有効化

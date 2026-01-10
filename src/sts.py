@@ -13,10 +13,10 @@ import ydlidar
 import time
 
 def main():
-    stmInstance = stm.STM()
+    lidar = LiDAR.initializeLidar()
     while True:
-        stmInstance.update()
-        print(f"unitv:{stmInstance.unitv.getStatus()}")
+        pts = LiDAR.getLiDARScan(lidar)
+        print(f"isWallAhead LEFT: {LiDAR.isWallAheadTile(pts, deviceEnums.Side.LEFT)}, RIGHT: {LiDAR.isWallAheadTile(pts, deviceEnums.Side.RIGHT)}")
 
 if __name__ == "__main__":
     main()

@@ -96,12 +96,12 @@ def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
     res = True
     for p in points:
         if side == deviceEnums.Side.LEFT:
-            if p.angle >= 20 and p.angle <= 180:
-                if p.range*np.sin(np.deg2rad(p.angle-90)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+            if p.angle >= 10 and p.angle <= 90:
+                if p.range*np.cos(np.deg2rad(p.angle-90)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
                     return False
         elif side == deviceEnums.Side.RIGHT:
-            if p.angle >= 270 and p.angle <= 340:
-                if p.range*np.sin(np.deg2rad(p.angle-270)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+            if p.angle >= 270 and p.angle <= 350:
+                if p.range*np.cos(np.deg2rad(p.angle-270)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
                     return False
     return res
 
