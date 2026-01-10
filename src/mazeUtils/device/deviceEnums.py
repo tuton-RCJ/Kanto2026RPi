@@ -4,6 +4,7 @@ from enum import Enum
 class Side(Enum):
     LEFT = 0
     RIGHT = 1
+
     def opposite(self):
         if self == Side.LEFT:
             return Side.RIGHT
@@ -35,4 +36,6 @@ class ActuatorControlType(Enum):
         elif self == ActuatorControlType.LED:
             return 3
         elif self == ActuatorControlType.BUZZER:
-            return 1
+            # 可変長: 音符数(1byte) + 各音符(周波数2byte, 長さ2byte) * N
+            return -1
+        return -1

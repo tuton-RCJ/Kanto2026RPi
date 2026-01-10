@@ -66,7 +66,7 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
     @memo: 角度はロボット正面を 0 度として、反時計回りに増加する
     """
 
-    if isinstance(angle, int):
+    if isinstance(angle, int | float):
         angle = [angle]
         single = True
     else:
@@ -75,6 +75,7 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
     distances = []
     for a in angle:
         minerror = 1e9
+        dist = 1e9
         for p in points:
             if p.range < 10:
                 continue

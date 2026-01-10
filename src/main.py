@@ -11,19 +11,16 @@ import time
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
-    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     mapInstance = mazeMap.mazeMap()
-    lidarInstance = LiDAR.initializeLidar()
+    lidarInstance = LiDAR.initializeLidar()    
+    stmInstance.update()
+    while stmInstance.switch.getToggleSwitch1():
+        stmInstance.update()    
+    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
+    time.sleep(1) 
     try:
         while True:
-            """
             stmInstance.update()
-            print(f"tofDistance: {stmInstance.tof.getDistance()} cm")
-            #print(f"AbsAngle: {stmInstance.gyro.getValue().heading}")
-            """
-            stmInstance.update()
-            while stmInstance.switch.getToggleSwitch1():
-                stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
             mapInstance.setTileType(tileType)
@@ -31,15 +28,17 @@ def main():
 
             print("Initial Map:")
             print(mapInstance.renderKnownTileAndWall())
-
+            
             nextDirection = mapInstance.getNearestUnexploredTile()
             print(f"Next Direction: {nextDirection}")
             
 
             print("Exploration started.")
-            while nextDirection is not None:
+            stopped = False
+            while nextDirection is not None or stopped:
+                nextDirection = mapInstance.getNearestUnexploredTile()
                 for direction in nextDirection:
-                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
                     toggleswitchFlag = False
                     stmInstance.update()
@@ -67,7 +66,13 @@ def main():
                         mapInstance.loadCache(nowDirection=nowDirection)
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
+                        stmInstance.update()
+                        moveTile.detectWall(lidarInstance, mapInstance)
+                        tileType = moveTile.detectTileColor()
+                        mapInstance.setTileType(tileType)
+                        moveTile.rescueVictim(mapInstance, stmInstance)
                         break
+                    moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
 
                 nextDirection = mapInstance.getNearestUnexploredTile()
                     
@@ -77,10 +82,12 @@ def main():
             if returnPath:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    print(mapInstance.renderKnownTileAndWall())
             print("Robot now at the starting position, Congratulations!")
-            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=0.5, color=[0, 255, 0])
+            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
             LiDAR.liDARShutdown(lidarInstance)
             stmInstance.sts3032.stop()
+            print(mapInstance.renderKnownTileAndWall())
             exit(0)
     except:
         import traceback

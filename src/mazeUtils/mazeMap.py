@@ -147,6 +147,14 @@ class mazeMap:
         x, y = self.currentPosition
         return self.wallSeenCount[y][x]
 
+    def getTileType(self) -> mazeEnums.tileType:
+        """
+        @brief 現在位置のタイルタイプを取得する
+        @return: 現在位置のタイルタイプ
+        """
+        x, y = self.currentPosition
+        return self.tileTypes[y][x]
+        
     def addSeenCount(self) -> None:
         """
         @brief: nowDirection に対して水平な壁の検出回数を増やす
@@ -179,7 +187,6 @@ class mazeMap:
         if tiletype == mazeEnums.tileType.BLACK:
             # 黒タイルならその周囲の通路を塞ぐ
             for direction in mazeEnums.absDirection:
-                self.wallTypes[y][x][direction] = mazeEnums.wallType.WALL
                 if direction == mazeEnums.absDirection.NORTH and y > 0:
                     self.mazeAsGraph[y][x].discard((x, y-1))
                     self.mazeAsGraph[y-1][x].discard((x, y))
