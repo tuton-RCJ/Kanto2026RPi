@@ -587,7 +587,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     stmInstance.sts3032.stop()
                     t = time.time()
                     dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
                     print(f"Detected victim info ahead: {victimInfo}")
                     practicalMoveTime -= (time.time() - t)
                     consequentSearchRes[side] = victimInfo[side]
