@@ -32,15 +32,8 @@ class CameraColorDetector:
         avg_hsv = cv2.mean(hsv_roi)
         avg_h, avg_s, avg_v = avg_hsv[0], avg_hsv[1], avg_hsv[2]
         #print(avg_h,avg_s,avg_v)
-        if avg_s < 80:
-            if avg_v > 100: return "WHITE"
-            if avg_v < 40:  return "BLACK"
-            return "GRAY"
-
-        if (avg_h < 10 or avg_h > 160):
-            return "RED"
-        elif (100 < avg_h < 140):
-            return "BLUE"
+        if avg_h < 120:
+            if avg_v < 200:  return "BLACK"
         
         return "UNKNOWN"
 
@@ -54,7 +47,7 @@ class CameraColorDetector:
 
         if exp and gain:
             exp=30000
-            gain=2.0
+            gain=1.0
             self.picam2.set_controls({
                 "AeEnable": False,
                 "ExposureTime": exp,
@@ -62,7 +55,7 @@ class CameraColorDetector:
             })
             print(f"露出固定: {exp}us, ゲイン: {gain}")
 
-        # 2. ホワイトバランスの固定 (ColourGains または ColorGains)
+        # 2. ホワイトバランスの固定 (ColourGains または ColorGains) 104, 233, 171
         # libcameraでは 'ColourGains' (uあり) が一般的です
         awb_gains = props.get('ColourGains') or props.get('ColorGains')
 

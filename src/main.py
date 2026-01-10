@@ -72,6 +72,7 @@ def main():
                         mapInstance.setTileType(tileType)
                         moveTile.rescueVictim(mapInstance, stmInstance)
                         break
+                    moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
 
                 nextDirection = mapInstance.getNearestUnexploredTile()
                     
@@ -86,6 +87,7 @@ def main():
             moveTile.flashLED(stmInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
             LiDAR.liDARShutdown(lidarInstance)
             stmInstance.sts3032.stop()
+            print(mapInstance.renderKnownTileAndWall())
             exit(0)
     except:
         import traceback

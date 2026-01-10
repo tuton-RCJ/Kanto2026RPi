@@ -21,7 +21,7 @@ USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用す
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
 WALL_FOLLOW_ENABLE_DIST_CM: int = 20  # 片側でもこの距離以下なら壁距離制御を有効化
-WALL_FOLLOW_TARGET_DIST_CM: int = 15  # 片側のみ近い場合の目標距離
+WALL_FOLLOW_TARGET_DIST_CM: int = 16.5  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
 WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
@@ -30,17 +30,17 @@ TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = 15  # 複数の救助キットを投下する際に回転する角度
 
-MIN_TILE_DETECTION_THERESHOLD: int = 3  # タイル検出の最小回数閾値
+MIN_TILE_DETECTION_THERESHOLD: int = 5  # タイル検出の最小回数閾値
 
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((15, 15, 15), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 BLUETILE_RGB: tuple[tuple[int, int, int]] = ((10, 30, 120), (0, 0, 40))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-RAMP_DEG_THRESHOLD: float = 6.0  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 5.0  # 傾斜検出の閾値(度)
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.4  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.3  # 1マス直進にかかる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
@@ -55,4 +55,4 @@ TURN_D = 0.00  # 回転制御の微分ゲイン
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
-DEBUG_MODE: bool = False  # デバッグモードの有効化
+DEBUG_MODE: bool = True  # デバッグモードの有効化
