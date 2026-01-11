@@ -317,7 +317,7 @@ def rescueVictim(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM) -> None:
             stmInstance.update()
         mapInstance.addSeenCount()
 
-def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidar: ydlidar.CYdLidar, firstTime: float) -> bool:
+def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidar: ydlidar.CYdLidar, firstTime: float) -> tuple[bool,bool]:
     """
     @brief direction の方向へ一マス移動する
     @param direction: 移動方向
@@ -357,7 +357,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                                         stmInstance.update()
                                         if stmInstance.switch.getToggleSwitch1():
                                             stmInstance.sts3032.stop()
-                                            return
+                                            return False, True
                                 elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
                                     turnToCertainDirection((nowAngle + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
                                     mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
@@ -369,7 +369,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                                         stmInstance.update()
                                         if stmInstance.switch.getToggleSwitch1():
                                             stmInstance.sts3032.stop()
-                                            return
+                                            return False, True
                                 else:
                                     debugPrint(f"Not enough rescue kits to drop on {side} side.")
                             if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
@@ -400,7 +400,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                                         stmInstance.update()
                                         if stmInstance.switch.getToggleSwitch1():
                                             stmInstance.sts3032.stop()
-                                            return
+                                            return False, True
                                 elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
                                     turnToCertainDirection((nowAngle + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
                                     mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
@@ -412,7 +412,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                                         stmInstance.update()
                                         if stmInstance.switch.getToggleSwitch1():
                                             stmInstance.sts3032.stop()
-                                            return
+                                            return False, True
                                 else:
                                     debugPrint(f"Not enough rescue kits to drop on {side} side.")
                             if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
@@ -446,7 +446,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                                             stmInstance.update()
                                             if stmInstance.switch.getToggleSwitch1():
                                                 stmInstance.sts3032.stop()
-                                                return
+                                                return False, True
                                     elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
                                         turnToCertainDirection((nowAngle + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
                                         mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
@@ -458,7 +458,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                                             stmInstance.update()
                                             if stmInstance.switch.getToggleSwitch1():
                                                 stmInstance.sts3032.stop()
-                                                return
+                                                return False, True
                                     else:
                                         debugPrint(f"Not enough rescue kits to drop on {side} side.")
                                 if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
