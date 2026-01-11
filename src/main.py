@@ -39,6 +39,8 @@ def main():
             stopped = False
             while nextDirection is not None or stopped:
                 nextDirection = mapInstance.getNearestUnexploredTile()
+                if nextDirection is None:
+                    break
                 for direction in nextDirection:
                     isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
