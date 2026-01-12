@@ -131,6 +131,7 @@ def main():
         import traceback
         traceback.print_exc()
         LiDAR.liDARShutdown(lidarInstance)
-        stmInstance.sts3032.stop()               
+        stmInstance.sts3032.stop()      
+        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0])  # Flash red LED to indicate error         
 if __name__ == "__main__":
     main()

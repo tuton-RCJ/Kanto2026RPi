@@ -14,7 +14,7 @@ GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30,
 
 NEWS_DIRECTION = [mazeEnums.absDirection.NORTH.value, mazeEnums.absDirection.EAST.value, mazeEnums.absDirection.SOUTH.value, mazeEnums.absDirection.WEST.value] 
 
-MOVE_THRESHOLD_CM: int = 26  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+MOVE_THRESHOLD_CM: int = 28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 MOVE_STRAIGHT_THRESHOLD_CM: int = 16 # 直進時に前方との距離がこの値以下になったら停止する
 WALL_DETECTION_THRESHOLD_CM: int = 25  # LiDARで壁を検出する閾値
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
@@ -36,11 +36,13 @@ TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許�
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((15, 15, 15), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 BLUETILE_RGB: tuple[tuple[int, int, int]] = ((10, 30, 120), (0, 0, 40))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
+REDTILE_RGB: tuple[tuple[int, int, int]] = ((120, 20, 20), (30, 0, 0))  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 RAMP_DEG_THRESHOLD: float = 5.0  # 傾斜検出の閾値(度)
+MIN_THERESHOULD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.3  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.4  # 1マス直進にかかる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか

@@ -14,11 +14,8 @@ import time
 
 def main():
     stmInstance = stm.STM()
-    lidarInstance = LiDAR.initializeLidar()   
     while True:
-        print("Left:",LiDAR.isWallAheadTile(LiDAR.getLiDARScan(lidarInstance), deviceEnums.Side.LEFT))
-        print("Right:",LiDAR.isWallAheadTile(LiDAR.getLiDARScan(lidarInstance), deviceEnums.Side.RIGHT))
-        time.sleep(1)
-
+        stmInstance.update()
+        print(stmInstance.gyro.getValue())
 if __name__ == "__main__":
     main()
