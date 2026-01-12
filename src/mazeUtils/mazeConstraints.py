@@ -38,11 +38,11 @@ BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((15, 15, 15), (0, 0, 0))  # 黒タ
 BLUETILE_RGB: tuple[tuple[int, int, int]] = ((10, 30, 120), (0, 0, 40))  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 REDTILE_RGB: tuple[tuple[int, int, int]] = ((120, 20, 20), (30, 0, 0))  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-RAMP_DEG_THRESHOLD: float = 5.0  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
 MIN_THERESHOULD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.4  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.3  # 1マス直進にかかる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
