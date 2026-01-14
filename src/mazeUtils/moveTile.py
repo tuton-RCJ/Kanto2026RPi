@@ -112,7 +112,7 @@ def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float, color: li
 def debugPrint(*message: object) -> None:
     if mazeConstraints.DEBUG_MODE:
         print(*message)
-    
+
 def detectTileColor() -> mazeEnums.tileType:
     """
     @brief カラーセンサでタイルの色を検出する
@@ -169,17 +169,17 @@ def regulationAngle(angle: int) -> int:
         angle += 360
     return angle
 
-def isUturn(fromDir: int, toDir: int, mapInstance: mazeMap.mazeMap) -> bool:
-    turnAngle = fromDir - toDir
-    if turnAngle > 180:
-        turnAngle -= 360
-    if turnAngle < -180:
-        turnAngle += 360
-    
-    if abs(turnAngle) == 180 and (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1 and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] <= 1):
-        return True
-    else:
-        return False
+def _getClosestDirectionsForCameraHeading(cameraHeadingDeg: float) -> list[mazeEnums.absDirection]:
+    diffs: list[tuple[mazeEnums.absDirection, float]] = []
+    for direction in [mazeEnums.absDirection.NORTH, mazeEnums.absDirection.EAST, mazeEnums.absDirection.SOUTH, mazeEnums.absDirection.WEST]:
+        diffs.append((direction, abs(regulationAngle(cameraHeadingDeg - direction.value))))
+    diffs.sort(key=lambda x: x[1])
+    closest_dir, closest_diff = diffs[0]
+    second_dir, second_diff = diffs[1]
+
+    if (second_diff - closest_diff) <= mazeConstraints.VICTIM_TURN_DOUBLE_ADD_DIFF_DEG:
+        return [closest_dir, second_dir]
+    return [closest_dir]
 
 def isSilverTile() -> bool:
     """
@@ -193,72 +193,66 @@ def isSilverTile() -> bool:
         pr = photoReflector.PhotoReflector()
     return pr.isReflecting()
 
-def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
-    """
-    @brief 指定した絶対方向に向く
-    @param targetDir: 目標の絶対方向 (0-359)
-    @param stmInstance: 通信に使用する STM インスタンス
-    """
-
+def checkLackOfProgress(stmInstance: stm.STM):
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
-        return
-    if not mazeConstraints.USE_PD_FOR_TURNING: 
-        turnDirection = getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
+        return True
+    return False
 
-        stmInstance.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(50)
-        debugPrint("current heading:", stmInstance.gyro.getValue().heading, "target:", targetDir)
-        while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConstraints.TURN_THRESHOLD_DEG:
-            stmInstance.update()
-            if stmInstance.switch.getToggleSwitch1():
-                stmInstance.sts3032.stop()
-                return
-        assert abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) <= mazeConstraints.TURN_THRESHOLD_DEG, f"Gyro turn failed to reach target heading, current: {stmInstance.gyro.getValue().heading}, target: {targetDir}"
-        stmInstance.sts3032.stop()
+def turnToCertainDirection(targetDir: int, stmInstance: stm.STM, mapInstance: mazeMap.mazeMap = None, lidarWorker: _asyncLidarScanWorker = None, seacrchVictim: bool = False) -> None:
+    """
+    @brief 指定した絶対方向に向きながら、被災者を探す
+    @param targetDir: 目標の絶対方向 (0-359)
+    @param stmInstance: 通信に使用する STM インスタンス
+    @param mapInstance: 迷路のマップインスタンス
+    @param lidarWorker: LiDARスキャンワーカーのインスタンス
+    @param seacrchVictim: 回転中被災者を探すかどうか
+    """
 
-        debugPrint("stopped turning at heading:", stmInstance.gyro.getValue().heading, "diff:" , abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)))
-        stmInstance.update()
-        if stmInstance.switch.getToggleSwitch1():
+    turnDirection = getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
+
+    stmInstance.sts3032.turnRight(50) if turnDirection == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(50)
+    debugPrint("current heading:", stmInstance.gyro.getValue().heading, "target:", targetDir)
+    
+    while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConstraints.TURN_THRESHOLD_DEG:
+        if checkLackOfProgress(stmInstance):
             stmInstance.sts3032.stop()
             return
-        
-        while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
-            stmInstance.sts3032.turnRight(5) if getTurnDirection(stmInstance.gyro.getValue().heading, targetDir) == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(5)
-            stmInstance.update()
-            if stmInstance.switch.getToggleSwitch1():
-                stmInstance.sts3032.stop()
-                return
-        stmInstance.sts3032.stop()
-    else: # PD制御
-        turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
-        debugPrint(f"Turning to {targetDir} deg, current heading: {stmInstance.gyro.getValue().heading} deg, turnAngle: {turnAngle} deg")
+        if seacrchVictim and mapInstance is not None and lidarWorker is not None:
+            victimInfo = getVictimInfo(stmInstance)
+            for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
+                    cameraHeadingDeg = (stmInstance.gyro.getValue().heading + (90 if side == deviceEnums.Side.LEFT else 270)) % 360
+                    targetDirections = _getClosestDirectionsForCameraHeading(cameraHeadingDeg)
 
-        oldError = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
-        oldTime = time.time()
-        while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
-            if time.time() - oldTime > mazeConstraints.TIMEOUT_FOR_TURNING_SEC:
-                debugPrint("Turn timeout reached.")
-                t = time.time()
-                while time.time() - t < 0.2:
-                    stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -50, deviceEnums.Side.RIGHT: -50})
-                    if stmInstance.switch.getToggleSwitch1():
+                    currentVictimTypes = mapInstance.getVictimTypes()
+                    alreadyRecorded = any(victimInfo[side] in currentVictimTypes[d] for d in targetDirections)
+
+                    if not alreadyRecorded:
+                        print(f"Find victim on {side} side during turn: {victimInfo[side]} -> directions: {[d.name for d in targetDirections]}")
+                        
                         stmInstance.sts3032.stop()
-                        return
-                oldTime = time.time()
-            stmInstance.update()
-            if stmInstance.switch.getToggleSwitch1():
-                stmInstance.sts3032.stop()
-                return
-            error = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
-            deribative = regulationAngle(error - oldError)
-            oldError = error
-            turnSpeed = mazeConstraints.TURN_P * error + mazeConstraints.TURN_D * deribative
-            turnSpeed = max(min(turnSpeed, 100), -100)
-            turnSpeed = turnSpeed if abs(turnSpeed) >= 5 else (5 if turnSpeed > 0 else -5)
-            stmInstance.sts3032.turnRight(abs(int(turnSpeed))) if turnSpeed > 0 else stmInstance.sts3032.turnLeft(abs(int(turnSpeed)))
-            debugPrint(f"gyro:{stmInstance.gyro.getValue().heading} deg, derivative: {deribative}, turnSpeed: {turnSpeed}")
-        stmInstance.sts3032.stop()
+                        for d in targetDirections:
+                            mapInstance.addVictimType(victimInfo[side], d)
+                        dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                        print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+        stmInstance.update()
+
+    assert abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) <= mazeConstraints.TURN_THRESHOLD_DEG, f"Gyro turn failed to reach target heading, current: {stmInstance.gyro.getValue().heading}, target: {targetDir}"
+    stmInstance.sts3032.stop()
+
+    debugPrint("stopped turning at heading:", stmInstance.gyro.getValue().heading, "diff:" , abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)))
+
+    while abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) > mazeConstraints.TURN_THRESHOLD_DEG_FIX:
+        stmInstance.sts3032.turnRight(5) if getTurnDirection(stmInstance.gyro.getValue().heading, targetDir) == mazeEnums.turnDirection.RIGHT else stmInstance.sts3032.turnLeft(5)
+        if checkLackOfProgress(stmInstance):
+            stmInstance.sts3032.stop()
+            return
+
+    assert abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)) <= mazeConstraints.TURN_THRESHOLD_DEG_FIX, f"Gyro fine turn failed to reach target heading, current: {stmInstance.gyro.getValue().heading}, target: {targetDir}"
+    stmInstance.sts3032.stop()
+
     debugPrint(f"Turned to heading: {stmInstance.gyro.getValue().heading} deg")
     
 def getTurnDirection(fromDir: int, toDir: int) -> mazeEnums.turnDirection:
@@ -308,12 +302,12 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
     oppositeFlag = False
     tileColor = detectTileColor()
-    if tileColor == mazeEnums.tileType.RED:
+    if tileColor == mazeEnums.tileType.RED and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
         return
     for i in range(needRescueKitCount):
         if mapInstance.nowRescueKitCount[side if not oppositeFlag else side.opposite()] >= 1:
             turnToCertainDirection((mapInstance.frontDirection.value + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-            mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
+            mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1,)
             stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
             oldtime = time.time()
             while time.time() - oldtime < 1:
@@ -353,7 +347,229 @@ def vitimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
         return mazeEnums.wallType.R_VICTIM
     else:
         return mazeEnums.wallType.WALL
+
+
+def escapeFromBlackTile(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, lidarWorker: _asyncLidarScanWorker, nearestLiDARAngle: int, oldDist: float) -> None:
+    sign = -1 if nearestLiDARAngle == 0 else 1
+    while True:
+        latestPoints, _ = lidarWorker.getLatest()
+        if latestPoints is None:
+            continue
+        if sign * (LiDAR.getCertainAngleDist(nearestLiDARAngle - stmInstance.gyro.getValue().heading + mapInstance.frontDirection.value, latestPoints) - oldDist) <= 0:
+            break
+        stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -30 , deviceEnums.Side.RIGHT: -30})
+        if checkLackOfProgress(stmInstance):
+            stmInstance.sts3032.stop()
+            return
+    latestPoints, _ = lidarWorker.getLatest()
+    if latestPoints is not None:
+        debugPrint(f"Escape maneuver complete. Current Distance: {LiDAR.getCertainAngleDist(nearestLiDARAngle, latestPoints)} cm")
+
+def getSteerSpeed(leftWallDist: float, rightWallDist: float, targetDistDiff: float, turnAngle: float) -> dict[deviceEnums.Side, int]:
+    gyroSteer = turnAngle * mazeConstraints.STRAGIHT_GYRO_P_GAIN
+    wallSteer = 0.0
+
+    enableDist = mazeConstraints.WALL_FOLLOW_ENABLE_DIST_CM
+    targetDist = mazeConstraints.WALL_FOLLOW_TARGET_DIST_CM
+
+    if (leftWallDist <= enableDist or rightWallDist <= enableDist) and abs(turnAngle) <= mazeConstraints.WALL_FOLLOW_GYRO_ERR_MAX_DEG:
+        if leftWallDist <= enableDist and rightWallDist <= enableDist:
+            wallError = rightWallDist - leftWallDist
+        elif leftWallDist <= enableDist:
+            wallError = targetDist - leftWallDist
+        else:
+            wallError = rightWallDist - targetDist
+
+        wallSteer = wallError * mazeConstraints.WALL_FOLLOW_P_GAIN
+        wallSteer = max(min(wallSteer, mazeConstraints.WALL_FOLLOW_MAX_STEER), -mazeConstraints.WALL_FOLLOW_MAX_STEER)
+
+    steer = gyroSteer + wallSteer
+
+    baseLeft = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] * targetDistDiff + 20
+    baseRight = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] * targetDistDiff + 20
+
+    leftSpeed = int(max(min(100, baseLeft + steer), -100))
+    rightSpeed = int(max(min(100, baseRight - steer), -100))
+
+    return {deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed}
+
+def goStraight(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidarWorker:  _asyncLidarScanWorker) -> bool:
+
+    stmInstance.update()
     
+    if checkLackOfProgress(stmInstance):
+        stmInstance.sts3032.stop()
+        return False
+    
+    points, _ = lidarWorker.getLatest()
+    if points is None:
+        points = lidarWorker.waitFirst(timeoutSec=1.0)
+
+    nearestLiDARAngle = 0 if LiDAR.getCertainAngleDist(0, points) < LiDAR.getCertainAngleDist(180, points) else 180
+    oldDist = LiDAR.getCertainAngleDist(nearestLiDARAngle-stmInstance.gyro.getValue().heading+mapInstance.frontDirection.value, points)
+
+    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
+    
+    littleFowardFlag = False
+    isRamp = False
+    
+    startTime = time.time()
+    practicalMoveTime = 0.0
+    oldTime = startTime
+    
+    cameraBlackTileDetected = False
+    isWallAhead = {s: LiDAR.isWallAheadTile(points, s) for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
+    avoidVictim = {s: set() for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
+    
+    for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+        aheadVictims = mapInstance.getVictimTypes(mapInstance.frontDirection)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else 270)) % 360)]
+        for v in aheadVictims:
+            avoidVictim[s].add(v)
+
+        currentVictims = mapInstance.getVictimTypes()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else 270)) % 360)]
+        for v in currentVictims:
+            avoidVictim[s].add(v)
+
+    consequentSearchRes = {s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
+    beforeDist = oldDist
+
+    while True:
+        if not cameraBlackTileDetected:
+            isBlackTileByCam = camera.detectTileColor() == "BLACK"
+            cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
+
+        stmInstance.update()
+        if checkLackOfProgress(stmInstance):
+            stmInstance.sts3032.stop()
+            return False
+        
+        scanPoints, _ = lidarWorker.getLatest()
+        if scanPoints is None:
+            continue
+            
+        currentDist = LiDAR.getCertainAngleDist(nearestLiDARAngle-stmInstance.gyro.getValue().heading+mapInstance.frontDirection.value, scanPoints)
+        turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - mapInstance.frontDirection.value)
+        leftWallDist = LiDAR.getCertainAngleDist(90-stmInstance.gyro.getValue().heading+mapInstance.frontDirection.value, scanPoints)
+        rightWallDist = LiDAR.getCertainAngleDist(270-stmInstance.gyro.getValue().heading+mapInstance.frontDirection.value, scanPoints)
+        targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (stmInstance.tof.getDistance()[0]-15)/15),0))    
+
+        if not isRamp and ((90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) or max(LiDAR.getCertainAngleDist([0,90,180,270], scanPoints)) > 250 or abs(currentDist - beforeDist) > mazeConstraints.MIN_THERESHOULD_FOR_DIFF):
+            isRamp = True
+            print(f"Ramp detected! roll: {stmInstance.gyro.getValue().roll} deg")
+
+        if not isRamp:
+            steerSpeeds = getSteerSpeed(leftWallDist, rightWallDist, targetDistDiff, turnAngle)
+            stmInstance.sts3032.setMotorSpeed(steerSpeeds)
+        else:
+            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
+
+        if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
+            stmInstance.sts3032.stop()
+            mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=mapInstance.frontDirection)
+            print("Black tile detected! Stopping movement. Starting escape maneuver.")
+            escapeFromBlackTile(stmInstance, mapInstance, lidarWorker, nearestLiDARAngle, oldDist)
+            return True
+        
+        if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + mapInstance.frontDirection.value, scanPoints) < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
+            stmInstance.sts3032.stop()
+            if mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM + 15:
+                littleFowardFlag = True
+            break
+
+        escapeFlag = False
+        timeBeforeEscape = time.time()
+        if stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT] or stmInstance.loadcell.getPressed()[deviceEnums.Side.RIGHT]:
+            pressedSide = deviceEnums.Side.LEFT if stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
+            escapeFromObstacle(pressedSide, stmInstance)
+            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
+            escapeFlag = True
+            practicalMoveTime -= time.time() - timeBeforeEscape
+        
+        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
+            stmInstance.sts3032.stop()
+            break
+        
+        isRedTile = detectTileColor() == mazeEnums.tileType.RED
+
+        for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+            if isRamp:
+                continue
+            if isWallAhead[side]:
+                victimInfo = stmInstance.unitv.getStatus()
+                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and (not victimInfo[side] in avoidVictim[side]) and consequentSearchRes[side] is None:
+                    if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
+                        debugPrint("Skipping red victim on red tile")
+                        continue
+                    stmInstance.sts3032.stop()
+                    t = time.time()
+                    consequentSearchRes[side] = victimInfo[side]
+                    print(f"Detected victim info ahead: {victimInfo}")
+                    mapInstance.addVictimType(victimInfo[side], mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360))
+                    mapInstance.addVictimType(victimInfo[side], mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), mapInstance.frontDirection)
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                    practicalMoveTime -= (time.time() - t)
+            else:
+                lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
+
+                if (30 - abs(oldDist - currentDist) < mazeConstraints.MOVE_THRESHOLD_CM * mazeConstraints.THRESHOLD_SEE_CAM):
+                    victimInfo = stmInstance.unitv.getStatus()
+                    
+                    if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
+                        debugPrint("Skipping red victim on red tile")
+                        continue
+
+                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[side] in mapInstance.getVictimTypes(mapInstance.frontDirection)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
+                        print(f"Detected victim info during movement: {victimInfo}")
+                    
+                    stmInstance.sts3032.stop()
+                    t = time.time()
+
+                    mapInstance.addVictimType(victimInfo[side], mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), mapInstance.frontDirection)
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+
+                    practicalMoveTime -= (time.time() - t)
+
+
+                if (abs(oldDist - currentDist) - lastUpdateTime/1000 * 20) < mazeConstraints.MOVE_THRESHOLD_CM * mazeConstraints.THRESHOLD_SEE_CAM:
+                    victimInfo = stmInstance.unitv.getStatus()
+
+                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[side] in mapInstance.getVictimTypes()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
+                        if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
+                            debugPrint("Skipping red victim on red tile")
+                            continue
+
+                        stmInstance.sts3032.stop()
+                        t = time.time()
+                        
+                        print(f"Detected victim info during movement needing rescue kit drop: {victimInfo}")
+                        
+                        mapInstance.addVictimType(victimInfo[side], mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360))
+                        dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                        practicalMoveTime -= (time.time() - t)
+
+        debugPrint(f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
+        
+        practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll))) * (1 if stmInstance.gyro.getValue().roll > 180 else 0.9) 
+        oldTime = time.time()
+        beforeDist = currentDist
+
+    if littleFowardFlag:
+        stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+        debugPrint("Little forward to adjust position")
+
+        while True:
+            if checkLackOfProgress(stmInstance):
+                stmInstance.sts3032.stop()
+                return False
+            
+            currentDist = stmInstance.tof.getDistance()[0]
+            if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
+                break
+                
+    stmInstance.sts3032.stop()   
+    mapInstance.moveTo(mapInstance.frontDirection)    
+    return False
+
 def rescueVictim(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM) -> None:
     """
     @brief 被災者を救助する動作を行う
@@ -361,36 +577,31 @@ def rescueVictim(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM) -> None:
     @param stmInstance: 通信に使用する STM インスタンス
     """     
     stmInstance.update()
-    if mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1 or mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] <= 1:
-        time.sleep(0.1)
-        t = time.time()
-        leftFlag = True
-        rightFlag = True
-        while time.time() - t < 0.5:            
-            if stmInstance.switch.getToggleSwitch1():
-                stmInstance.sts3032.stop()
-                return
-            victimInfo = getVictimInfo(stmInstance)
-            tiletype = detectTileColor()
-            if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.LEFT]) and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL and leftFlag:
-                if not (tiletype == mazeEnums.tileType.RED and victimInfo[deviceEnums.Side.LEFT] == deviceEnums.UnitVStatus.R_VICTIM):                    
-                    print(f"Find victim on LEFT side: {victimInfo[deviceEnums.Side.LEFT]}")
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360), vitimToWallType(victimInfo[deviceEnums.Side.LEFT]))
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.LEFT)
-                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-                    leftFlag = False
+    leftFlag = True
+    rightFlag = True
+    t = time.time()
+    while time.time() - t < 0.5:
+        if stmInstance.switch.getToggleSwitch1():
+            stmInstance.sts3032.stop()
+            return
+        victimInfo = getVictimInfo(stmInstance)
+        tiletype = detectTileColor()
+        if victimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[deviceEnums.Side.LEFT] in mapInstance.getVictimTypes()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL and leftFlag:
+            if not (tiletype == mazeEnums.tileType.RED and victimInfo[deviceEnums.Side.LEFT] == deviceEnums.UnitVStatus.R_VICTIM):                    
+                print(f"Find victim on LEFT side: {victimInfo[deviceEnums.Side.LEFT]}")
+                dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.LEFT)
+                print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+                leftFlag = False
 
-            if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]) and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL and rightFlag:
-                if not (tiletype == mazeEnums.tileType.RED and victimInfo[deviceEnums.Side.RIGHT] == deviceEnums.UnitVStatus.R_VICTIM):
-                    print(f"Find victim on RIGHT side: {victimInfo[deviceEnums.Side.RIGHT]}")  
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360), vitimToWallType(victimInfo[deviceEnums.Side.RIGHT]))
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
-                    print(f"Dropped rescue kit, detected victim info: {victimInfo}")
-                    rightFlag = False
-            stmInstance.update()
-        mapInstance.addSeenCount()
+        if victimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[deviceEnums.Side.RIGHT] in mapInstance.getVictimTypes()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL and rightFlag:
+            if not (tiletype == mazeEnums.tileType.RED and victimInfo[deviceEnums.Side.RIGHT] == deviceEnums.UnitVStatus.R_VICTIM):
+                print(f"Find victim on RIGHT side: {victimInfo[deviceEnums.Side.RIGHT]}")  
+                dropRescueKit(stmInstance, mapInstance, victimInfo, deviceEnums.Side.RIGHT)
+                print(f"Dropped rescue kit, detected victim info: {victimInfo}")
+                rightFlag = False
+        stmInstance.update()
 
-def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidar: ydlidar.CYdLidar, firstTime: float) -> tuple[bool,bool]:
+def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidar: ydlidar.CYdLidar) -> tuple[bool,bool]:
     """
     @brief direction の方向へ一マス移動する
     @param direction: 移動方向
@@ -408,401 +619,49 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     # Ensure we have at least one scan before starting motion logic.
     lidarWorker.waitFirst(timeoutSec=1.0)
 
-    isRedTile = detectTileColor() == mazeEnums.tileType.RED
-
-    debugPrint(f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}")
-    if isUturn(mapInstance.frontDirection.value, direction.value, mapInstance):
-        if (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] == mazeEnums.wallType.WALL) or (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] == mazeEnums.wallType.WALL):
-            print(mapInstance.getWallType())
-            if (mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != mazeEnums.wallType.NO_WALL) or (mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != mazeEnums.wallType.NO_WALL):
-                turnToCertainDirection((mapInstance.frontDirection.value + 45) % 360, stmInstance)
-                time.sleep(0.4)
-                for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-                    if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (180 if side == deviceEnums.Side.LEFT else 0)) % 360)] != mazeEnums.wallType.NO_WALL:
-                        victimInfo = getVictimInfo(stmInstance)
-                        if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and vitimToWallType(victimInfo[side]) != mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
-                            tiletype = detectTileColor()
-                            if tiletype == mazeEnums.tileType.RED and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                                continue
-                            print(victimInfo,side)
-                            print(mapInstance.getWallType())
-                            needRescueKitCount = (victimInfo[side].value - 1)%3 
-                            nowAngle = (mapInstance.frontDirection.value + 45) % 360
-                            flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
-                            oppositeFlag = False
-                            for i in range(needRescueKitCount):
-                                if mapInstance.nowRescueKitCount[side if not oppositeFlag else side.opposite()] >= 1:
-                                    turnToCertainDirection((nowAngle + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-                                    mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
-                                    stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
-                                    oldtime = time.time()
-                                    while time.time() - oldtime < 1:
-                                        stmInstance.update()
-                                        if stmInstance.switch.getToggleSwitch1():
-                                            stmInstance.sts3032.stop()
-                                            return False, True
-                                elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
-                                    turnToCertainDirection((nowAngle + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-                                    mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
-                                    mapInstance.dropRescueKit(side.opposite() if not oppositeFlag else side, 1)
-                                    stmInstance.rescuekitservo.dropRescueKit(1, side.opposite() if not oppositeFlag else side)
-                                    oppositeFlag = not oppositeFlag
-                                    oldtime = time.time()
-                                    while time.time() - oldtime < 1:
-                                        stmInstance.update()
-                                        if stmInstance.switch.getToggleSwitch1():
-                                            stmInstance.sts3032.stop()
-                                            return False, True
-                                else:
-                                    debugPrint(f"Not enough rescue kits to drop on {side} side.")
-                            if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
-                                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
-                            mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (0 if side == deviceEnums.Side.LEFT else 180)) % 360), vitimToWallType(victimInfo[side]))
-                            print(f"Find victim on {side} side in 45 deg: {victimInfo[side]}")
-            turnToCertainDirection((mapInstance.frontDirection.value + 90) % 360, stmInstance)
-            mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)
-            rescueVictim(mapInstance, stmInstance)
-            if (mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] != mazeEnums.wallType.NO_WALL) or (mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] != mazeEnums.wallType.NO_WALL):
-                turnToCertainDirection((mapInstance.frontDirection.value + 45) % 360, stmInstance)
-                time.sleep(0.4)
-                for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-                    if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (180 if side == deviceEnums.Side.LEFT else 0)) % 360)] != mazeEnums.wallType.NO_WALL:
-                        victimInfo = getVictimInfo(stmInstance)
-                        if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and vitimToWallType(victimInfo[side]) != mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
-                            tiletype = detectTileColor()
-                            if tiletype == mazeEnums.tileType.RED and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                                continue
-                            needRescueKitCount = (victimInfo[side].value - 1)%3 
-                            nowAngle = (mapInstance.frontDirection.value + 45) % 360
-                            flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
-                            oppositeFlag = False
-                            for i in range(needRescueKitCount):
-                                if mapInstance.nowRescueKitCount[side if not oppositeFlag else side.opposite()] >= 1:
-                                    turnToCertainDirection((nowAngle + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-                                    mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
-                                    stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
-                                    oldtime = time.time()
-                                    while time.time() - oldtime < 1:
-                                        stmInstance.update()
-                                        if stmInstance.switch.getToggleSwitch1():
-                                            stmInstance.sts3032.stop()
-                                            return False, True
-                                elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
-                                    turnToCertainDirection((nowAngle + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-                                    mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
-                                    mapInstance.dropRescueKit(side.opposite() if not oppositeFlag else side, 1)
-                                    stmInstance.rescuekitservo.dropRescueKit(1, side.opposite() if not oppositeFlag else side)
-                                    oppositeFlag = not oppositeFlag
-                                    oldtime = time.time()
-                                    while time.time() - oldtime < 1:
-                                        stmInstance.update()
-                                        if stmInstance.switch.getToggleSwitch1():
-                                            stmInstance.sts3032.stop()
-                                            return False, True
-                                else:
-                                    debugPrint(f"Not enough rescue kits to drop on {side} side.")
-                            if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
-                                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
-                            mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (0 if side == deviceEnums.Side.LEFT else 180)) % 360), vitimToWallType(victimInfo[side]))
-                            print(f"Find victim on {side} side in 45 deg: {victimInfo[side]}")
-        turnToCertainDirection(direction.value, stmInstance)
-        mapInstance.frontDirection = direction
-    else:
-        print(mapInstance.getWallType())
-        if direction != mapInstance.frontDirection:
-            if (mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if 0 < regulationAngle(mapInstance.frontDirection.value-direction.value) else -90)) % 360)] != mazeEnums.wallType.NO_WALL) or (mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value - (90 if 0 < regulationAngle(mapInstance.frontDirection.value-direction.value) else -90)) % 360)] != mazeEnums.wallType.NO_WALL):
-                turnToCertainDirection((mapInstance.frontDirection.value + (45 if 0 > regulationAngle(mapInstance.frontDirection.value-direction.value) else -45)) % 360, stmInstance)
-                time.sleep(0.4)
-                for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-                    if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + ((180 if 0 > regulationAngle(mapInstance.frontDirection.value-direction.value) else 0) if side == deviceEnums.Side.LEFT else (0 if 0 > regulationAngle(mapInstance.frontDirection.value-direction.value) else 180))) % 360)] != mazeEnums.wallType.NO_WALL:
-                        victimInfo = getVictimInfo(stmInstance)
-                        tiletype = detectTileColor()
-                        if tiletype == mazeEnums.tileType.RED and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                            continue
-                        if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and vitimToWallType(victimInfo[side]) != mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + ((180 if 0 > regulationAngle(mapInstance.frontDirection.value-direction.value) else 0) if side == deviceEnums.Side.LEFT else (0 if 0 > regulationAngle(mapInstance.frontDirection.value-direction.value) else 180))) % 360)] != vitimToWallType(victimInfo[side]):
-                                needRescueKitCount = (victimInfo[side].value - 1)%3 
-                                nowAngle = (mapInstance.frontDirection.value + (45 if 0 > regulationAngle(mapInstance.frontDirection.value-direction.value) else -45)) % 360
-                                flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
-                                oppositeFlag = False
-                                for i in range(needRescueKitCount):
-                                    if mapInstance.nowRescueKitCount[side if not oppositeFlag else side.opposite()] >= 1:
-                                        turnToCertainDirection((nowAngle + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-                                        mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
-                                        stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
-                                        oldtime = time.time()
-                                        while time.time() - oldtime < 1:
-                                            stmInstance.update()
-                                            if stmInstance.switch.getToggleSwitch1():
-                                                stmInstance.sts3032.stop()
-                                                return False, True
-                                    elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
-                                        turnToCertainDirection((nowAngle + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
-                                        mapInstance.frontDirection = mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
-                                        mapInstance.dropRescueKit(side.opposite() if not oppositeFlag else side, 1)
-                                        stmInstance.rescuekitservo.dropRescueKit(1, side.opposite() if not oppositeFlag else side)
-                                        oppositeFlag = not oppositeFlag
-                                        oldtime = time.time()
-                                        while time.time() - oldtime < 1:
-                                            stmInstance.update()
-                                            if stmInstance.switch.getToggleSwitch1():
-                                                stmInstance.sts3032.stop()
-                                                return False, True
-                                    else:
-                                        debugPrint(f"Not enough rescue kits to drop on {side} side.")
-                                if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
-                                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
-                                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + ((0 if 0 < regulationAngle(mapInstance.frontDirection.value-direction.value) else 180) if side == deviceEnums.Side.LEFT else (180 if 0 < regulationAngle(mapInstance.frontDirection.value-direction.value) else 0))) % 360), vitimToWallType(victimInfo[side]))
-                                print(f"Find victim on {side} side in 45 deg: {victimInfo[side]}")
-        turnToCertainDirection(direction.value, stmInstance)
-        mapInstance.frontDirection = direction
+    print(f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}")
+    turnToCertainDirection(direction.value, stmInstance, mapInstance, lidarWorker, seacrchVictim=True)
     stmInstance.sts3032.stop()
     
-    if (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL) or (mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL):
-        rescueVictim(mapInstance, stmInstance)        
-        turnToCertainDirection(direction.value, stmInstance)
-
-        
-    stmInstance.update()
-    if stmInstance.switch.getToggleSwitch1():
-        stmInstance.sts3032.stop()
-        return False, True
-    points, _ = lidarWorker.getLatest()
-    if points is None:
-        points = lidarWorker.waitFirst(timeoutSec=1.0)
-    nearestLiDARAngle = 0 if LiDAR.getCertainAngleDist(0, points) < LiDAR.getCertainAngleDist(180, points) else 180
-    oldDist = LiDAR.getCertainAngleDist(nearestLiDARAngle-stmInstance.gyro.getValue().heading+direction.value, points)
-    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-    littleFowardFlag = False
-    isRamp = False
-    startTime = time.time()
-    practicalMoveTime = 0.0
-    oldTime = startTime
-    getVictimDict = {deviceEnums.Side.LEFT: defaultdict(int), deviceEnums.Side.RIGHT: defaultdict(int)}
-    getTileColorDict = defaultdict(int)
-    cameraBlackTileDetected = False
-    isWallAhead = {s: LiDAR.isWallAheadTile(points, s) for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
-    avoidVictim = {s: {mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else 270)) % 360)], mapInstance.getWallType(direction)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else 270)) % 360)]} for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
-    print(avoidVictim)
-    consequentSearchRes = {s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
-    beforeDist = oldDist
-    while True:
-
-        isBlackTileByCam = camera.detectTileColor() == "BLACK"
-        cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
-
-        stmInstance.update()
-        if stmInstance.switch.getToggleSwitch1():
-            stmInstance.sts3032.stop()
-            return False, True
-        scanPoints, _ = lidarWorker.getLatest()
-        if scanPoints is None:
-            continue
-        currentDist = LiDAR.getCertainAngleDist(nearestLiDARAngle-stmInstance.gyro.getValue().heading+direction.value, scanPoints)
-        turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - direction.value)
-        leftWallDist = LiDAR.getCertainAngleDist(90-stmInstance.gyro.getValue().heading+direction.value, scanPoints)
-        rightWallDist = LiDAR.getCertainAngleDist(270-stmInstance.gyro.getValue().heading+direction.value, scanPoints)
-        targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (stmInstance.tof.getDistance()[0]-15)/15),0))    
-        if not isRamp and ((90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) or max(LiDAR.getCertainAngleDist([0,90,180,270], scanPoints)) > 250 or abs(currentDist - beforeDist) > mazeConstraints.MIN_THERESHOULD_FOR_DIFF):
-            isRamp = True
-            print(f"Ramp detected! roll: {stmInstance.gyro.getValue().roll} deg")
-        if not isRamp:
-            gyroSteer = turnAngle * mazeConstraints.STRAGIHT_GYRO_P_GAIN
-            wallSteer = 0.0
-
-            enableDist = mazeConstraints.WALL_FOLLOW_ENABLE_DIST_CM
-            targetDist = mazeConstraints.WALL_FOLLOW_TARGET_DIST_CM
-            # ジャイロ誤差を最優先で減らしつつ、壁が近い場合のみ壁距離制御を足す
-            if (leftWallDist <= enableDist or rightWallDist <= enableDist) and abs(turnAngle) <= mazeConstraints.WALL_FOLLOW_GYRO_ERR_MAX_DEG:
-                if leftWallDist <= enableDist and rightWallDist <= enableDist:
-                    wallError = rightWallDist - leftWallDist  # 両側が近いなら左右差を0へ
-                elif leftWallDist <= enableDist:
-                    wallError = targetDist - leftWallDist  # 左が近いなら左距離を目標へ
-                else:
-                    wallError = rightWallDist - targetDist  # 右が近いなら右距離を目標へ
-
-                wallSteer = wallError * mazeConstraints.WALL_FOLLOW_P_GAIN
-                wallSteer = max(min(wallSteer, mazeConstraints.WALL_FOLLOW_MAX_STEER), -mazeConstraints.WALL_FOLLOW_MAX_STEER)
-
-            steer = gyroSteer + wallSteer
-
-            baseLeft = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT] * targetDistDiff + 20
-            baseRight = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT] * targetDistDiff + 20
-
-            leftSpeed = int(max(min(100, baseLeft + steer), -100))
-            rightSpeed = int(max(min(100, baseRight - steer), -100))
-            stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed})
-        else:
-            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-        if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
-            stmInstance.sts3032.stop()
-            mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
-            debugPrint("Black tile detected! Stopping movement. Starting escape maneuver.")
-            sign = -1 if nearestLiDARAngle == 0 else 1
-            while True:
-                latestPoints, _ = lidarWorker.getLatest()
-                if latestPoints is None:
-                    continue
-                if sign * (LiDAR.getCertainAngleDist(nearestLiDARAngle - stmInstance.gyro.getValue().heading + direction.value, latestPoints) - oldDist) <= 0:
-                    break
-                stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -30 , deviceEnums.Side.RIGHT: -30})
-                stmInstance.update()
-                if stmInstance.switch.getToggleSwitch1():
-                    stmInstance.sts3032.stop()
-                    return False, True
-                t = time.time()
-            latestPoints, _ = lidarWorker.getLatest()
-            if latestPoints is not None:
-                debugPrint(f"Escape maneuver complete. Current Distance: {LiDAR.getCertainAngleDist(nearestLiDARAngle, latestPoints)} cm")
-            return True, False
-        else:
-            tempTileColor = detectTileColor()
-            print(colorSensor._colorRGB)
-            if tempTileColor != mazeEnums.tileType.EMPTY:
-                getTileColorDict[tempTileColor] += 1
-            if tempTileColor == mazeEnums.tileType.RED:
-                isRedTile = True
-        
-        if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + direction.value, scanPoints) < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
-            stmInstance.sts3032.stop()
-            if mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM + 15:
-                littleFowardFlag = True
-            break
-
-        escapeFlag = False
-        timeBeforeEscape = time.time()
-        if stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT] or stmInstance.loadcell.getPressed()[deviceEnums.Side.RIGHT]:
-            pressedSide = deviceEnums.Side.LEFT if stmInstance.loadcell.getPressed()[deviceEnums.Side.LEFT] else deviceEnums.Side.RIGHT
-            escapeFromObstacle(pressedSide, stmInstance)
-            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-            print((time.time() - oldTime)*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))*0.1)
-            practicalMoveTime -= (time.time() - oldTime)*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))*0.1
-            escapeFlag = True
-            time.sleep(0.1)
-
-        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
-            stmInstance.sts3032.stop()
-            break
-        for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-            if isRamp:
-                continue
-            if isWallAhead[side]:
-                victimInfo = stmInstance.unitv.getStatus()
-                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and (not vitimToWallType(victimInfo[side]) in avoidVictim[side]) and consequentSearchRes[side] is None:
-                    if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                        debugPrint("Skipping red victim on red tile")
-                        continue
-                    stmInstance.sts3032.stop()
-                    t = time.time()
-                    consequentSearchRes[side] = victimInfo[side]
-                    mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(consequentSearchRes[side]))
-                    print(f"Detected victim info ahead: {victimInfo}")
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                    practicalMoveTime -= (time.time() - t)
-            else:
-                lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
-                if (30 - abs(oldDist - currentDist) < mazeConstraints.MOVE_THRESHOLD_CM * 0.10):
-                    victimInfo = stmInstance.unitv.getStatus()
-                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
-                        getVictimDict[side][victimInfo[side]] += 1
-                        print(f"Detected victim info during movement: {victimInfo}")
-                if (abs(oldDist - currentDist) - lastUpdateTime/1000 * 20) < mazeConstraints.MOVE_THRESHOLD_CM * 0.10:
-                    victimInfo = stmInstance.unitv.getStatus()
-                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != mazeEnums.wallType.NO_WALL and vitimToWallType(victimInfo[side]) != mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
-                        if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                            debugPrint("Skipping red victim on red tile")
-                            continue
-                        stmInstance.sts3032.stop()
-                        t = time.time()
-                        print(f"Detected victim info during movement needing rescue kit drop: {victimInfo}")
-                        dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                        mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(victimInfo[side]))
-                        practicalMoveTime -= (time.time() - t)
-
-        debugPrint(f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
-        practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(stmInstance.gyro.getValue().roll))) * (1 if stmInstance.gyro.getValue().roll > 180 else 0.9) 
-        oldTime = time.time()
-        beforeDist = currentDist
-
-
-    if littleFowardFlag:
-        stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
-        debugPrint("Little forward to adjust position")
-        while True:
-            stmInstance.update()
-            if stmInstance.switch.getToggleSwitch1():
-                stmInstance.sts3032.stop()
-                return False, True
-            currentDist = stmInstance.tof.getDistance()[0]
-            if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
-                break
-    stmInstance.sts3032.stop()   
-    oldTime = time.time()   
+    isBlack = goStraight(mapInstance, stmInstance, lidarWorker)
+    if isBlack or stmInstance.switch.getToggleSwitch1():
+        return isBlack, stmInstance.switch.getToggleSwitch1()
     
-    while time.time() - oldTime < 0.2:
-        stmInstance.update()
-        if stmInstance.switch.getToggleSwitch1():
-            stmInstance.sts3032.stop()
-            return False, True
-        victimInfo = getVictimInfo(stmInstance)
-        for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-            if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
-                getVictimDict[side][victimInfo[side]] += 1
-
-    mapInstance.moveTo(direction)    
     latestPoints, _ = lidarWorker.getLatest()
     detectWall(lidar, mapInstance, points=latestPoints)
-    maxVictimInfo = {side: max(getVictimDict[side], key=getVictimDict[side].get) if getVictimDict[side] else deviceEnums.UnitVStatus.NOTHING for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
-    if (maxVictimInfo[deviceEnums.Side.LEFT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] == mazeEnums.wallType.WALL and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)] <= 1) or (maxVictimInfo[deviceEnums.Side.RIGHT] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] == mazeEnums.wallType.WALL and mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)] <= 1):
-        for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-            if consequentSearchRes[side] is not None:
-                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(consequentSearchRes[side]))
-            elif mapInstance.getSeenCount()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] <= 1 and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
-                if isRedTile and maxVictimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                    debugPrint("Skipping red victim on red tile")
-                    continue
-                
-                mapInstance.setWallType(mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360), vitimToWallType(maxVictimInfo[side]))
-                if maxVictimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
-                    print(f"Decided victim on {side} side: {maxVictimInfo[side]}")
-                    dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
-        mapInstance.addSeenCount()
-    tileType = mazeEnums.tileType.EMPTY
-    nowMaxCount = 0
+    tileType = detectTileColor()
+
     if isSilverTile():
         stmInstance.buzzer.playMusic(buzzerSongs.checkpoint)
         mapInstance.setTileType(mazeEnums.tileType.SILVER)
         tileType = mazeEnums.tileType.SILVER
     else:
-        for t in list(getTileColorDict.keys()):
-            if t.value == "E":
-                continue
-            if getTileColorDict[t] > getTileColorDict[tileType] and getTileColorDict[t] >= max(mazeConstraints.MIN_TILE_DETECTION_THERESHOLD, nowMaxCount) and t != mazeEnums.tileType.EMPTY:
-                tileType = t
-                nowMaxCount = getTileColorDict[t]
         mapInstance.setTileType(tileType if tileType != mazeEnums.tileType.BLACK else mazeEnums.tileType.EMPTY)
-    print(f"Tile color detection counts: {dict(getTileColorDict)}, decided tile type: {tileType}")
+
+    print(f"decided tile type: {tileType}")
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
         stmInstance.buzzer.playMusic(buzzerSongs.swamp)
         time.sleep(5.2)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
         print(f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}")
+
     stmInstance.sts3032.stop()
+
+    if checkLackOfProgress(stmInstance):
+        return False, True
+    
     return False, False
 
-def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stmInstance: stm.STM, lidar: ydlidar.CYdLidar) -> bool:
+def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stmInstance: stm.STM, lidar: ydlidar.CYdLidar) -> tuple[bool,bool]:
     """
     @brief direction の方向のタイルへ一マス移動する
     @param direction: 移動方向
     @param mapInstance: 現在の迷路情報
-    @param stm: 通信に使用する STM インスタンス
+    @param stmInstance: 通信に使用する STM インスタンス
     @param lidar: 使用する LiDAR インスタンス
     """
-    firstTime = time.time()
-    isBlack, stopped = moveTile(direction, mapInstance, stmInstance, lidar, firstTime)
-
-    if not isBlack:
-        stmInstance.sts3032.stop()
+    isBlack, stopped = moveTile(direction, mapInstance, stmInstance, lidar)
 
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():

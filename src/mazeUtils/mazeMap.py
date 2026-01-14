@@ -4,6 +4,7 @@ from .device import deviceEnums
 import heapq
 import itertools
 from typing import Callable
+import copy
 
 def _turn_quarters(from_dir: mazeEnums.absDirection, to_dir: mazeEnums.absDirection) -> int:
     """Return minimal number of 90-degree turns needed to rotate from from_dir to to_dir."""
@@ -98,8 +99,7 @@ class mazeMap:
         self.currentPosition = (maxSize // 2, maxSize // 2)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
-        self.wallTypesOnly45Deg = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)] 
-        self.wallSeenCount = [[{d: 0 for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
+        self.victimTypes = [[{d: set() for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)] 
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
@@ -153,6 +153,24 @@ class mazeMap:
         x, y = self.currentPosition
         return self.wallTypes[y][x]
     
+    def getVictimTypes(self, direction: mazeEnums.absDirection = None) -> dict[mazeEnums.absDirection, deviceEnums.UnitVStatus]:
+        """
+        @brief 現在位置の被災者タイプを取得する
+        @return: 現在位置の被災者タイプの辞書
+        """
+        x, y = self.currentPosition
+        if direction is not None:
+            if direction == mazeEnums.absDirection.NORTH:
+                y -= 1
+            elif direction == mazeEnums.absDirection.EAST:
+                x += 1
+            elif direction == mazeEnums.absDirection.SOUTH:
+                y += 1
+            elif direction == mazeEnums.absDirection.WEST:
+                x -= 1
+            return copy.deepcopy(self.victimTypes[y][x])
+        return copy.deepcopy(self.victimTypes[y][x])
+    
     def getSeenCount(self) -> dict[mazeEnums.absDirection, int]:
         """
         @brief 現在位置の壁の検出回数を取得する
@@ -168,15 +186,24 @@ class mazeMap:
         """
         x, y = self.currentPosition
         return self.tileTypes[y][x]
-        
-    def addSeenCount(self) -> None:
+    
+    def addVictimType(self, victimType: deviceEnums.UnitVStatus, direction: mazeEnums.absDirection, tileDirection: mazeEnums.absDirection = None) -> None:
         """
-        @brief: nowDirection に対して水平な壁の検出回数を増やす
+        @brief: 指定した方向の壁に被災者タイプを追加する。tileDirection が None の場合は現在地に、そうでない場合はその方向のタイルの壁に追加する
         """
         x, y = self.currentPosition
-        for direction in mazeEnums.absDirection:
-            if direction == mazeEnums.absDirection((self.frontDirection.value + 90) % 360) or direction == mazeEnums.absDirection((self.frontDirection.value + 270) % 360):
-                self.wallSeenCount[y][x][direction] += 1
+        if not tileDirection is None:
+            if tileDirection == mazeEnums.absDirection.NORTH:
+                y -= 1
+            elif tileDirection == mazeEnums.absDirection.EAST:
+                x += 1
+            elif tileDirection == mazeEnums.absDirection.SOUTH:
+                y += 1
+            elif tileDirection == mazeEnums.absDirection.WEST:
+                x -= 1
+    
+        self.victimTypes[y][x][direction].add(victimType)
+
     def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
         """
         @brief 指定した方向のタイルタイプを設定する。directionがNoneの場合は現在位置に設定する

@@ -8,6 +8,7 @@ USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_GYRO # 回転�
 USE_MOVE_METHOD: mazeEnums.moveMethod = mazeEnums.moveMethod.SEE_FRONT # 直進時の制御方法
 TURN_THRESHOLD_DEG_FIX: float = 0.2 # 回転時の誤差許容角度(調整時)
 TURN_THRESHOLD_DEG: float = 10  # 回転時の誤差許容角度
+VICTIM_TURN_DOUBLE_ADD_DIFF_DEG: float = 20.0  # 回転中、カメラ向きが方位の中間に近い場合に近い2方向へ被災者情報を登録する許容差(度)
 GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50} # 直進時のスピード
 
 GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30} # ゆっくり直進時のスピード
@@ -30,8 +31,6 @@ TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = 15  # 複数の救助キットを投下する際に回転する角度
 
-MIN_TILE_DETECTION_THERESHOLD: int = 5  # タイル検出の最小回数閾値
-
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = ((15, 15, 15), (0, 0, 0))  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
@@ -39,13 +38,12 @@ BLUETILE_RGB: tuple[tuple[int, int, int]] = ((10, 30, 120), (0, 0, 40))  # 青�
 REDTILE_RGB: tuple[tuple[int, int, int]] = ((120, 20, 20), (30, 0, 0))  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 RAMP_DEG_THRESHOLD: float = 15.0  # 傾斜検出の閾値(度)
-MIN_THERESHOULD_FOR_DIFF: float = 15
+MIN_THERESHOULD_FOR_DIFF: float = 15 # 階段時、壁が現れたと判断するための1ループにおける距離差の閾値(cm)
+THRESHOLD_SEE_CAM: float = 0.2 # カメラをタイルのどこから見るか (0 ~ 1, 割合)
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
 MOVE_STRAIGHT_SEC: float = 1.3  # 1マス直進にかかる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
-
-USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
 
 USE_SPEED_CONTROL_FOR_STRAIGHT: bool = True  # 直進時に速度制御するかどうか
 
