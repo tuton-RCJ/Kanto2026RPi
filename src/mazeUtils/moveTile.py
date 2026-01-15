@@ -518,7 +518,7 @@ def goStraight(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidarWorker: 
                         debugPrint("Skipping red victim on red tile")
                         continue
 
-                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[side] in mapInstance.getVictimTypes(mapInstance.frontDirection)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
+                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[side] in mapInstance.getVictimTypes(mapInstance.frontDirection)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] and stmInstance.tof.getDistance()[1 if side == deviceEnums.Side.LEFT else 3] < deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
                         print(f"Detected victim info during movement: {victimInfo}")
                     
                     stmInstance.sts3032.stop()
@@ -533,7 +533,7 @@ def goStraight(mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, lidarWorker: 
                 if (abs(oldDist - currentDist) - lastUpdateTime/1000 * 20) < mazeConstraints.MOVE_THRESHOLD_CM * mazeConstraints.THRESHOLD_SEE_CAM:
                     victimInfo = stmInstance.unitv.getStatus()
 
-                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[side] in mapInstance.getVictimTypes()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)]:
+                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and not victimInfo[side] in mapInstance.getVictimTypes()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.WALL:
                         if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
                             debugPrint("Skipping red victim on red tile")
                             continue
