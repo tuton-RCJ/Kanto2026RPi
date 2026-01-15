@@ -653,19 +653,30 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     
     return False, False
 
-def moveNextTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap,stmInstance: stm.STM, lidar: ydlidar.CYdLidar) -> tuple[bool,bool]:
+def recoverFromLoP(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, lidarInstance ) -> None:
     """
-    @brief direction の方向のタイルへ一マス移動する
-    @param direction: 移動方向
-    @param mapInstance: 現在の迷路情報
+    @brief Lack of Progress 状態からの復帰動作を行う
     @param stmInstance: 通信に使用する STM インスタンス
+    @param mapInstance: 現在の迷路情報
     @param lidar: 使用する LiDAR インスタンス
-    """
-    isBlack, stopped = moveTile(direction, mapInstance, stmInstance, lidar)
-
+    """  
     stmInstance.update()
-    if stmInstance.switch.getToggleSwitch1():
-        stmInstance.sts3032.stop()
-        return isBlack, True
-    return isBlack, stopped
-
+    nowAngle = stmInstance.gyro.getValue().heading
+    nowDirection = None
+    error = 1e9
+    for direction in mazeEnums.absDirection:
+        diff = abs(nowAngle - direction.value)
+        if diff > 180:
+            diff = 360 - diff
+        if diff < error:
+            error = diff
+            nowDirection = direction
+    mapInstance.loadCache(nowDirection=nowDirection)
+    mapInstance.renderKnownTileAndWall()
+    time.sleep(1)  # Allow time for stabilization after resuming
+    stmInstance.update()
+    detectWall(lidarInstance, mapInstance)
+    tileType = detectTileColor()
+    mapInstance.setTileType(tileType)
+    rescueVictim(mapInstance, stmInstance)
+    flashLED(stmInstance, 0, 0, color=[0,0,0])

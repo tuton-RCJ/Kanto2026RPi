@@ -22,6 +22,7 @@ def main():
     time.sleep(1) 
     try:
         while True:
+            
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
             tileType = moveTile.detectTileColor()
@@ -42,7 +43,7 @@ def main():
                 if nextDirection is None:
                     break
                 for direction in nextDirection:
-                    isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
+                    isBlack, stopped = moveTile.moveTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
                     toggleswitchFlag = False
                     stmInstance.update()
@@ -57,24 +58,7 @@ def main():
                     if toggleswitchFlag:
                         print("Exploration resumed.")
                         toggleswitchFlag = False
-                        nowAngle = stmInstance.gyro.getValue().heading
-                        nowDirection = None
-                        error = 1e9
-                        for direction in mazeEnums.absDirection:
-                            diff = abs(nowAngle - direction.value)
-                            if diff > 180:
-                                diff = 360 - diff
-                            if diff < error:
-                                error = diff
-                                nowDirection = direction
-                        mapInstance.loadCache(nowDirection=nowDirection)
-                        mapInstance.renderKnownTileAndWall()
-                        time.sleep(1)  # Allow time for stabilization after resuming
-                        stmInstance.update()
-                        moveTile.detectWall(lidarInstance, mapInstance)
-                        tileType = moveTile.detectTileColor()
-                        mapInstance.setTileType(tileType)
-                        moveTile.rescueVictim(mapInstance, stmInstance)
+                        moveTile.recoverFromLoP(stmInstance, mapInstance, lidarInstance)
                         break
                     moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
 
@@ -88,35 +72,18 @@ def main():
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     toggleswitchFlag = False
                     stmInstance.update()
-                    if stmInstance.switch.getToggleSwitch1():
+                    if moveTile.checkLackOfProgress(stmInstance):
                         print("Return to start paused. Toggle switch 1 to resume.")
-                    while stmInstance.switch.getToggleSwitch1():
-                        stmInstance.update()
+
+                    while moveTile.checkLackOfProgress(stmInstance):
                         toggleswitchFlag = True       
 
                     if toggleswitchFlag:
                         print("Exploration resumed.")
                         toggleswitchFlag = False
-                        nowAngle = stmInstance.gyro.getValue().heading
-                        nowDirection = None
-                        error = 1e9
-                        for direction in mazeEnums.absDirection:
-                            diff = abs(nowAngle - direction.value)
-                            if diff > 180:
-                                diff = 360 - diff
-                            if diff < error:
-                                error = diff
-                                nowDirection = direction
-                        mapInstance.loadCache(nowDirection=nowDirection)
-                        mapInstance.renderKnownTileAndWall()
-                        time.sleep(1)  # Allow time for stabilization after resuming
-                        stmInstance.update()
-                        moveTile.detectWall(lidarInstance, mapInstance)
-                        tileType = moveTile.detectTileColor()
-                        mapInstance.setTileType(tileType)
-                        moveTile.rescueVictim(mapInstance, stmInstance)
-                        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                        moveTile.recoverFromLoP(stmInstance, mapInstance, lidarInstance)
                         break
+
                     print(mapInstance.renderKnownTileAndWall())
             else:
                 print("Robot now at the starting position, Congratulations!")
@@ -132,6 +99,6 @@ def main():
         traceback.print_exc()
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()      
-        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0])  # Flash red LED to indicate error         
+        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0])        
 if __name__ == "__main__":
     main()
