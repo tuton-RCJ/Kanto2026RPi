@@ -79,6 +79,10 @@ class turnDirection(Enum):
     LEFT = -1
     RIGHT = 1
 
+class measuringDistMethod(Enum):
+    LIDAR = 0
+    TOF = 1
+    
 class moveMethod(Enum):
     SEE_CORNER = 0
     SEE_FRONT = 1

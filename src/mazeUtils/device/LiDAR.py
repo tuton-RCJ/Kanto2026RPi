@@ -1,9 +1,15 @@
 import os
-import ydlidar
+import threading
+import time
+
 import numpy as np
+import ydlidar
 from dataclasses import dataclass
+
 from . import deviceConstraints
 from . import deviceEnums
+
+
 @dataclass
 class Point:
     """
@@ -112,3 +118,82 @@ def liDARShutdown(lidar: ydlidar.CYdLidar):
     """
     lidar.turnOff()
     lidar.disconnecting()
+
+
+class AsyncLidarScanWorker:
+    """
+    @brief LiDARスキャンを非同期で実行するワーカークラス
+    """
+
+    def __init__(self, lidarInstance: ydlidar.CYdLidar, debugMode: bool = False) -> None:
+        """
+        @brief AsyncLidarScanWorkerの初期化
+        @param lidarInstance LiDARインスタンス
+        @param debugMode デバッグモード有効化フラグ
+        """
+        self._lidar = lidarInstance
+        self._debugMode = debugMode
+        self._cv = threading.Condition()
+        self._latestPoints: list[Point] | None = None
+        self._seq = 0
+        self._stop = False
+        self._thread = threading.Thread(target=self._run, name="LiDARScanWorker", daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        """
+        @brief スキャンワーカーのメインループ
+        """
+        while True:
+            with self._cv:
+                if self._stop:
+                    return
+            try:
+                points = getLiDARScan(self._lidar)
+            except Exception as e:
+                self._debugPrint(f"LiDAR scan failed: {e}")
+                time.sleep(0.005)
+                continue
+            with self._cv:
+                self._latestPoints = points
+                self._seq += 1
+                self._cv.notify_all()
+
+    def _debugPrint(self, *message: object) -> None:
+        """
+        @brief デバッグ出力
+        @param message 出力メッセージ
+        """
+        if self._debugMode:
+            print(*message)
+
+    def waitFirst(self, timeoutSec: float = 1.0) -> list[Point]:
+        """
+        @brief 最初のスキャン結果を待機して取得する
+        @param timeoutSec タイムアウト時間（秒）
+        @return LiDAR点群データのリスト
+        """
+        end = time.time() + timeoutSec
+        with self._cv:
+            while self._latestPoints is None:
+                remaining = end - time.time()
+                if remaining <= 0:
+                    raise TimeoutError("Timed out waiting for first LiDAR scan")
+                self._cv.wait(timeout=remaining)
+            return self._latestPoints
+
+    def getLatest(self) -> tuple[list[Point] | None, int]:
+        """
+        @brief 最新のスキャン結果とシーケンス番号を取得する
+        @return (点群データ, シーケンス番号)のタプル
+        """
+        with self._cv:
+            return self._latestPoints, self._seq
+
+    def stop(self) -> None:
+        """
+        @brief ワーカースレッドを停止する
+        """
+        with self._cv:
+            self._stop = True
+            self._cv.notify_all()

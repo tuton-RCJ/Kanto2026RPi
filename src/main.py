@@ -1,104 +1,11 @@
-from mazeUtils import mazeMap
-from mazeUtils import moveTile
-from mazeUtils.device import stm
-from mazeUtils.device import LiDAR
-from mazeUtils.device import buzzerSongs
-from mazeUtils import mazeEnums
-from mazeUtils import mazeConstraints
-from mazeUtils.device import deviceEnums
-import ydlidar
-import time
 
-def main():
-    stmInstance = stm.STM()
-    stmInstance.update()
-    mapInstance = mazeMap.mazeMap()
-    lidarInstance = LiDAR.initializeLidar()
-    stmInstance.buzzer.playMusic(buzzerSongs.start)    
-    stmInstance.update()
-    while stmInstance.switch.getToggleSwitch1():
-        stmInstance.update()    
-    stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
-    time.sleep(1) 
-    try:
-        while True:
-            
-            stmInstance.update()
-            moveTile.detectWall(lidarInstance, mapInstance)
-            tileType = moveTile.detectTileColor()
-            mapInstance.setTileType(tileType)
-            moveTile.rescueVictim(mapInstance, stmInstance)
+from mazeUtils.solver import MazeSolver
 
-            print("Initial Map:")
-            print(mapInstance.renderKnownTileAndWall())
-            
-            nextDirection = mapInstance.getNearestUnexploredTile()
-            print(f"Next Direction: {nextDirection}")
-            
 
-            print("Exploration started.")
-            stopped = False
-            while nextDirection is not None or stopped:
-                nextDirection = mapInstance.getNearestUnexploredTile()
-                if nextDirection is None:
-                    break
-                for direction in nextDirection:
-                    isBlack, stopped = moveTile.moveTile(direction, mapInstance, stmInstance, lidarInstance)
-                    print(mapInstance.renderKnownTileAndWall())
-                    toggleswitchFlag = False
-                    stmInstance.update()
+def main() -> None:
+    solver = MazeSolver()
+    solver.run()
 
-                    if stmInstance.switch.getToggleSwitch1():
-                        print("Exploration paused. Toggle switch 1 to resume.")
 
-                    while stmInstance.switch.getToggleSwitch1():
-                        stmInstance.update()
-                        toggleswitchFlag = True
-                    
-                    if toggleswitchFlag:
-                        print("Exploration resumed.")
-                        toggleswitchFlag = False
-                        moveTile.recoverFromLoP(stmInstance, mapInstance, lidarInstance)
-                        break
-                    moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
-
-                nextDirection = mapInstance.getNearestUnexploredTile()
-            stmInstance.buzzer.playMusic(buzzerSongs.hotaru)       
-            returnPath = mapInstance.getPathTo((20, 20))
-            print(f"Return Path: {returnPath}")
-
-            if returnPath:
-                for direction in returnPath:
-                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                    toggleswitchFlag = False
-                    stmInstance.update()
-                    if moveTile.checkLackOfProgress(stmInstance):
-                        print("Return to start paused. Toggle switch 1 to resume.")
-
-                    while moveTile.checkLackOfProgress(stmInstance):
-                        toggleswitchFlag = True       
-
-                    if toggleswitchFlag:
-                        print("Exploration resumed.")
-                        toggleswitchFlag = False
-                        moveTile.recoverFromLoP(stmInstance, mapInstance, lidarInstance)
-                        break
-
-                    print(mapInstance.renderKnownTileAndWall())
-            else:
-                print("Robot now at the starting position, Congratulations!")
-                stmInstance.buzzer.playMusic(buzzerSongs.matuken) 
-                moveTile.flashLED(stmInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
-                LiDAR.liDARShutdown(lidarInstance)
-                stmInstance.sts3032.stop()
-                print(mapInstance.renderKnownTileAndWall())
-                exit(0)
-            continue
-    except:
-        import traceback
-        traceback.print_exc()
-        LiDAR.liDARShutdown(lidarInstance)
-        stmInstance.sts3032.stop()      
-        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0])        
 if __name__ == "__main__":
     main()

@@ -6,6 +6,7 @@ STRAGIHT_TOF_P_GAIN: float = 1
 
 USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_GYRO # 回転時の制御方法
 USE_MOVE_METHOD: mazeEnums.moveMethod = mazeEnums.moveMethod.SEE_FRONT # 直進時の制御方法
+MEASURING_DIST_METHOD: mazeEnums.measuringDistMethod = mazeEnums.measuringDistMethod.LIDAR # 壁距離の測定方法
 TURN_THRESHOLD_DEG_FIX: float = 0.2 # 回転時の誤差許容角度(調整時)
 TURN_THRESHOLD_DEG: float = 10  # 回転時の誤差許容角度
 VICTIM_TURN_DOUBLE_ADD_DIFF_DEG: float = 20.0  # 回転中、カメラ向きが方位の中間に近い場合に近い2方向へ被災者情報を登録する許容差(度)
