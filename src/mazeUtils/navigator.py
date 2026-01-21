@@ -139,6 +139,11 @@ class Navigator:
         self._robot = robotInstance
         self._perception = perceptionInstance
         self._action = actionInstance
+        self._rampHeightRemainderCm: float = 0.0
+        self._rampInProgress: bool = False
+        self._rampSign: int = 1
+        self._rampLevelId: int | None = None
+        self._rampEntryBaseLevel: int = 0
 
     def _debugPrint(self, *message: object) -> None:
         """
@@ -151,7 +156,7 @@ class Navigator:
     def _checkLackOfProgress(self) -> bool:
         """
         @brief Lack of Progress状態をチェックする
-        @return トグルスイッチが押されていたらTrue
+        @return トグルスイッチが押されていたら True
         """
         self._robot.update()
         if self._perception.isSwitchPressed():
@@ -278,6 +283,9 @@ class Navigator:
 
         littleFowardFlag = False
         isRamp = False
+        rampAngleSum = 0.0
+        rampAngleCount = 0
+        rampStartedThisTile = False
 
         startTime = time.time()
         practicalMoveTime = 0.0
@@ -321,12 +329,32 @@ class Navigator:
             targetDistDiff = math.sqrt(max(min(1 - abs(oldDist - currentDist) / 30, (tofDist[0] - 15) / 15), 0))
 
             rollValue = self._perception.getRoll()
-            minRoll = min(rollValue, 360 - rollValue)
+            pitchValue = self._perception.getPitch()
+            rollSigned = _regulationAngle(rollValue)
+            pitchSigned = _regulationAngle(pitchValue)
+            rollAbs = abs(rollSigned)
+            pitchAbs = abs(pitchSigned)
+            tiltSigned = rollSigned if rollAbs >= pitchAbs else pitchSigned
+            tiltAbs = rollAbs if rollAbs >= pitchAbs else pitchAbs
             maxLidarDist = max(LiDAR.getCertainAngleDist([0, 90, 180, 270], scanPoints))
 
-            if not isRamp and ((90 > minRoll > mazeConstraints.RAMP_DEG_THRESHOLD) or maxLidarDist > 250 or abs(currentDist - beforeDist) > mazeConstraints.MIN_THERESHOULD_FOR_DIFF):
+            rampDetectedNow = (tiltAbs > mazeConstraints.RAMP_DEG_THRESHOLD) or maxLidarDist > 250 or abs(currentDist - beforeDist) > mazeConstraints.MIN_THERESHOULD_FOR_DIFF
+
+            if not isRamp and rampDetectedNow:
                 isRamp = True
-                print(f"Ramp detected! roll: {rollValue} deg")
+                rampStartedThisTile = not self._rampInProgress
+                if abs(rollSigned) >= mazeConstraints.RAMP_ROLL_SIGN_THRESHOLD_DEG:
+                    self._rampSign = 1 if rollSigned > 0 else -1
+                if rampStartedThisTile:
+                    self._rampEntryBaseLevel = mapInstance.currentPosition[2]
+                    self._rampLevelId = mapInstance.createRampLevel(self._rampEntryBaseLevel)
+                print(f"Ramp detected! tilt: {tiltSigned} deg")
+
+            if isRamp:
+                if abs(rollSigned) >= mazeConstraints.RAMP_ROLL_SIGN_THRESHOLD_DEG:
+                    self._rampSign = 1 if rollSigned > 0 else -1
+                rampAngleSum += rollAbs
+                rampAngleCount += 1
 
             if not isRamp:
                 steerSpeeds = _getSteerSpeed(leftWallDist, rightWallDist, targetDistDiff, turnAngle)
@@ -343,7 +371,7 @@ class Navigator:
 
             frontDist = LiDAR.getCertainAngleDist(-currentHeading + mapInstance.frontDirection.value, scanPoints)
             moveCondition = (abs(oldDist - currentDist) > mazeConstraints.MOVE_THRESHOLD_CM or frontDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM)
-            rampCondition = not (90 > minRoll > mazeConstraints.RAMP_DEG_THRESHOLD)
+            rampCondition = not (tiltAbs > mazeConstraints.RAMP_DEG_THRESHOLD)
 
             if moveCondition and rampCondition and not isRamp:
                 self._action.stop()
@@ -372,10 +400,10 @@ class Navigator:
 
                 practicalMoveTime = self._checkAndRescueVictimDuringStraight(side, isWallAhead, avoidVictim, consequentSearchRes, isRedTile, oldDist, currentDist, practicalMoveTime)
 
-                self._debugPrint(f"isramp: {isRamp}, roll: {rollValue} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
+                self._debugPrint(f"isramp: {isRamp}, roll: {rollSigned} deg, pitch: {pitchSigned} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
 
-            rollCos = np.cos(np.radians(abs(rollValue)))
-            rollMultiplier = 1 if rollValue > 180 else 0.9
+            rollCos = np.cos(np.radians(rollAbs))
+            rollMultiplier = 1 if rollSigned > 0 else 0.9
             deltaTime = ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))
             practicalMoveTime += deltaTime * rollCos * rollMultiplier
             oldTime = time.time()
@@ -394,7 +422,32 @@ class Navigator:
                     break
 
         self._action.stop()
-        mapInstance.moveTo(mapInstance.frontDirection)
+        levelDelta = 0
+        if isRamp:
+            self._rampInProgress = True
+            avgRampAngle = (rampAngleSum / rampAngleCount) if rampAngleCount > 0 else abs(_regulationAngle(self._perception.getRoll()))
+            heightDeltaCm = math.tan(math.radians(avgRampAngle)) * mazeConstraints.TILE_LENGTH_CM
+            self._rampHeightRemainderCm += heightDeltaCm * self._rampSign
+
+            if rampStartedThisTile and self._rampLevelId is not None:
+                levelDelta = self._rampLevelId - mapInstance.currentPosition[2]
+            self._debugPrint(
+                f"Ramp accumulating: avgAngle={avgRampAngle:.1f} deg, heightSum={self._rampHeightRemainderCm:.1f} cm, entryDelta={levelDelta}"
+            )
+        elif self._rampInProgress:
+            snapThreshold = mazeConstraints.LEVEL_HEIGHT_CM * mazeConstraints.RAMP_END_LEVEL_SNAP_RATIO
+            totalLevels = 0
+            if abs(self._rampHeightRemainderCm) >= snapThreshold:
+                totalLevels = int(round(self._rampHeightRemainderCm / mazeConstraints.LEVEL_HEIGHT_CM))
+            targetBaseLevel = self._rampEntryBaseLevel + totalLevels
+            levelDelta = targetBaseLevel - mapInstance.currentPosition[2]
+            if self._rampLevelId is not None:
+                mapInstance.finalizeRampLevel(self._rampLevelId, targetBaseLevel)
+            self._rampHeightRemainderCm = 0.0
+            self._rampInProgress = False
+            self._rampLevelId = None
+
+        mapInstance.moveTo(mapInstance.frontDirection, levelDelta=levelDelta)
         return False
 
     def _scanAndRescueVictimDuringTurn(self) -> None:
@@ -706,6 +759,12 @@ class Navigator:
         mapInstance.loadCache(nowDirection=nowDirection)
         mapInstance.renderKnownTileAndWall()
         time.sleep(1)
+
+        self._rampHeightRemainderCm = 0.0
+        self._rampInProgress = False
+        self._rampSign = 1
+        self._rampLevelId = None
+        self._rampEntryBaseLevel = mapInstance.currentPosition[2]
 
         self._robot.update()
         self._detectWall()

@@ -84,12 +84,16 @@ class Perception:
 
     def isRampDetected(self) -> bool:
         """
-        @brief ジャイロのRoll値から坂道を判定する
+        @brief ジャイロのRoll/Pitch値から坂道を判定する
         @return 坂道が検出されたら True
         """
-        rollValue = self._robot.stmInstance.gyro.getValue().roll
-        minRoll = min(rollValue, 360 - rollValue)
-        return 90 > minRoll > mazeConstraints.RAMP_DEG_THRESHOLD
+        gyro = self._robot.stmInstance.gyro.getValue()
+        rollSigned = gyro.roll
+        pitchSigned = gyro.pitch
+        rollAbs = min(rollSigned, 360 - rollSigned)
+        pitchAbs = min(pitchSigned, 360 - pitchSigned)
+        tiltAbs = max(rollAbs, pitchAbs)
+        return 90 > tiltAbs > mazeConstraints.RAMP_DEG_THRESHOLD
 
     def getVictimInfo(self) -> dict[deviceEnums.Side, deviceEnums.UnitVStatus]:
         """
@@ -145,6 +149,13 @@ class Perception:
         @return ロール角度 (度)
         """
         return self._robot.stmInstance.gyro.getValue().roll
+
+    def getPitch(self) -> float:
+        """
+        @brief 現在のジャイロのピッチ値を取得する
+        @return ピッチ角度 (度)
+        """
+        return self._robot.stmInstance.gyro.getValue().pitch
 
     def getTofDistance(self) -> list[float]:
         """

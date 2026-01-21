@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 import time
-from . import mazeEnums
+import threading
+from . import mazeConstraints, mazeEnums
 from .device import buzzerSongs
 from .robot import Robot
 from .perception import Perception
@@ -35,6 +36,7 @@ class MazeSolver:
         try:
             self._waitForStart()
             self._calibrateGyro()
+            self._startCliMapViewer()
             self._explorationLoop()
 
             while self._returnToStart():
@@ -46,6 +48,53 @@ class MazeSolver:
             raise
         finally:
             self._robot.shutdown()
+
+    def _startCliMapViewer(self) -> None:
+        if not mazeConstraints.ENABLE_CLI_MAP_VIEW:
+            return
+
+        def _worker() -> None:
+            print("Map CLI: level <n> | level current | levels | ramps | show | help")
+            while True:
+                try:
+                    line = input()
+                except EOFError:
+                    return
+                if line is None:
+                    continue
+                line = line.strip()
+                if not line:
+                    continue
+                args = line.split()
+                cmd = args[0].lower()
+                mapInstance = self._robot.mapInstance
+
+                if cmd in ("level", "lv"):
+                    if len(args) == 1 or args[1].lower() in ("current", "auto", "now"):
+                        mapInstance.setRenderLevel(None)
+                        print("render level: current")
+                        continue
+                    try:
+                        level = int(args[1])
+                    except ValueError:
+                        print("invalid level")
+                        continue
+                    mapInstance.setRenderLevel(level)
+                    print(f"render level: {level}")
+                elif cmd in ("levels", "ls"):
+                    levels = sorted(mapInstance.tileTypes.keys())
+                    print(f"levels: {levels}")
+                elif cmd in ("ramps", "ramp"):
+                    print(f"ramps: {mapInstance.rampLevelLinks}")
+                elif cmd == "show":
+                    print(mapInstance.renderKnownTileAndWall())
+                elif cmd in ("help", "?"):
+                    print("Map CLI: level <n> | level current | levels | ramps | show | help")
+                else:
+                    print("unknown command")
+
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
 
     def _waitForStart(self) -> None:
         """
@@ -139,7 +188,7 @@ class MazeSolver:
         """
         print("Returning to start position...")
         mapInstance = self._robot.mapInstance
-        startPosition = (mapInstance.maxSize // 2, mapInstance.maxSize // 2)
+        startPosition = (mapInstance.maxSize // 2, mapInstance.maxSize // 2, mazeConstraints.START_LEVEL)
 
         while mapInstance.currentPosition != startPosition:
             pathToStart = mapInstance.getPathTo(startPosition)
