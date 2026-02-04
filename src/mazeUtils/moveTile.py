@@ -194,7 +194,7 @@ def turnToCertainDirection(targetDir: int, stmInstance: stm.STM) -> None:
             oldError = error
             turnSpeed = mazeConstraints.TURN_P * error + mazeConstraints.TURN_D * deribative
             turnSpeed = max(min(turnSpeed, 100), -100)
-            turnSpeed = turnSpeed if abs(turnSpeed) >= 5 else (5 if turnSpeed > 0 else -5)
+            turnSpeed = turnSpeed if abs(turnSpeed) >= 1 else (1 if turnSpeed > 0 else -1)
             stmInstance.sts3032.turnRight(abs(int(turnSpeed))) if turnSpeed > 0 else stmInstance.sts3032.turnLeft(abs(int(turnSpeed)))
             debugPrint(f"gyro:{stmInstance.gyro.getValue().heading} deg, derivative: {deribative}, turnSpeed: {turnSpeed}")
         stmInstance.sts3032.stop()
@@ -528,12 +528,12 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             return False, True
         scanPoints = LiDAR.getLiDARScan(lidar)
         currentDist = LiDAR.getCertainAngleDist(nearestLiDARAngle-stmInstance.gyro.getValue().heading+direction.value, scanPoints)
+        frontLidarDist = LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + direction.value, scanPoints)
         turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - direction.value)
         leftWallDist = LiDAR.getCertainAngleDist(90-stmInstance.gyro.getValue().heading+direction.value, scanPoints)
         rightWallDist = LiDAR.getCertainAngleDist(270-stmInstance.gyro.getValue().heading+direction.value, scanPoints)
-        targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (stmInstance.tof.getDistance()[0]-15)/15),0))    
+        targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (frontLidarDist-15)/15),0))    
         if not isRamp and ((90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) or max(LiDAR.getCertainAngleDist([0,90,180,270], points)) > 250 or abs(currentDist - beforeDist) > mazeConstraints.MIN_THERESHOULD_FOR_DIFF):
-            isRamp = True
             print(f"Ramp detected! roll: {stmInstance.gyro.getValue().roll} deg")
         if not isRamp:
             gyroSteer = turnAngle * mazeConstraints.STRAGIHT_GYRO_P_GAIN
@@ -585,7 +585,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             if tempTileColor == mazeEnums.tileType.RED:
                 isRedTile = True
         
-        if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + direction.value, scanPoints) < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
+        if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or frontLidarDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
             stmInstance.sts3032.stop()
             if mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM + 15:
                 littleFowardFlag = True
@@ -655,7 +655,8 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
                 return False, True
-            currentDist = stmInstance.tof.getDistance()[0]
+            scanPoints = LiDAR.getLiDARScan(lidar)
+            currentDist = LiDAR.getCertainAngleDist(-stmInstance.gyro.getValue().heading + direction.value, scanPoints)
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
     stmInstance.sts3032.stop()   

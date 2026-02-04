@@ -355,8 +355,10 @@ class Gyro:
         self.rollOffset: float = 0.0
         pass
 
-    def setValue(self, gyroData: gyroData):
-        self.data = gyroData
+    def setValue(self, gyrodata: gyroData):
+        self.data = gyroData(
+            heading=gyrodata.heading, pitch=gyrodata.pitch, roll=gyrodata.roll
+        )
 
     def setOffset(self, offset: gyroData):
         self.headingOffset = offset.heading
@@ -542,9 +544,9 @@ class STM:
                     deviceEnums.Side.RIGHT: (data[4] & (1 << 6)) * 2,
                 }
             )
-            heading, pitch, roll = struct.unpack(">Hhh", data[6:12])
+            heading, pitch, roll = struct.unpack(">HHH", data[6:12])
             self.gyro.setValue(
-                gyroData=gyroData(
+                gyrodata=gyroData(
                     heading=heading / 100.0,
                     pitch=-pitch / 100.0,
                     roll=-roll / 100.0,
@@ -559,7 +561,7 @@ class STM:
             # uart1.print(distance);
             # uart1.print(" ")
             self.tof.setDistance(
-                [(data[13 + i * 2] << 8 | data[14 + i * 2]) / 10 for i in range(4)]
+                [((data[13 + i * 2] << 8 | data[14 + i * 2]) / 10) if ((data[13 + i * 2] << 8 | data[14 + i * 2]) != 0) else self.tof.getDistance()[i] for i in range(4)]
             )
 
             return True
