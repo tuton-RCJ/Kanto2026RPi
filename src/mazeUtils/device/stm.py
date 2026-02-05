@@ -122,6 +122,8 @@ class Buzzer:
         global stmUART
         # データの作成
         # 音符数(1byte) + 各音符(周波数2byte, 長さ2byte)
+        if deviceConst.IS_MUTE:
+            return True
         data=[len(music.notes)]
  
         print(len(music.notes))

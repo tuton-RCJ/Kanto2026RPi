@@ -13,9 +13,9 @@ import ydlidar
 import time
 
 def main():
-    stmInstance = stm.STM()
+    cl = colorsensor.ColorSensor()
     while True:
-        stmInstance.update()
-        print(stmInstance.gyro.getValue())
+        cl.update()
+        print(cl._colorRGB)
 if __name__ == "__main__":
     main()

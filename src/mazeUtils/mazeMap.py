@@ -1,6 +1,7 @@
 from . import mazeEnums
 from . import mazeConstraints
 from .device import deviceEnums
+from .device.arduinoNanoEvery import ArduinoNanoEveryUART
 import heapq
 import itertools
 from typing import Callable
@@ -103,10 +104,16 @@ class mazeMap:
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
+        self.arduinoNanoEvery: ArduinoNanoEveryUART | None = None
+        try:
+            self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyACM0")
+        except Exception as exc:
+            print(f"ArduinoNanoEveryUART init failed: {exc}")
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
         self.saveCache()
+        self.updateArduinoStatus()
 
     def setWallType(self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType) -> None:
         x, y = self.currentPosition
@@ -329,14 +336,22 @@ class mazeMap:
             self.currentPosition = (x, y+1)
         elif direction == mazeEnums.absDirection.WEST:
             self.currentPosition = (x-1, y)
-        self.frontDirection = direction
+        self.updateFrontDirection(direction)
         
     def setFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         """
         @brief 前方方向を設定する
         @param direction: 設定する方向
         """
+        self.updateFrontDirection(direction)
+
+    def updateFrontDirection(self, direction: mazeEnums.absDirection) -> None:
+        """
+        @brief 前方方向を設定し、Arduino Nano Every の表示を更新する
+        @param direction: 設定する方向
+        """
         self.frontDirection = direction
+        self.updateArduinoStatus()
 
     def dropRescueKit(self, side: deviceEnums.Side, count: int) -> None:
         """
@@ -367,6 +382,7 @@ class mazeMap:
             self.mazeAsGraph = [[neighbors.copy() for neighbors in row] for row in self.savedCache['mazeAsGraph']]
             self.frontDirection = nowDirection
             self.currentPosition = self.lastCheckpoint
+            self.updateArduinoStatus()
             
     def _is_known_cell(self, x: int, y: int) -> bool:
         if self.tileTypes[y][x] != mazeEnums.tileType.UNKNOWN:
@@ -482,3 +498,19 @@ class mazeMap:
             lines.append("".join(sep))
 
         return "\n".join(lines)
+
+    def _direction_to_display(self, direction: mazeEnums.absDirection) -> int:
+        mapping = {
+            mazeEnums.absDirection.NORTH: 0,
+            mazeEnums.absDirection.EAST: 1,
+            mazeEnums.absDirection.SOUTH: 2,
+            mazeEnums.absDirection.WEST: 3,
+        }
+        return mapping[direction]
+
+    def updateArduinoStatus(self) -> None:
+        if self.arduinoNanoEvery is None:
+            return
+        x, y = self.currentPosition
+        direction = self._direction_to_display(self.frontDirection)
+        self.arduinoNanoEvery.update_oled(x, y, direction)
