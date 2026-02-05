@@ -83,3 +83,9 @@ class moveMethod(Enum):
     SEE_CORNER = 0
     SEE_FRONT = 1
 
+directionToDelta = {
+    absDirection.NORTH: (0, -1),
+    absDirection.EAST: (1, 0),
+    absDirection.SOUTH: (0, 1),
+    absDirection.WEST: (-1, 0)
+}

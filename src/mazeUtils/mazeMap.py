@@ -105,6 +105,7 @@ class mazeMap:
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
         self.arduinoNanoEvery: ArduinoNanoEveryUART | None = None
+        self.seenVictimType = [[{d: set() for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         try:
             self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyACM0")
         except Exception as exc:
@@ -184,6 +185,33 @@ class mazeMap:
         for direction in mazeEnums.absDirection:
             if direction == mazeEnums.absDirection((self.frontDirection.value + 90) % 360) or direction == mazeEnums.absDirection((self.frontDirection.value + 270) % 360):
                 self.wallSeenCount[y][x][direction] += 1
+    def isSeenVictimType(self, direction: list[mazeEnums.absDirection], victimType: deviceEnums.UnitVStatus) -> bool:
+        """
+        @brief 指定した方向に見えた被災者タイプが存在するか確認する
+        @param direction: 被災者が見えた方向
+        @param victimType: 確認する被災者タイプ
+        @return: 指定した被災者タイプが見えた場合は True、そうでない場合は False
+        """
+        x, y = self.currentPosition
+        return any(victimType in self.seenVictimType[y][x][d] for d in direction)
+    
+    def addSeenVictimType(self, direction: list[mazeEnums.absDirection], victimType: deviceEnums.UnitVStatus) -> None:
+        """
+        @brief 指定した方向に見えた被災者タイプを追加する
+        @param direction: 被災者が見えた方向
+        @param victimType: 追加する被災者タイプ
+        """
+        x, y = self.currentPosition
+        for d in direction:
+            self.seenVictimType[y][x][d].add(victimType)
+    
+    def getSeenVictimType(self, x: int, y: int) -> dict[mazeEnums.absDirection, set[deviceEnums.UnitVStatus]]:
+        """
+        @brief 見た被災者タイプを取得する
+        @return: 見た被災者タイプの辞書
+        """
+        return self.seenVictimType[y][x]
+
     def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
         """
         @brief 指定した方向のタイルタイプを設定する。directionがNoneの場合は現在位置に設定する
