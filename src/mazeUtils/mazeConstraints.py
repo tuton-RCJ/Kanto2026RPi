@@ -8,7 +8,7 @@ USE_TURN_METHOD: mazeEnums.turnMethod = mazeEnums.turnMethod.ONLY_GYRO # 回転�
 USE_MOVE_METHOD: mazeEnums.moveMethod = mazeEnums.moveMethod.SEE_FRONT # 直進時の制御方法
 TURN_THRESHOLD_DEG_FIX: float = 0.2 # 回転時の誤差許容角度(調整時)
 TURN_THRESHOLD_DEG: float = 10  # 回転時の誤差許容角度
-GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50} # 直進時のスピード
+GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 80, deviceEnums.Side.RIGHT: 80} # 直進時のスピード
 
 GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30} # ゆっくり直進時のスピード
 
@@ -48,6 +48,8 @@ MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
 
 USE_SPEED_CONTROL_FOR_STRAIGHT: bool = True  # 直進時に速度制御するかどうか
+
+TURN_SPD: int = 80  # 回転時のモーター速度
 
 TURN_P = 2  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン

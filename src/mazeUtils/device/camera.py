@@ -97,3 +97,5 @@ def _get_default_detector():
 
 def detectTileColor():
     return _get_default_detector().detectTileColor()
+
+_get_default_detector()
