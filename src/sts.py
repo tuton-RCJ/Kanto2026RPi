@@ -13,9 +13,10 @@ import ydlidar
 import time
 
 def main():
-    cl = colorsensor.ColorSensor()
+    stmInstance = stm.STM()
+    stmInstance.update()
     while True:
-        cl.update()
-        print(cl._colorRGB)
+        stmInstance.update()
+        print(stmInstance.unitv.getStatus())
 if __name__ == "__main__":
     main()
