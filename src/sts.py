@@ -13,10 +13,7 @@ import ydlidar
 import time
 
 def main():
-    stmInstance = stm.STM()
-    stmInstance.update()
     while True:
-        stmInstance.update()
-        print(stmInstance.unitv.getStatus())
+        print(camera.detectTileColor())
 if __name__ == "__main__":
     main()

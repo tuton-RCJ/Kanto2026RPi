@@ -505,7 +505,39 @@ class LED:
             ]
         )
         return stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.LED, data)
+class CamLED:
+    def __init__(
+        self,
+    ):
+        pass
 
+    def setColor(self, r: int, g: int, b: int) -> bool:
+        """
+        @brief カメラ用LEDの色を設定する
+        @param r: 赤の値(0~255)
+        @param g: 緑の値(0~255)
+        @param b: 青の値(0~255)
+        """
+        global stmUART
+        # 値の範囲チェック
+        if not (0 <= r <= 255):
+            print("invalid CamLED color value")
+            return False
+        if not (0 <= g <= 255):
+            print("invalid CamLED color value")
+            return False
+        if not (0 <= b <= 255):
+            print("invalid CamLED color value")
+            return False
+
+        data: bytes = bytes(
+            [
+                r,
+                g,
+                b,
+            ]
+        )
+        return stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.CAMLED, data)
 
 class STM:
     def __init__(
@@ -519,6 +551,7 @@ class STM:
         self.switch: Switch = Switch()
         self.rescuekitservo: RescueKitServo = RescueKitServo()
         self.led: LED = LED()
+        self.camled: CamLED = CamLED()
         self.tof: ToF = ToF()
         self.buzzer: Buzzer = Buzzer()
 

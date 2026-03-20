@@ -443,6 +443,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         nearestLiDARAngle = 0 if dist0 < dist180 else 180
         heading = stmInstance.gyro.getValue().heading
         oldDist = LiDAR.getCertainAngleDist(nearestLiDARAngle - heading + direction.value, points)
+        progressSign = -1 if nearestLiDARAngle == 0 else 1
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
         littleFowardFlag = False
         isRamp = False
@@ -459,6 +460,25 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         avoidVictim = {s: mapInstance.getSeenVictimType(currentPosX, currentPosY)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else 270)) % 360)] | mapInstance.getSeenVictimType(currentPosX + dx, currentPosY + dy)[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else 270)) % 360)] for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
         print(avoidVictim)
         consequentSearchRes = {s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
+
+        # LiDAR更新が止まっている周期でも、直近の進行速度から距離を推定して制御を継続する。
+        prevScanPoints = points
+        lastLiDARUpdateTime = time.time()
+        lastLidarProgress = 0.0
+        estimatedProgressSpeed = 0.0
+        initialFrontDist, initialLeftDist, initialRightDist = LiDAR.getCertainAngleDist(
+            [
+                -heading + direction.value,
+                90 - heading + direction.value,
+                270 - heading + direction.value,
+            ],
+            points,
+        )
+        frontLidarDist = initialFrontDist
+        leftWallDist = initialLeftDist
+        rightWallDist = initialRightDist
+        lastMeasuredFrontDist = initialFrontDist
+
         beforeDist = oldDist
         while True:
             loop_start_time = time.time()
@@ -472,16 +492,35 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 return False, True
             scanPoints = get_scan_points()
             last_scan_points = scanPoints
+            now = time.time()
+            isLiDARUpdated = scanPoints is not prevScanPoints
             heading = stmInstance.gyro.getValue().heading
             roll = stmInstance.gyro.getValue().roll
             angle_current = nearestLiDARAngle - heading + direction.value
             angle_front = -heading + direction.value
             angle_left = 90 - heading + direction.value
             angle_right = 270 - heading + direction.value
-            currentDist, frontLidarDist, leftWallDist, rightWallDist = LiDAR.getCertainAngleDist(
-                [angle_current, angle_front, angle_left, angle_right],
-                scanPoints,
-            )
+            if isLiDARUpdated:
+                currentDist, frontLidarDist, leftWallDist, rightWallDist = LiDAR.getCertainAngleDist(
+                    [angle_current, angle_front, angle_left, angle_right],
+                    scanPoints,
+                )
+                measuredProgress = abs(oldDist - currentDist)
+                dtLiDAR = now - lastLiDARUpdateTime
+                if dtLiDAR > 1e-3:
+                    observedSpeed = (measuredProgress - lastLidarProgress) / dtLiDAR
+                    observedSpeed = max(0.0, min(observedSpeed, 120.0))
+                    estimatedProgressSpeed = observedSpeed if estimatedProgressSpeed == 0.0 else (0.7 * estimatedProgressSpeed + 0.3 * observedSpeed)
+                lastLidarProgress = measuredProgress
+                lastMeasuredFrontDist = frontLidarDist
+                lastLiDARUpdateTime = now
+                prevScanPoints = scanPoints
+            else:
+                staleTime = now - lastLiDARUpdateTime
+                estimatedProgress = lastLidarProgress + estimatedProgressSpeed * staleTime
+                currentDist = oldDist + progressSign * estimatedProgress
+                frontLidarDist = max(0.0, lastMeasuredFrontDist - estimatedProgressSpeed * staleTime)
+
             turnAngle = regulationAngle(heading - direction.value)
             targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (frontLidarDist-15)/15),0))    
             if not isRamp and (90 > min(roll, 360 - roll) > mazeConstraints.RAMP_DEG_THRESHOLD):

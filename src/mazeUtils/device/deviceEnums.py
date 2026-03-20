@@ -27,13 +27,13 @@ class ActuatorControlType(Enum):
     RESCUE_KIT = bytes([2])
     LED = bytes([3])
     BUZZER = bytes([4])
-
+    CAMLED = bytes([5])
     def dataLength(self):
         if self == ActuatorControlType.STS_MOTOR:
             return 2
         elif self == ActuatorControlType.RESCUE_KIT:
             return 2
-        elif self == ActuatorControlType.LED:
+        elif self == ActuatorControlType.LED or self == ActuatorControlType.CAMLED:
             return 3
         elif self == ActuatorControlType.BUZZER:
             # 可変長: 音符数(1byte) + 各音符(周波数2byte, 長さ2byte) * N
