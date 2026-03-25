@@ -6,7 +6,7 @@ import serial
 class ArduinoNanoEveryUART:
     def __init__(
         self,
-        port: str = "/dev/ttyACM0",
+        port: str = "/dev/ttyUSB0", # ttyACM0 : Arduino nano every, ttyUSB0 : 06-Display Board(CH340E)
         baudrate: int = 115200,
         timeout: float = 0.5,
     ):
@@ -75,6 +75,32 @@ class ArduinoNanoEveryUART:
         msg_type = 1
         self._update_seq()
         payload = [msg_type, self._seq, x_coord, y_coord, direction]
+        check_digit = self._xor_check_digit(payload)
+        self._serial.write(bytes(payload + [check_digit]))
+
+        response = self._read_exact(3)
+        if response is None:
+            return False
+        if response[0] != msg_type or response[1] != self._seq:
+            self._flush_input()
+            return False
+
+        expected_cd = self._xor_check_digit(list(response[0:2]))
+        if expected_cd != response[2]:
+            self._flush_input()
+            return False
+
+        return True
+    
+    def send_message(self,message:str)->bool:
+        if len(message) > 60:
+            print("Message too long for OLED display")
+            return False
+        
+        msg_type = 2
+        self._update_seq()
+        data_length = len(message)
+        payload = [msg_type, self._seq, data_length] + list(message.encode('utf-8'))
         check_digit = self._xor_check_digit(payload)
         self._serial.write(bytes(payload + [check_digit]))
 
