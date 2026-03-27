@@ -107,7 +107,7 @@ class mazeMap:
         self.arduinoNanoEvery: ArduinoNanoEveryUART | None = None
         self.seenVictimType = [[{d: set() for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         try:
-            self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyACM0")
+            self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
         except Exception as exc:
             print(f"ArduinoNanoEveryUART init failed: {exc}")
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()

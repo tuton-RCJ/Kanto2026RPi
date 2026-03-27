@@ -57,6 +57,9 @@ TURN_P = 2  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン
 TURN_D = 0.00  # 回転制御の微分ゲイン
 
+RAMP_TOF_THRESHOLD = 4
+JUDGE_RAMP_LIDAR_THRESHOLD = 50
+
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
 DEBUG_MODE: bool = False  # デバッグモードの有効化
