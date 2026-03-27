@@ -296,7 +296,8 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap, points: li
         if mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN:
             if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
                 mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
-
+            elif direction == mapInstance.frontDirection and ((LiDAR.getCertainAngleDist(0,points) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,points) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
+                mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             else: 
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
 
