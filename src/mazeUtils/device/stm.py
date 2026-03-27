@@ -515,7 +515,7 @@ class STM:
         self.switch: Switch = Switch()
         self.rescuekitservo: RescueKitServo = RescueKitServo()
         self.led: LED = LED()
-        self.camled: CamLED = CamLED()
+        #self.camled: CamLED = CamLED()
         self.tof: ToF = ToF()
         self.buzzer: Buzzer = Buzzer()
 

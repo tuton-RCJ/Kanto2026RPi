@@ -13,6 +13,7 @@ def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
+    mapInstance.arduinoNanoEvery.camled((255, 255, 255)) 
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)    
     stmInstance.update()
@@ -24,10 +25,6 @@ def main():
         while True:
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
-            tileType = moveTile.detectTileColor()
-            mapInstance.setTileType(tileType)
-            moveTile.rescueVictim(mapInstance, stmInstance)
-
             print("Initial Map:")
             print(mapInstance.renderKnownTileAndWall())
             
@@ -76,7 +73,7 @@ def main():
                         mapInstance.setTileType(tileType)
                         moveTile.rescueVictim(mapInstance, stmInstance)
                         break
-                    moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                    moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
 
                 nextDirection = mapInstance.getNearestUnexploredTile()
             stmInstance.buzzer.playMusic(buzzerSongs.hotaru)       
@@ -115,13 +112,13 @@ def main():
                         tileType = moveTile.detectTileColor()
                         mapInstance.setTileType(tileType)
                         moveTile.rescueVictim(mapInstance, stmInstance)
-                        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                        moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
                         break
                     print(mapInstance.renderKnownTileAndWall())
             else:
                 print("Robot now at the starting position, Congratulations!")
                 stmInstance.buzzer.playMusic(buzzerSongs.matuken) 
-                moveTile.flashLED(stmInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
+                moveTile.flashLED(stmInstance, mapInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
                 LiDAR.liDARShutdown(lidarInstance)
                 stmInstance.sts3032.stop()
                 print(mapInstance.renderKnownTileAndWall())
@@ -130,7 +127,7 @@ def main():
     except:
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()      
-        moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0])  # Flash red LED to indicate error     
+        moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0])  # Flash red LED to indicate error     
         import traceback
         traceback.print_exc()   
 if __name__ == "__main__":

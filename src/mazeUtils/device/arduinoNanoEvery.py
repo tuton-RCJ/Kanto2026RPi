@@ -65,7 +65,55 @@ class ArduinoNanoEveryUART:
             return None
 
         return (response[2] << 8) | response[3]
+    
+    def camled(self, color: tuple[int, int, int]) -> bool:
+        if any(c < 0 or c > 255 for c in color):
+            print("Invalid color value for CamLED")
+            return False
+        msg_type = 4
+        self._update_seq()
+        payload = [msg_type, self._seq] + list(color)
+        check_digit = self._xor_check_digit(payload)
+        self._serial.write(bytes(payload + [check_digit]))
 
+        response = self._read_exact(3)
+        if response is None:
+            return False
+        if response[0] != msg_type or response[1] != self._seq:
+            self._flush_input()
+            return False
+
+        expected_cd = self._xor_check_digit(list(response[0:2]))
+        if expected_cd != response[2]:
+            self._flush_input()
+            return False
+
+        return True
+    
+    def victimled(self, color: tuple[int, int, int]) -> bool:
+        if any(c < 0 or c > 255 for c in color):
+            print("Invalid color value for VictimLED")
+            return False
+        msg_type = 5
+        self._update_seq()
+        payload = [msg_type, self._seq] + list(color)
+        check_digit = self._xor_check_digit(payload)
+        self._serial.write(bytes(payload + [check_digit]))
+
+        response = self._read_exact(3)
+        if response is None:
+            return False
+        if response[0] != msg_type or response[1] != self._seq:
+            self._flush_input()
+            return False
+
+        expected_cd = self._xor_check_digit(list(response[0:2]))
+        if expected_cd != response[2]:
+            self._flush_input()
+            return False
+
+        return True
+    
     def update_oled(self, x_coord: int, y_coord: int, direction: int) -> bool:
         if not (0 <= x_coord <= 255 and 0 <= y_coord <= 255):
             return False

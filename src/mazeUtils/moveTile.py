@@ -9,44 +9,47 @@ from collections import defaultdict
 colorSensor = None
 pr = None
 
-def turnOnLED(stmInstance: stm.STM, color: list[int]) -> None:
+def turnOnLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap, color: list[int]) -> None:
     """
     @brief LEDを点灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
+    mapInstance.arduinoNanoEvery.camled(tuple(color))
 
-def turnOffLED(stmInstance: stm.STM) -> None:
+def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     """
     @brief LEDを消灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(0,0,0)
+    mapInstance.arduinoNanoEvery.camled((0, 0, 0))
 
-def flashLED(stmInstance: stm.STM, loopCount: int, intervalSec: float, color: list[int]) -> None:
+def flashLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, loopCount: int, intervalSec: float, color: list[int]) -> None:
     """
     @brief LEDを点滅させる
     @param stmInstance: 通信に使用する STM インスタンス
+    @param mapInstance: マップインスタンス
     @param durationSec: 点滅させる時間 (秒)
     @param intervalSec: 点灯と消灯の間隔 (秒)
     """
     for _ in range(loopCount):
         if stmInstance.switch.getToggleSwitch1(): 
-            turnOffLED(stmInstance)
+            turnOffLED(stmInstance, mapInstance)
             return
-        turnOnLED(stmInstance, color)
+        turnOnLED(stmInstance, mapInstance, color)
         t = time.time()
         while time.time() - t < intervalSec:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
-                turnOffLED(stmInstance)
+                turnOffLED(stmInstance, mapInstance)
                 return
-        turnOffLED(stmInstance)
+        turnOffLED(stmInstance, mapInstance)
         t = time.time()
         while time.time() - t < intervalSec:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
-                turnOffLED(stmInstance)
+                turnOffLED(stmInstance, mapInstance)
                 return
 
 def debugPrint(*message: object) -> None:
@@ -318,7 +321,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1)%3 
-    flashLED(stmInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
+    flashLED(stmInstance, mapInstance, 5, 0.5,color=[(0,255,0),(255,255,0),(255,0,0)][needRescueKitCount])
     oppositeFlag = False
     tileColor = detectTileColor()
     firstHeading = stmInstance.gyro.getValue().heading
