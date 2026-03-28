@@ -13,10 +13,8 @@ from mazeUtils import mazeConstraints
 import ydlidar
 import time
 
-def main():
-    lidar = LiDAR.initializeLidar()
-    while True:
-        points = LiDAR.getLiDARScan(lidar)
-        print(LiDAR.getCertainAngleDist(points, 0))
-if __name__ == "__main__":
-    main()
+ph = photoReflector.PhotoReflector()
+
+while True:
+    print(ph.isReflecting())
+    time.sleep(0.1)

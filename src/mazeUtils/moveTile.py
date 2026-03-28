@@ -9,13 +9,15 @@ from collections import defaultdict
 colorSensor = None
 pr = None
 
+lastDist = {mazeEnums.absDirection.NORTH: 0, mazeEnums.absDirection.EAST: 0, mazeEnums.absDirection.SOUTH: 0, mazeEnums.absDirection.WEST: 0}
+
 def turnOnLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap, color: list[int]) -> None:
     """
     @brief LEDを点灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
-    mapInstance.arduinoNanoEvery.camled(tuple(color))
+    mapInstance.arduinoNanoEvery.victimled(tuple(color))
 
 def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     """
@@ -23,7 +25,7 @@ def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(0,0,0)
-    mapInstance.arduinoNanoEvery.camled((0, 0, 0))
+    mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
 
 def flashLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, loopCount: int, intervalSec: float, color: list[int]) -> None:
     """
@@ -334,7 +336,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
             mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
             oldtime = time.time()
-            while time.time() - oldtime < 0.2:
+            while time.time() - oldtime < 0.4:
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
@@ -348,7 +350,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
             stmInstance.rescuekitservo.dropRescueKit(1, side.opposite() if not oppositeFlag else side)
             oppositeFlag = not oppositeFlag
             oldtime = time.time()
-            while time.time() - oldtime < 0.2:
+            while time.time() - oldtime < 0.4:
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
@@ -435,6 +437,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         debugPrint(f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}")
         turnToCertainDirection(direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance)
         mapInstance.updateFrontDirection(direction)
+        point = LiDAR.getLiDARScan(lidar)
+        if ((LiDAR.getCertainAngleDist(0,point) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,point) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
+            mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+            return False, False
+            
         stmInstance.sts3032.stop()
             
         stmInstance.update()
@@ -505,10 +512,27 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
             angle_left = 90 - heading + direction.value
             angle_right = 270 - heading + direction.value
             if isLiDARUpdated:
-                currentDist, frontLidarDist, leftWallDist, rightWallDist = LiDAR.getCertainAngleDist(
+                tcurrentDist, tfrontLidarDist, tleftWallDist, trightWallDist = LiDAR.getCertainAngleDist(
                     [angle_current, angle_front, angle_left, angle_right],
                     scanPoints,
                 )
+                if tcurrentDist != -1 and abs(tcurrentDist - beforeDist) < 10:  
+                    currentDist = tcurrentDist
+                elif  not "currentDist" in locals():
+                    currentDist = oldDist
+                if tfrontLidarDist != -1 and abs(tfrontLidarDist - lastMeasuredFrontDist) < 10:
+                    frontLidarDist = tfrontLidarDist
+                elif not "frontLidarDist" in locals():
+                    frontLidarDist = lastMeasuredFrontDist
+                if tleftWallDist != -1 and abs(tleftWallDist - leftWallDist) < 10:
+                    leftWallDist = tleftWallDist
+                elif not "leftWallDist" in locals():
+                    leftWallDist = initialLeftDist
+                if trightWallDist != -1 and abs(trightWallDist - rightWallDist) < 10:
+                    rightWallDist = trightWallDist
+                elif not "rightWallDist" in locals():
+                    rightWallDist = initialRightDist
+
                 measuredProgress = abs(oldDist - currentDist)
                 dtLiDAR = now - lastLiDARUpdateTime
                 if dtLiDAR > 1e-3:
@@ -523,7 +547,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 staleTime = now - lastLiDARUpdateTime
                 estimatedProgress = lastLidarProgress + estimatedProgressSpeed * staleTime
                 currentDist = oldDist + progressSign * estimatedProgress
-                frontLidarDist = max(0.0, lastMeasuredFrontDist - estimatedProgressSpeed * staleTime)
 
             turnAngle = regulationAngle(heading - direction.value)
             targetDistDiff = math.sqrt(max(min(1-abs(oldDist - currentDist)/30, (frontLidarDist-15)/15),0))    
@@ -579,10 +602,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 if tempTileColor == mazeEnums.tileType.RED:
                     isRedTile = True
             
-            if  (abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or frontLidarDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp):
+            if (((abs((oldDist) - (currentDist))> mazeConstraints.MOVE_THRESHOLD_CM or frontLidarDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM) and (not 90 > min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD) and (not isRamp)) and oldDist != currentDist) and practicalMoveTime > mazeConstraints.MIN_MOVE_STRAIGHT_SEC:
                 stmInstance.sts3032.stop()
                 if mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM < currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM + 15:
                     littleFowardFlag = True
+                print(frontLidarDist, currentDist, oldDist)
                 break
 
             escapeFlag = False

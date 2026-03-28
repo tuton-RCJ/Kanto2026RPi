@@ -137,6 +137,19 @@ class mazeMap:
                 if self.tileTypes[y][x-1] != mazeEnums.tileType.BLACK:
                     self.mazeAsGraph[y][x].add((x-1, y))
                     self.mazeAsGraph[y][x-1].add((x, y))
+        elif wallType == mazeEnums.wallType.WALL:
+            if direction == mazeEnums.absDirection.NORTH and y > 0:
+                self.mazeAsGraph[y][x].discard((x, y-1))
+                self.mazeAsGraph[y-1][x].discard((x, y))
+            elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
+                self.mazeAsGraph[y][x].discard((x+1, y))
+                self.mazeAsGraph[y][x+1].discard((x, y))
+            elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
+                self.mazeAsGraph[y][x].discard((x, y+1))
+                self.mazeAsGraph[y+1][x].discard((x, y))
+            elif direction == mazeEnums.absDirection.WEST and x > 0:
+                self.mazeAsGraph[y][x].discard((x-1, y))
+                self.mazeAsGraph[y][x-1].discard((x, y))
 
         self.wallTypes[y][x][direction] = wallType
 

@@ -76,14 +76,18 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
     distances = []
     for a in angle:
         minerror = 1e9
-        dist = 1e9
+        dist = -1
+        distlist = []
         for p in points:
-            if p.range < 10:
+            if p.range < 10 or p.range > 200:
                 continue
-            if abs(regulationAngle(p.angle - a)) < minerror:
-                minerror = abs(regulationAngle(p.angle - a))
-                dist = p.range
-        distances.append(dist)
+            if abs(regulationAngle(p.angle - a)) < 3:
+                distlist.append(p.range * np.cos(np.deg2rad(regulationAngle(p.angle - a))))
+        if len(distlist) > 0:
+            distlist.sort()
+            distances.append(distlist[len(distlist)//2])
+        else:
+            distances.append(-1)
     return distances[0] if single else distances
 
 def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:

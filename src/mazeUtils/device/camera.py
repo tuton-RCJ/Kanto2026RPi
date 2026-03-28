@@ -31,7 +31,7 @@ class CameraColorDetector:
         hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         avg_hsv = cv2.mean(hsv_roi)
         avg_h, avg_s, avg_v = avg_hsv[0], avg_hsv[1], avg_hsv[2]
-        print(avg_h,avg_s,avg_v)
+        #print(avg_h,avg_s,avg_v)
         if avg_h < 120:
             if avg_v < 90:  return "BLACK"
         

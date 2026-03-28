@@ -13,7 +13,7 @@ def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
-    mapInstance.arduinoNanoEvery.camled((255, 255, 255)) 
+    mapInstance.arduinoNanoEvery.camled((0, 0, 0)) 
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)    
     stmInstance.update()
@@ -79,7 +79,6 @@ def main():
             stmInstance.buzzer.playMusic(buzzerSongs.hotaru)       
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
-
             if returnPath:
                 for direction in returnPath:
                     moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
@@ -119,10 +118,37 @@ def main():
                 print("Robot now at the starting position, Congratulations!")
                 stmInstance.buzzer.playMusic(buzzerSongs.matuken) 
                 moveTile.flashLED(stmInstance, mapInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
-                LiDAR.liDARShutdown(lidarInstance)
                 stmInstance.sts3032.stop()
                 print(mapInstance.renderKnownTileAndWall())
-                exit(0)
+                while not stmInstance.switch.getToggleSwitch1():
+                    stmInstance.update()
+                print("detect LoP. back to last check point.")
+                while stmInstance.switch.getToggleSwitch1():
+                    stmInstance.update()
+                    toggleswitchFlag = True       
+
+                if toggleswitchFlag:
+                    print("Exploration resumed.")
+                    toggleswitchFlag = False
+                    nowAngle = stmInstance.gyro.getValue().heading
+                    nowDirection = None
+                    error = 1e9
+                    for direction in mazeEnums.absDirection:
+                        diff = abs(nowAngle - direction.value)
+                        if diff > 180:
+                            diff = 360 - diff
+                        if diff < error:
+                            error = diff
+                            nowDirection = direction
+                    mapInstance.loadCache(nowDirection=nowDirection)
+                    mapInstance.renderKnownTileAndWall()
+                    time.sleep(1)  # Allow time for stabilization after resuming
+                    stmInstance.update()
+                    moveTile.detectWall(lidarInstance, mapInstance)
+                    tileType = moveTile.detectTileColor()
+                    mapInstance.setTileType(tileType)
+                    moveTile.rescueVictim(mapInstance, stmInstance)
+                    moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
             continue
     except:
         LiDAR.liDARShutdown(lidarInstance)
