@@ -336,7 +336,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
             mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
             oldtime = time.time()
-            while time.time() - oldtime < 0.4:
+            while time.time() - oldtime < 0.8:
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
@@ -350,7 +350,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
             stmInstance.rescuekitservo.dropRescueKit(1, side.opposite() if not oppositeFlag else side)
             oppositeFlag = not oppositeFlag
             oldtime = time.time()
-            while time.time() - oldtime < 0.4:
+            while time.time() - oldtime < 0.8:
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
