@@ -332,7 +332,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     for i in range(needRescueKitCount):
         if mapInstance.nowRescueKitCount[side if not oppositeFlag else side.opposite()] >= 1:
             stmInstance.update()
-            turnToCertainDirection((stmInstance.gyro.getValue().heading + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
+            turnToCertainDirection((stmInstance.gyro.getValue().heading + (i+1)*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
             mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
             oldtime = time.time()
@@ -342,7 +342,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
                     stmInstance.sts3032.stop()
                     return
         elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
-            turnToCertainDirection((stmInstance.gyro.getValue().heading + 180 + i*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
+            turnToCertainDirection((stmInstance.gyro.getValue().heading + 180 + (i+1)*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
             mapInstance.updateFrontDirection(
                 mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
             )
