@@ -79,13 +79,13 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
         dist = -1
         distlist = []
         for p in points:
-            if p.range < 10 or p.range > 200:
+            if p.range < 10 or p.range > 400:
                 continue
-            if abs(regulationAngle(p.angle - a)) < 3:
+            if abs(regulationAngle(p.angle - a)) < 20:
                 distlist.append(p.range * np.cos(np.deg2rad(regulationAngle(p.angle - a))))
         if len(distlist) > 0:
             distlist.sort()
-            distances.append(distlist[len(distlist)//2])
+            distances.append(distlist[-1])
         else:
             distances.append(-1)
     return distances[0] if single else distances

@@ -44,7 +44,7 @@ RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THERESHOULD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.3  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.6  # 1マス直進にかかる時間
 MIN_MOVE_STRAIGHT_SEC: float = 0.8  # 最短で1マス直進にかかると考えられる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
@@ -63,4 +63,4 @@ JUDGE_RAMP_LIDAR_THRESHOLD = 50
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {deviceEnums.Side.LEFT: 6, deviceEnums.Side.RIGHT: 6}  # 各サイドの初期レスキューキットの数
 
-DEBUG_MODE: bool = True  # デバッグモードの有効化
+DEBUG_MODE: bool = False  # デバッグモードの有効化

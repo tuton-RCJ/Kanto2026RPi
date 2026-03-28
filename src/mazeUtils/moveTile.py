@@ -301,8 +301,8 @@ def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap, points: li
         if mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN:
             if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
                 mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
-            elif direction == mapInstance.frontDirection and ((LiDAR.getCertainAngleDist(0,points) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,points) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
-                mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+            #elif direction == mapInstance.frontDirection: and ((LiDAR.getCertainAngleDist(0,points) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,points) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
+            #    mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             else: 
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
 
@@ -432,10 +432,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     turnToCertainDirection(direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance)
     mapInstance.updateFrontDirection(direction)
     point = LiDAR.getLiDARScan(lidar)
+    """
     if ((LiDAR.getCertainAngleDist(0,point) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,point) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
         return False, False
-        
+    """
     stmInstance.sts3032.stop()
         
     stmInstance.update()
@@ -584,7 +585,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     oldTime = time.time()   
 
     mapInstance.moveTo(direction)
-    detectWall(lidar, mapInstance, points=last_scan_points)
+    detectWall(lidar, mapInstance)
     maxVictimInfo = {side: max(getVictimDict[side], key=getVictimDict[side].get) if getVictimDict[side] else deviceEnums.UnitVStatus.NOTHING for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]}
     for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
         if mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] == mazeEnums.wallType.NO_WALL:
