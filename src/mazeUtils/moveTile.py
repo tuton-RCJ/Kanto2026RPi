@@ -469,7 +469,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     beforeDist = oldDist
     while True:
         loop_start_time = time.time()
-
+        stmInstance.update()
         isBlackTileByCam = False #camera.detectTileColor() == "BLACK"
         cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
 
@@ -482,13 +482,34 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         heading = stmInstance.gyro.getValue().heading
         roll = stmInstance.gyro.getValue().roll
 
-        turnAngle = regulationAngle(heading - direction.value)    
+        turnAngle = regulationAngle(heading - direction.value)   
+        leftWallDist = stmInstance.tof.getDistance()[3]
+        rightWallDist = stmInstance.tof.getDistance()[1]
         gyroSteer = turnAngle * mazeConstraints.STRAGIHT_GYRO_P_GAIN
+        wallSteer = 0.0
+
+        enableDist = mazeConstraints.WALL_FOLLOW_ENABLE_DIST_CM
+        targetDist = mazeConstraints.WALL_FOLLOW_TARGET_DIST_CM
+        # ジャイロ誤差を最優先で減らしつつ、壁が近い場合のみ壁距離制御を足す
+        if (leftWallDist <= enableDist or rightWallDist <= enableDist) and abs(turnAngle) <= mazeConstraints.WALL_FOLLOW_GYRO_ERR_MAX_DEG:
+            if leftWallDist <= enableDist and rightWallDist <= enableDist:
+                wallError = rightWallDist - leftWallDist  # 両側が近いなら左右差を0へ
+            elif leftWallDist <= enableDist:
+                wallError = targetDist - leftWallDist  # 左が近いなら左距離を目標へ
+            else:
+                wallError = rightWallDist - targetDist  # 右が近いなら右距離を目標へ
+
+            wallSteer = wallError * mazeConstraints.WALL_FOLLOW_P_GAIN
+            wallSteer = max(min(wallSteer, mazeConstraints.WALL_FOLLOW_MAX_STEER), -mazeConstraints.WALL_FOLLOW_MAX_STEER)
+
         baseLeft = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.LEFT]
         baseRight = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT]
-        leftSpeed = int(max(min(100, baseLeft + gyroSteer), -100))
-        rightSpeed = int(max(min(100, baseRight - gyroSteer), -100))
+
+        steer = gyroSteer + wallSteer
+        leftSpeed = int(max(min(100, baseLeft + steer), -100))
+        rightSpeed = int(max(min(100, baseRight - steer), -100))
         stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed})
+
 
         if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
             stmInstance.sts3032.stop()
