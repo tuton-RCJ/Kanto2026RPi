@@ -4,6 +4,7 @@ from .device import deviceEnums
 from .device.arduinoNanoEvery import ArduinoNanoEveryUART
 import heapq
 import itertools
+import copy
 from typing import Callable
 
 def _turn_quarters(from_dir: mazeEnums.absDirection, to_dir: mazeEnums.absDirection) -> int:
@@ -263,6 +264,7 @@ class mazeMap:
                     self.mazeAsGraph[y][x-1].discard((x, y))
 
         if tiletype == mazeEnums.tileType.SILVER:
+            print("a")
             self.saveCache()
             
 
@@ -407,9 +409,9 @@ class mazeMap:
         """
         @brief 現在のマップ状態をキャッシュに保存する
         """
-        self.savedCache['tileTypes'] = [row.copy() for row in self.tileTypes]
+        self.savedCache['tileTypes'] = [copy.deepcopy(row) for row in self.tileTypes]
         self.savedCache['wallTypes'] = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.wallTypes]
-        self.savedCache['mazeAsGraph'] = [[neighbors.copy() for neighbors in row] for row in self.mazeAsGraph]
+        self.savedCache['mazeAsGraph'] = [[copy.deepcopy(neighbors) for neighbors in row] for row in self.mazeAsGraph]
         self.lastCheckpoint = self.currentPosition
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
@@ -418,9 +420,9 @@ class mazeMap:
         @param nowDirection: 現在の前方方向
         """
         if 'tileTypes' in self.savedCache and 'wallTypes' in self.savedCache:
-            self.tileTypes = [row.copy() for row in self.savedCache['tileTypes']]
+            self.tileTypes = [copy.deepcopy(row) for row in self.savedCache['tileTypes']]
             self.wallTypes = [[{d: wt[d] for d in mazeEnums.absDirection} for wt in row] for row in self.savedCache['wallTypes']]
-            self.mazeAsGraph = [[neighbors.copy() for neighbors in row] for row in self.savedCache['mazeAsGraph']]
+            self.mazeAsGraph = [[copy.deepcopy(neighbors) for neighbors in row] for row in self.savedCache['mazeAsGraph']]
             self.frontDirection = nowDirection
             self.currentPosition = self.lastCheckpoint
             self.updateArduinoStatus()

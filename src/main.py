@@ -13,6 +13,7 @@ def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
+
     #mapInstance.arduinoNanoEvery.camled((0, 0, 0)) 
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)    
@@ -25,18 +26,18 @@ def main():
         while True:
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance)
+            mapInstance.saveCache()
             print("Initial Map:")
             print(mapInstance.renderKnownTileAndWall())
             
             nextDirection = mapInstance.getNearestUnexploredTile()
             print(f"Next Direction: {nextDirection}")
-            
-
             print("Exploration started.")
             stopped = False
             while nextDirection is not None or stopped:
                 nextDirection = mapInstance.getNearestUnexploredTile()
                 if nextDirection is None:
+                    print("e koko?")
                     break
                 for direction in nextDirection:
                     isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
@@ -50,7 +51,7 @@ def main():
                     while stmInstance.switch.getToggleSwitch1():
                         stmInstance.update()
                         toggleswitchFlag = True
-                    
+                    print(toggleswitchFlag)
                     if toggleswitchFlag:
                         print("Exploration resumed.")
                         toggleswitchFlag = False
@@ -68,10 +69,7 @@ def main():
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
                         stmInstance.update()
-                        moveTile.detectWall(lidarInstance, mapInstance)
-                        tileType = moveTile.detectTileColor()
-                        mapInstance.setTileType(tileType)
-                        moveTile.rescueVictim(mapInstance, stmInstance)
+                        nextDirection = mapInstance.getNearestUnexploredTile()
                         break
                     moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
 

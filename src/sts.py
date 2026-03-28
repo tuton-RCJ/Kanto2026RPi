@@ -14,9 +14,9 @@ import ydlidar
 import time
 
 def main():
-    lidar = LiDAR.initializeLidar()
+    stmInstance = stm.STM()
     while True:
-        points = LiDAR.getLiDARScan(lidar)
-        print(LiDAR.getCertainAngleDist(points, 0))
+        stmInstance.update()
+        print(stmInstance.tof.getDistance())
 if __name__ == "__main__":
     main()

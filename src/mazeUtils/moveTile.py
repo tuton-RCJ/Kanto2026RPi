@@ -332,7 +332,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
     for i in range(needRescueKitCount):
         if mapInstance.nowRescueKitCount[side if not oppositeFlag else side.opposite()] >= 1:
             stmInstance.update()
-            turnToCertainDirection((stmInstance.gyro.getValue().heading + (i+1)*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
+            turnToCertainDirection((stmInstance.gyro.getValue().heading + mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS * 1 if (i % 2) == 0 else mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS * -1) % 360, stmInstance)
             mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(1, side if not oppositeFlag else side.opposite())
             oldtime = time.time()
@@ -342,7 +342,7 @@ def dropRescueKit(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, victimInfo
                     stmInstance.sts3032.stop()
                     return
         elif mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side] >= 1:
-            turnToCertainDirection((stmInstance.gyro.getValue().heading + 180 + (i+1)*mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS) % 360, stmInstance)
+            turnToCertainDirection((stmInstance.gyro.getValue().heading + 180 + mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS * 1 if (i % 2) == 0 else mazeConstraints.TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS * -1) % 360, stmInstance)
             mapInstance.updateFrontDirection(
                 mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
             )
@@ -549,6 +549,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         if stmInstance.tof.getDistance()[0] < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
             stmInstance.sts3032.stop()
             break
+        victimRescueFlag = False
         for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
             if isWallAhead[side]:
                 victimInfo = stmInstance.unitv.getStatus()
@@ -563,7 +564,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     mapInstance.addSeenVictimType([mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)], consequentSearchRes[side])
                     print(f"Detected victim info ahead: {victimInfo}")
                     dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                    practicalMoveTime -= (time.time() - t)
+                    victimRescueFlag = True
             else:
                 lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
                 if (mazeConstraints.MOVE_STRAIGHT_SEC - practicalMoveTime < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20):
@@ -582,10 +583,11 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                         print(f"Detected victim info during movement needing rescue kit drop: {victimInfo}")
                         dropRescueKit(stmInstance, mapInstance, victimInfo, side)
                         mapInstance.addSeenVictimType([mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)], victimInfo[side])
-                        practicalMoveTime -= (time.time() - t)
+                        victimRescueFlag = True
+        if not victimRescueFlag:
+            practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(roll))) * (1 if roll > 180 else 0.9)
 
         debugPrint(f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec")
-        practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(roll))) * (1 if roll > 180 else 0.9)
         oldTime = time.time()
         print(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
     stmInstance.sts3032.stop()
