@@ -525,6 +525,9 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
             stmInstance.sts3032.stop()
             break
+        if stmInstance.tof.getDistance()[0] < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
+            stmInstance.sts3032.stop()
+            break
         for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
             if isWallAhead[side]:
                 victimInfo = stmInstance.unitv.getStatus()
