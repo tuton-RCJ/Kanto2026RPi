@@ -17,7 +17,7 @@ def turnOnLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap, color: list[int
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
-    mapInstance.arduinoNanoEvery.victimled(tuple(color))
+    #mapInstance.arduinoNanoEvery.victimled(tuple(color))
 
 def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     """
@@ -25,7 +25,7 @@ def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(0,0,0)
-    mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
+    #mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
 
 def flashLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, loopCount: int, intervalSec: float, color: list[int]) -> None:
     """
@@ -469,7 +469,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     while True:
         loop_start_time = time.time()
 
-        isBlackTileByCam = camera.detectTileColor() == "BLACK"
+        isBlackTileByCam = False #camera.detectTileColor() == "BLACK"
         cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
 
         stmInstance.update()
@@ -541,12 +541,12 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     practicalMoveTime -= (time.time() - t)
             else:
                 lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
-                if (30 - abs(oldDist - currentDist) < mazeConstraints.MOVE_THRESHOLD_CM * 0.20):
+                if (mazeConstraints.MOVE_STRAIGHT_SEC - practicalMoveTime < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20):
                     victimInfo = stmInstance.unitv.getStatus()
                     if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                         getVictimDict[side][victimInfo[side]] += 1
                         print(f"Detected victim info during movement: {victimInfo}")
-                if (abs(oldDist - currentDist) - lastUpdateTime/1000 * 20) < mazeConstraints.MOVE_THRESHOLD_CM * 0.20:
+                if (practicalMoveTime - lastUpdateTime/1000) < mazeConstraints.MOVE_THRESHOLD_CM * 0.20:
                     victimInfo = stmInstance.unitv.getStatus()
                     if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != mazeEnums.wallType.NO_WALL and (not mapInstance.isSeenVictimType([mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)], victimInfo[side])):
                         if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
@@ -559,10 +559,9 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                         mapInstance.addSeenVictimType([mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)], victimInfo[side])
                         practicalMoveTime -= (time.time() - t)
 
-        debugPrint(f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec, currentDist: {currentDist} cm, oldDist: {oldDist} cm")
+        debugPrint(f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec")
         practicalMoveTime += ((time.time() - oldTime) if not escapeFlag else (timeBeforeEscape - oldTime))*np.cos(np.radians(abs(roll))) * (1 if roll > 180 else 0.9)
         oldTime = time.time()
-        beforeDist = currentDist
         print(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
     stmInstance.sts3032.stop()
     pts = LiDAR.getLiDARScan(lidar)

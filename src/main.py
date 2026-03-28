@@ -13,7 +13,7 @@ def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
-    mapInstance.arduinoNanoEvery.camled((0, 0, 0)) 
+    #mapInstance.arduinoNanoEvery.camled((0, 0, 0)) 
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)    
     stmInstance.update()
