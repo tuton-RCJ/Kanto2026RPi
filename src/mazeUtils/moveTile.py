@@ -584,7 +584,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                     if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                         getVictimDict[side][victimInfo[side]] += 1
                         print(f"Detected victim info during movement: {victimInfo}")
-                if (practicalMoveTime - lastUpdateTime/1000) < mazeConstraints.MOVE_THRESHOLD_CM * 0.20:
+                if (practicalMoveTime - lastUpdateTime/1000) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:
                     victimInfo = stmInstance.unitv.getStatus()
                     if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING and mapInstance.getWallType()[mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)] != mazeEnums.wallType.NO_WALL and (not mapInstance.isSeenVictimType([mazeEnums.absDirection((mapInstance.frontDirection.value + (90 if side == deviceEnums.Side.LEFT else 270)) % 360)], victimInfo[side])):
                         if isRedTile and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
