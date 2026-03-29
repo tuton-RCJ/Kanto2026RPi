@@ -36,6 +36,7 @@ MOVE_STRAIGHT_THRESHOLD_CM: int = (
     15  # 直進時に前方との距離がこの値以下になったら停止する
 )
 WALL_DETECTION_THRESHOLD_CM: int = 22  # LiDARで壁を検出する閾値
+CAR_HEIGHT: int = 10  # 車の高さ
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
@@ -45,6 +46,7 @@ WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
 WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
 
+RAMP_END_THRESHOLD_CM: int = 25
 TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
@@ -56,7 +58,7 @@ MIN_TILE_DETECTION_THERESHOLD: int = 10  # タイル検出の最小回数閾値
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
 BLACKTILE_RGB: tuple[tuple[int, int, int]] = (
-    (10, 10, 10),
+    (10, 10, 15),
     (0, 0, 0),
 )  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 BLUETILE_RGB: tuple[tuple[int, int, int]] = (
@@ -68,7 +70,7 @@ REDTILE_RGB: tuple[tuple[int, int, int]] = (
     (30, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-RAMP_DEG_THRESHOLD: float = 30  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 20  # 傾斜検出の閾値(度)
 # +1: 正の signed roll を上りとして扱う, -1: 逆に扱う
 RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THERESHOULD_FOR_DIFF: float = 15
@@ -81,6 +83,7 @@ MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
 
 USE_SPEED_CONTROL_FOR_STRAIGHT: bool = True  # 直進時に速度制御するかどうか
+
 
 TURN_SPD: int = 80  # 回転時のモーター速度
 

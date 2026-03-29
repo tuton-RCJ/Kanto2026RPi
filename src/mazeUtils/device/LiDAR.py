@@ -87,7 +87,7 @@ def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | di
             distlist.sort()
             distances.append(distlist[-1])
         else:
-            distances.append(-1)
+            distances.append(10**9)  # LiDAR の測定範囲外は非常に大きな値とする
     return distances[0] if single else distances
 
 def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:

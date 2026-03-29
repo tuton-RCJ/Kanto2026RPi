@@ -25,7 +25,7 @@ def main():
     try:
         while True:
             stmInstance.update()
-            moveTile.detectWall(lidarInstance, mapInstance)
+            moveTile.detectWall(lidarInstance, mapInstance,stmInstance)
             mapInstance.saveCache()
             print("Initial Map:")
             print(mapInstance.renderKnownTileAndWall())
@@ -104,7 +104,7 @@ def main():
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
                         stmInstance.update()
-                        moveTile.detectWall(lidarInstance, mapInstance)
+                        moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
                         tileType = moveTile.detectTileColor()
                         mapInstance.setTileType(tileType)
                         moveTile.rescueVictim(mapInstance, stmInstance)
@@ -141,7 +141,7 @@ def main():
                     mapInstance.renderKnownTileAndWall()
                     time.sleep(1)  # Allow time for stabilization after resuming
                     stmInstance.update()
-                    moveTile.detectWall(lidarInstance, mapInstance)
+                    moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
                     tileType = moveTile.detectTileColor()
                     mapInstance.setTileType(tileType)
                     moveTile.rescueVictim(mapInstance, stmInstance)
