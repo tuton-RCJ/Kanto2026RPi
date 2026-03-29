@@ -17,7 +17,7 @@ def turnOnLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap, color: list[int
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
-    #mapInstance.arduinoNanoEvery.victimled(tuple(color))
+    mapInstance.arduinoNanoEvery.victimled(tuple(color))
 
 def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     """
@@ -25,7 +25,7 @@ def turnOffLED(stmInstance: stm.STM,mapInstance: mazeMap.mazeMap) -> None:
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(0,0,0)
-    #mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
+    mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
 
 def flashLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, loopCount: int, intervalSec: float, color: list[int]) -> None:
     """
@@ -290,15 +290,22 @@ def getTurnDirection(fromDir: int, toDir: int) -> mazeEnums.turnDirection:
     else:
         return mazeEnums.turnDirection.LEFT
     
-def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap, points: list[LiDAR.Point] | None = None) -> None:
+def detectWall(lidar: ydlidar.CYdLidar, mapInstance: mazeMap.mazeMap, stmInstance: stm.STM, points: list[LiDAR.Point] | None = None) -> None:
     if points is None:
         points = LiDAR.getLiDARScan(lidar)
     currentDirVal = mapInstance.frontDirection.value
+    stmInstance.update()
     for direction in [mazeEnums.absDirection.NORTH, mazeEnums.absDirection.EAST, mazeEnums.absDirection.SOUTH, mazeEnums.absDirection.WEST]:
         angle = (direction.value - currentDirVal + 360) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
         print(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
         if mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN:
+            if stmInstance.gyro.getValue().roll > 15 and direction == mapInstance.frontDirection:
+                mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                continue
+            if stmInstance.gyro.getValue().roll < -15 and direction == mapInstance.frontDirection:
+                mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                continue
             if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
                 mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             #elif direction == mapInstance.frontDirection: and ((LiDAR.getCertainAngleDist(0,points) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,points) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):

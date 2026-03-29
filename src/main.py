@@ -14,7 +14,7 @@ def main():
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
 
-    #mapInstance.arduinoNanoEvery.camled((0, 0, 0)) 
+    mapInstance.arduinoNanoEvery.camled((0, 0, 0)) 
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)    
     stmInstance.update()
@@ -37,8 +37,7 @@ def main():
             while nextDirection is not None or stopped:
                 nextDirection = mapInstance.getNearestUnexploredTile()
                 if nextDirection is None:
-                    print("e koko?")
-                    break
+                    continue
                 for direction in nextDirection:
                     isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())

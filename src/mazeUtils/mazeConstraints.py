@@ -35,7 +35,7 @@ MOVE_THRESHOLD_CM: int = (
 MOVE_STRAIGHT_THRESHOLD_CM: int = (
     15  # 直進時に前方との距離がこの値以下になったら停止する
 )
-WALL_DETECTION_THRESHOLD_CM: int = 25  # LiDARで壁を検出する閾値
+WALL_DETECTION_THRESHOLD_CM: int = 22  # LiDARで壁を検出する閾値
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
