@@ -15,9 +15,7 @@ import ydlidar
 import time
 
 def main():
-    cl = colorsensor.ColorSensor()
-    while True:
-        cl.update()
-        print(cl._colorRGB)
+    stmInstance = stm.STM()
+    stmInstance.rescuekitservo.dropRescueKit(6, mazeEnums.deviceEnums.Side.RIGHT)
 if __name__ == "__main__":
     main()

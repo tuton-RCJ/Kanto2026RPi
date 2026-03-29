@@ -458,6 +458,7 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
     littleFowardFlag = False
     isRamp = True
     isBigRamp = False
+    isBigUpperRamp = False
     startTime = time.time()
     practicalMoveTime = 0.0
     oldTime = startTime
@@ -516,10 +517,13 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         rightSpeed = int(max(min(100, baseRight - steer), -100))
         stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed})
 
-        if stmInstance.gyro.getValue().roll > mazeConstraints.RAMP_DEG_THRESHOLD:
+        if min(stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll) > mazeConstraints.RAMP_DEG_THRESHOLD:
             isBigRamp = True
         else:
             isBigRamp = False
+        if stmInstance.gyro.getValue().roll > mazeConstraints.RAMP_DEG_THRESHOLD and 0 < stmInstance.gyro.getValue().roll < 180:
+            isBigUpperRamp = True
+
         if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
             stmInstance.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
@@ -602,7 +606,6 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
         debugPrint(f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec")
         oldTime = time.time()
         print(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
-    stmInstance.sts3032.stop()
     pts = LiDAR.getLiDARScan(lidar)
 
     if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
@@ -621,6 +624,27 @@ def moveTile(direction: mazeEnums.absDirection, mapInstance: mazeMap.mazeMap, st
                 break
     stmInstance.sts3032.stop()   
     oldTime = time.time()   
+    if isBigUpperRamp and (not isBigRamp):
+        turnToCertainDirection((direction.value + 30) % 360, stmInstance)
+        t = time.time()
+        while time.time() - t < 0.5:
+            stmInstance.update()
+            unitvStatus = stmInstance.unitv.getStatus()
+            for s in deviceEnums.Side:
+                if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
+                    getVictimDict[s][unitvStatus[s]] += 1
+                    print(f"Detected victim info during big upper ramp movement: {unitvStatus}")
+        turnToCertainDirection((direction.value - 30) % 360, stmInstance)
+        t = time.time()
+        while time.time() - t < 0.5:
+            stmInstance.update()
+            unitvStatus = stmInstance.unitv.getStatus()
+            for s in deviceEnums.Side:
+                if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
+                    getVictimDict[s][unitvStatus[s]] += 1
+                    print(f"Detected victim info during big upper ramp movement: {unitvStatus}")
+        turnToCertainDirection(direction.value, stmInstance)
+
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance,stmInstance)

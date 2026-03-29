@@ -46,7 +46,7 @@ WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
 WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
 
-RAMP_END_THRESHOLD_CM: int = 25
+RAMP_END_THRESHOLD_CM: int = 28
 TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
@@ -70,13 +70,13 @@ REDTILE_RGB: tuple[tuple[int, int, int]] = (
     (30, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-RAMP_DEG_THRESHOLD: float = 20  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 18  # 傾斜検出の閾値(度)
 # +1: 正の signed roll を上りとして扱う, -1: 逆に扱う
 RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THERESHOULD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 1.5  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 1.46  # 1マス直進にかかる時間
 MIN_MOVE_STRAIGHT_SEC: float = 0.8  # 最短で1マス直進にかかると考えられる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
