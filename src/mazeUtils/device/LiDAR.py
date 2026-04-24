@@ -58,7 +58,7 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
     else:
         raise Exception("Failed to get LiDAR scan")
 
-def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | dict[int]:
+def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | list[int]:
     """
     @brief 指定した角度の距離を取得する
     @param angle: 取得したい角度(度). 複数指定する場合はリストで渡す

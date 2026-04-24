@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import time
 import struct
-
+from typing import Optional
 import serial
 
 from . import deviceConstraints as deviceConst
@@ -9,9 +9,11 @@ from . import deviceEnums
 from .buzzerSongs import MusicData, detectedVictim
 
 
-from . import  buzzerSongs
+from . import buzzerSongs
+
+
 class STMUART:
-    def __init__(self, port: str = "/dev/ttyAMA0", timeout: float = 0.5):
+    def __init__(self, port: str, timeout: float = 0.5):
         self._port = port
         self._serial = serial.Serial(
             port=self._port,
@@ -190,12 +192,16 @@ class UnitV:
             deviceEnums.Side.LEFT: deviceEnums.UnitVStatus.NOTHING,
             deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus.NOTHING,
         }
-        self.lastUpdateTime: dict[deviceEnums.Side, int] = {
+        self.lastUpdateTime: dict[deviceEnums.Side, Optional[int]] = {
             deviceEnums.Side.LEFT: None,
             deviceEnums.Side.RIGHT: None,
         }
 
-    def setStatus(self, status: dict[deviceEnums.Side, deviceEnums.UnitVStatus], updateTime: dict[deviceEnums.Side, int] ):
+    def setStatus(
+        self,
+        status: dict[deviceEnums.Side, deviceEnums.UnitVStatus],
+        updateTime: dict[deviceEnums.Side, Optional[int]],
+    ):
         """
         @brief UnitVのステータスを設定する
         @param status: ステータスの辞書[Side, UnitVStatus]
@@ -209,8 +215,8 @@ class UnitV:
         @return: ステータスの辞書[Side, UnitVStatus]
         """
         return self.status
-    
-    def getLastUpdateTime(self) -> dict[deviceEnums.Side, int]:
+
+    def getLastUpdateTime(self) -> dict[deviceEnums.Side, Optional[int]]:
         """
         @brief UnitVのステータスの最終更新時間を取得する
         @return: 最終更新時間の辞書[Side, 時間(ms)]
@@ -345,15 +351,6 @@ class Gyro:
         return res
 
 
-# class Display:
-#     """
-#     @brief ディスプレイクラス。たぶん変える
-#     """
-#     def __init__(
-#         self,
-#     ):
-#         pass
-
 
 class Buzzer:
     """
@@ -469,6 +466,8 @@ class LED:
             ]
         )
         return stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.LED, data)
+
+
 class CamLED:
     def __init__(
         self,
@@ -501,7 +500,10 @@ class CamLED:
                 b,
             ]
         )
-        return stmUART.requestActuatorControl(deviceEnums.ActuatorControlType.CAMLED, data)
+        return stmUART.requestActuatorControl(
+            deviceEnums.ActuatorControlType.CAMLED, data
+        )
+
 
 class STM:
     def __init__(
@@ -515,7 +517,7 @@ class STM:
         self.switch: Switch = Switch()
         self.rescuekitservo: RescueKitServo = RescueKitServo()
         self.led: LED = LED()
-        #self.camled: CamLED = CamLED()
+        # self.camled: CamLED = CamLED()
         self.tof: ToF = ToF()
         self.buzzer: Buzzer = Buzzer()
 
@@ -534,7 +536,7 @@ class STM:
                 {
                     deviceEnums.Side.LEFT: data[2],
                     deviceEnums.Side.RIGHT: data[3],
-                }
+                },
             )
             ## ロードセルでなくタッチセンサの値を取得している
             self.loadcell.setValue(
@@ -560,7 +562,14 @@ class STM:
             # uart1.print(distance);
             # uart1.print(" ")
             self.tof.setDistance(
-                [((data[13 + i * 2] << 8 | data[14 + i * 2]) / 10) if ((data[13 + i * 2] << 8 | data[14 + i * 2]) != 0) else self.tof.getDistance()[i] for i in range(4)]
+                [
+                    (
+                        ((data[13 + i * 2] << 8 | data[14 + i * 2]) / 10)
+                        if ((data[13 + i * 2] << 8 | data[14 + i * 2]) != 0)
+                        else self.tof.getDistance()[i]
+                    )
+                    for i in range(4)
+                ]
             )
 
             return True
