@@ -46,19 +46,45 @@ class STMUART:
         start_time = time.time()
         while self._serial.in_waiting < 24:
             if time.time() - start_time > self._timeout:
-                print("STM UART timeout")
+                print(
+                    "[STM UART][Sensor] Timeout: "
+                    f"expected=24B waiting={self._serial.in_waiting}B "
+                    f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
+                    f"seq={self._seq} port={self._port}"
+                )
                 return None
 
         data: bytes = self._serial.read(24)
+        if len(data) != 24:
+            print(
+                "[STM UART][Sensor] Read length mismatch: "
+                f"expected=24B actual={len(data)}B seq={self._seq} "
+                f"raw={data.hex(' ')}"
+            )
+            return None
+
         # データのチェック
-        if data[0] == 0x00 and data[1] == self._seq:
-            checkDigit = 0
-            for b in data[0:23]:
-                checkDigit ^= b
-            if checkDigit == data[23]:
-                return data[2:23]
-        print("STM UART data error")
-        return None
+        if data[0] != 0x00 or data[1] != self._seq:
+            print(
+                "[STM UART][Sensor] Header mismatch: "
+                f"expected_cmd=0x00 actual_cmd=0x{data[0]:02X} "
+                f"expected_seq={self._seq} actual_seq={data[1]} "
+                f"raw={data.hex(' ')}"
+            )
+            return None
+
+        checkDigit = 0
+        for b in data[0:23]:
+            checkDigit ^= b
+        if checkDigit != data[23]:
+            print(
+                "[STM UART][Sensor] Checksum mismatch: "
+                f"expected=0x{checkDigit:02X} actual=0x{data[23]:02X} "
+                f"seq={self._seq} raw={data.hex(' ')}"
+            )
+            return None
+
+        return data[2:23]
 
     def requestActuatorControl(
         self, type: deviceEnums.ActuatorControlType, data: bytes
@@ -67,7 +93,11 @@ class STMUART:
         # データ長のチェック
         expected_len = type.dataLength()
         if expected_len is not None and expected_len >= 0 and len(data) != expected_len:
-            print("Actuator Control data length error")
+            print(
+                "[STM UART][Actuator] Data length mismatch: "
+                f"type={type.name} expected={expected_len}B actual={len(data)}B "
+                f"data={data.hex(' ')}"
+            )
             return False
 
         self._serial.write(bytes(type.value))
@@ -84,18 +114,43 @@ class STMUART:
         start_time = time.time()
         while self._serial.in_waiting < 3:
             if time.time() - start_time > self._timeout:
-                print("STM UART timeout")
+                print(
+                    "[STM UART][Actuator] Timeout: "
+                    f"type={type.name} expected=3B waiting={self._serial.in_waiting}B "
+                    f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
+                    f"seq={self._seq} payload={data.hex(' ')}"
+                )
                 return False
 
         response: bytes = self._serial.read(3)
+        if len(response) != 3:
+            print(
+                "[STM UART][Actuator] Read length mismatch: "
+                f"type={type.name} expected=3B actual={len(response)}B "
+                f"seq={self._seq} raw={response.hex(' ')}"
+            )
+            return False
 
         # レスポンスのチェック
-        if response[0] == type.value[0] and response[1] == self._seq:
-            checkDigit = type.value[0] ^ self._seq
-            if checkDigit == response[2]:
-                return True
-        print("STM UART response error")
-        return False
+        if response[0] != type.value[0] or response[1] != self._seq:
+            print(
+                "[STM UART][Actuator] Header mismatch: "
+                f"type={type.name} expected_cmd=0x{type.value[0]:02X} actual_cmd=0x{response[0]:02X} "
+                f"expected_seq={self._seq} actual_seq={response[1]} "
+                f"raw={response.hex(' ')}"
+            )
+            return False
+
+        checkDigit = type.value[0] ^ self._seq
+        if checkDigit != response[2]:
+            print(
+                "[STM UART][Actuator] Checksum mismatch: "
+                f"type={type.name} expected=0x{checkDigit:02X} actual=0x{response[2]:02X} "
+                f"seq={self._seq} raw={response.hex(' ')}"
+            )
+            return False
+
+        return True
 
     def updateSeq(self):
         self._seq += 1
@@ -119,10 +174,16 @@ class STS3032:
         """
         global stmUART
         if not (-100 <= motorSpeed[deviceEnums.Side.LEFT] <= 100):
-            print("invalid motor speed:" + str(motorSpeed[deviceEnums.Side.LEFT]))
+            print(
+                "[STS3032] Invalid motor speed: "
+                f"side=LEFT value={motorSpeed[deviceEnums.Side.LEFT]} range=[-100, 100]"
+            )
             return False
         if not (-100 <= motorSpeed[deviceEnums.Side.RIGHT] <= 100):
-            print("invalid motor speed:" + str(motorSpeed[deviceEnums.Side.RIGHT]))
+            print(
+                "[STS3032] Invalid motor speed: "
+                f"side=RIGHT value={motorSpeed[deviceEnums.Side.RIGHT]} range=[-100, 100]"
+            )
             return False
 
         data: bytes = bytes(
@@ -256,6 +317,10 @@ class Loadcell:
                 else:
                     self.pressed[side] = False
             else:
+                print(
+                    "[Loadcell] Value out of range: "
+                    f"side={side.name} value={value} range=[{self.minValue}, {self.maxValue})"
+                )
                 error = True
         return not error
 
@@ -288,6 +353,10 @@ class ToF:
         """
         # 今のところ 4 つしか tof ついてないので
         if len(distances) != 4:
+            print(
+                "[ToF] Invalid distance list length: "
+                f"expected=4 actual={len(distances)} values={distances}"
+            )
             return False
         self.distance = distances
         return True
@@ -449,13 +518,13 @@ class LED:
         global stmUART
         # 値の範囲チェック
         if not (0 <= r <= 255):
-            print("invalid LED color value")
+            print(f"[LED] Invalid color value: channel=R value={r} range=[0, 255]")
             return False
         if not (0 <= g <= 255):
-            print("invalid LED color value")
+            print(f"[LED] Invalid color value: channel=G value={g} range=[0, 255]")
             return False
         if not (0 <= b <= 255):
-            print("invalid LED color value")
+            print(f"[LED] Invalid color value: channel=B value={b} range=[0, 255]")
             return False
 
         data: bytes = bytes(
@@ -484,13 +553,13 @@ class CamLED:
         global stmUART
         # 値の範囲チェック
         if not (0 <= r <= 255):
-            print("invalid CamLED color value")
+            print(f"[CamLED] Invalid color value: channel=R value={r} range=[0, 255]")
             return False
         if not (0 <= g <= 255):
-            print("invalid CamLED color value")
+            print(f"[CamLED] Invalid color value: channel=G value={g} range=[0, 255]")
             return False
         if not (0 <= b <= 255):
-            print("invalid CamLED color value")
+            print(f"[CamLED] Invalid color value: channel=B value={b} range=[0, 255]")
             return False
 
         data: bytes = bytes(
@@ -526,8 +595,15 @@ class STM:
 
         data = stmUART.requestSensorValues()
         if data is None:
+            print("[STM] update failed: requestSensorValues returned None")
             return False
         else:
+            if len(data) != 21:
+                print(
+                    "[STM] Sensor payload length mismatch: "
+                    f"expected=21B actual={len(data)}B raw={data.hex(' ')}"
+                )
+                return False
             self.unitv.setStatus(
                 {
                     deviceEnums.Side.LEFT: deviceEnums.UnitVStatus(data[0]),
@@ -561,7 +637,7 @@ class STM:
             #   int distance = ((int)sensorData[11 + i * 2] << 8) + (int)sensorData[12 + i * 2];
             # uart1.print(distance);
             # uart1.print(" ")
-            self.tof.setDistance(
+            tof_ok = self.tof.setDistance(
                 [
                     (
                         ((data[13 + i * 2] << 8 | data[14 + i * 2]) / 10)
@@ -571,5 +647,7 @@ class STM:
                     for i in range(4)
                 ]
             )
+            if not tof_ok:
+                print("[STM] update warning: failed to update ToF distances")
 
             return True
