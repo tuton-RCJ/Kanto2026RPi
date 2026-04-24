@@ -34,7 +34,8 @@ def main():
             print(f"Next Direction: {nextDirection}")
             print("Exploration started.")
             stopped = False
-            while nextDirection is not None or stopped:
+            isLoP = False
+            while nextDirection is not None or stopped and not isLoP:
                 nextDirection = mapInstance.getNearestUnexploredTile()
                 if nextDirection is None:
                     continue
@@ -68,11 +69,13 @@ def main():
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
                         stmInstance.update()
-                        nextDirection = mapInstance.getNearestUnexploredTile()
+                        isLoP = True
                         break
                     moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
-
                 nextDirection = mapInstance.getNearestUnexploredTile()
+            if isLoP:
+                isLoP = False
+                continue
             stmInstance.buzzer.playMusic(buzzerSongs.hotaru)       
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
