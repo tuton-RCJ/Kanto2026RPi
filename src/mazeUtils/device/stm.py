@@ -73,55 +73,66 @@ class STMUART:
 
         # センサの値を要求する
         try:
+            # 前回通信の残骸があるとフレーム先頭がずれるため、要求前に受信バッファをクリアする
+            self._serial.reset_input_buffer()
+
             self._serial.write(b"\x00")
             self.updateSeq()
             self._serial.write(bytes([self._seq]))
             checkDigit = 0 ^ self._seq
             self._serial.write(bytes([checkDigit]))
 
-            # レスポンス待機
+            # ストリームからフレームを探索して同期回復する
             start_time = time.time()
-            while self._serial.in_waiting < 24:
-                if time.time() - start_time > self._timeout:
-                    print(
-                        "[STM UART][Sensor] Timeout: "
-                        f"expected=24B waiting={self._serial.in_waiting}B "
-                        f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
-                        f"seq={self._seq} port={self._port}"
-                    )
-                    return None
+            frame_len = 24
+            buffer = bytearray()
+            dropped_bytes = 0
 
-            data: bytes = self._serial.read(24)
-            if len(data) != 24:
-                print(
-                    "[STM UART][Sensor] Read length mismatch: "
-                    f"expected=24B actual={len(data)}B seq={self._seq} "
-                    f"raw={data.hex(' ')}"
-                )
-                return None
+            while time.time() - start_time <= self._timeout:
+                waiting = self._serial.in_waiting
+                if waiting > 0:
+                    buffer.extend(self._serial.read(waiting))
 
-            # データのチェック
-            if data[0] != 0x00 or data[1] != self._seq:
-                print(
-                    "[STM UART][Sensor] Header mismatch: "
-                    f"expected_cmd=0x00 actual_cmd=0x{data[0]:02X} "
-                    f"expected_seq={self._seq} actual_seq={data[1]} "
-                    f"raw={data.hex(' ')}"
-                )
-                return None
+                while len(buffer) >= frame_len:
+                    # 先頭が期待ヘッダでなければ1byteずつ捨てて再同期する
+                    if buffer[0] != 0x00 or buffer[1] != self._seq:
+                        dropped_bytes += 1
+                        del buffer[0]
+                        continue
 
-            checkDigit = 0
-            for b in data[0:23]:
-                checkDigit ^= b
-            if checkDigit != data[23]:
-                print(
-                    "[STM UART][Sensor] Checksum mismatch: "
-                    f"expected=0x{checkDigit:02X} actual=0x{data[23]:02X} "
-                    f"seq={self._seq} raw={data.hex(' ')}"
-                )
-                return None
+                    frame = bytes(buffer[:frame_len])
+                    checksum = 0
+                    for b in frame[0:23]:
+                        checksum ^= b
 
-            return data[2:23]
+                    if checksum != frame[23]:
+                        print(
+                            "[STM UART][Sensor] Checksum mismatch while resync: "
+                            f"expected=0x{checksum:02X} actual=0x{frame[23]:02X} "
+                            f"seq={self._seq} candidate={frame.hex(' ')}"
+                        )
+                        dropped_bytes += 1
+                        del buffer[0]
+                        continue
+
+                    if dropped_bytes > 0:
+                        print(
+                            "[STM UART][Sensor] Frame resynchronized: "
+                            f"dropped={dropped_bytes}B seq={self._seq}"
+                        )
+
+                    del buffer[:frame_len]
+                    return frame[2:23]
+
+                time.sleep(0.001)
+
+            print(
+                "[STM UART][Sensor] Timeout while searching valid frame: "
+                f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
+                f"seq={self._seq} buffered={len(buffer)}B dropped={dropped_bytes}B "
+                f"tail={bytes(buffer[-24:]).hex(' ')}"
+            )
+            return None
         except serial.SerialException as e:
             print(
                 "[STM UART][Sensor] Serial error during transaction: "
@@ -166,47 +177,54 @@ class STMUART:
                 checkDigit ^= b
             self._serial.write(bytes([checkDigit]))
 
-            # レスポンス待機
+            # ストリームからACKフレームを探索して同期回復する
             start_time = time.time()
-            while self._serial.in_waiting < 3:
-                if time.time() - start_time > self._timeout:
-                    print(
-                        "[STM UART][Actuator] Timeout: "
-                        f"type={type.name} expected=3B waiting={self._serial.in_waiting}B "
-                        f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
-                        f"seq={self._seq} payload={data.hex(' ')}"
-                    )
-                    return False
+            ack_len = 3
+            buffer = bytearray()
+            dropped_bytes = 0
 
-            response: bytes = self._serial.read(3)
-            if len(response) != 3:
-                print(
-                    "[STM UART][Actuator] Read length mismatch: "
-                    f"type={type.name} expected=3B actual={len(response)}B "
-                    f"seq={self._seq} raw={response.hex(' ')}"
-                )
-                return False
+            while time.time() - start_time <= self._timeout:
+                waiting = self._serial.in_waiting
+                if waiting > 0:
+                    buffer.extend(self._serial.read(waiting))
 
-            # レスポンスのチェック
-            if response[0] != type.value[0] or response[1] != self._seq:
-                print(
-                    "[STM UART][Actuator] Header mismatch: "
-                    f"type={type.name} expected_cmd=0x{type.value[0]:02X} actual_cmd=0x{response[0]:02X} "
-                    f"expected_seq={self._seq} actual_seq={response[1]} "
-                    f"raw={response.hex(' ')}"
-                )
-                return False
+                while len(buffer) >= ack_len:
+                    # 先頭が期待ACKヘッダでなければ1byteずつ捨てて再同期する
+                    if buffer[0] != type.value[0] or buffer[1] != self._seq:
+                        dropped_bytes += 1
+                        del buffer[0]
+                        continue
 
-            checkDigit = type.value[0] ^ self._seq
-            if checkDigit != response[2]:
-                print(
-                    "[STM UART][Actuator] Checksum mismatch: "
-                    f"type={type.name} expected=0x{checkDigit:02X} actual=0x{response[2]:02X} "
-                    f"seq={self._seq} raw={response.hex(' ')}"
-                )
-                return False
+                    response = bytes(buffer[:ack_len])
+                    checksum = type.value[0] ^ self._seq
+                    if checksum != response[2]:
+                        print(
+                            "[STM UART][Actuator] Checksum mismatch while resync: "
+                            f"type={type.name} expected=0x{checksum:02X} actual=0x{response[2]:02X} "
+                            f"seq={self._seq} candidate={response.hex(' ')}"
+                        )
+                        dropped_bytes += 1
+                        del buffer[0]
+                        continue
 
-            return True
+                    if dropped_bytes > 0:
+                        print(
+                            "[STM UART][Actuator] ACK resynchronized: "
+                            f"type={type.name} dropped={dropped_bytes}B seq={self._seq}"
+                        )
+
+                    del buffer[:ack_len]
+                    return True
+
+                time.sleep(0.001)
+
+            print(
+                "[STM UART][Actuator] Timeout while searching valid ACK: "
+                f"type={type.name} elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
+                f"seq={self._seq} payload={data.hex(' ')} buffered={len(buffer)}B dropped={dropped_bytes}B "
+                f"tail={bytes(buffer[-24:]).hex(' ')}"
+            )
+            return False
         except serial.SerialException as e:
             print(
                 "[STM UART][Actuator] Serial error during transaction: "
