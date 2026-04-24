@@ -57,15 +57,15 @@ MIN_TILE_DETECTION_THERESHOLD: int = 10  # タイル検出の最小回数閾値
 
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
-BLACKTILE_RGB: tuple[tuple[int, int, int]] = (
+BLACKTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (10, 10, 15),
     (0, 0, 0),
 )  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-BLUETILE_RGB: tuple[tuple[int, int, int]] = (
+BLUETILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (10, 30, 120),
     (0, 0, 30),
 )  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
-REDTILE_RGB: tuple[tuple[int, int, int]] = (
+REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (120, 20, 20),
     (30, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
