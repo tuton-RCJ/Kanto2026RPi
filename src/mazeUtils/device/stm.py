@@ -15,80 +15,135 @@ from . import buzzerSongs
 class STMUART:
     def __init__(self, port: str, timeout: float = 0.5):
         self._port = port
-        self._serial = serial.Serial(
-            port=self._port,
-            baudrate=115200,
-            # bytesize=serial.EIGHTBITS,
-            # parity=serial.PARITY_NONE,
-            # stopbits=serial.STOPBITS_ONE,
-            # timeout=1,
-        )
+        self._serial: Optional[serial.Serial] = None
         self._seq: int = 0
         self._timeout = timeout
+        try:
+            self._serial = serial.Serial(
+                port=self._port,
+                baudrate=115200,
+                # bytesize=serial.EIGHTBITS,
+                # parity=serial.PARITY_NONE,
+                # stopbits=serial.STOPBITS_ONE,
+                # timeout=1,
+            )
+        except serial.SerialException as e:
+            print(
+                "[STM UART] Serial open failed: "
+                f"port={self._port} baudrate=115200 error={e}"
+            )
+        except Exception as e:
+            print(
+                "[STM UART] Unexpected serial init error: "
+                f"port={self._port} error={type(e).__name__}: {e}"
+            )
 
     def read(self) -> bytes:
         # シリアル通信でSTMからデータを読む
-        return self._serial.read(1)
+        if self._serial is None:
+            print(f"[STM UART] Read failed: serial is not initialized (port={self._port})")
+            return b""
+        try:
+            return self._serial.read(1)
+        except serial.SerialException as e:
+            print(f"[STM UART] Read failed: port={self._port} error={e}")
+            return b""
 
     def write(self, data: bytes):
         # シリアル通信でSTMにデータを書く
-        self._serial.write(data)
+        if self._serial is None:
+            print(
+                f"[STM UART] Write failed: serial is not initialized (port={self._port})"
+            )
+            return
+        try:
+            self._serial.write(data)
+        except serial.SerialException as e:
+            print(
+                "[STM UART] Write failed: "
+                f"port={self._port} size={len(data)}B error={e}"
+            )
 
     def requestSensorValues(self) -> bytes | None:
-        # センサの値を要求する
-        self._serial.write(b"\x00")
-        self.updateSeq()
-        self._serial.write(bytes([self._seq]))
-        checkDigit = 0 ^ self._seq
-        self._serial.write(bytes([checkDigit]))
+        if self._serial is None:
+            print(
+                f"[STM UART][Sensor] Request failed: serial is not initialized (port={self._port})"
+            )
+            return None
 
-        # レスポンス待機
-        start_time = time.time()
-        while self._serial.in_waiting < 24:
-            if time.time() - start_time > self._timeout:
+        # センサの値を要求する
+        try:
+            self._serial.write(b"\x00")
+            self.updateSeq()
+            self._serial.write(bytes([self._seq]))
+            checkDigit = 0 ^ self._seq
+            self._serial.write(bytes([checkDigit]))
+
+            # レスポンス待機
+            start_time = time.time()
+            while self._serial.in_waiting < 24:
+                if time.time() - start_time > self._timeout:
+                    print(
+                        "[STM UART][Sensor] Timeout: "
+                        f"expected=24B waiting={self._serial.in_waiting}B "
+                        f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
+                        f"seq={self._seq} port={self._port}"
+                    )
+                    return None
+
+            data: bytes = self._serial.read(24)
+            if len(data) != 24:
                 print(
-                    "[STM UART][Sensor] Timeout: "
-                    f"expected=24B waiting={self._serial.in_waiting}B "
-                    f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
-                    f"seq={self._seq} port={self._port}"
+                    "[STM UART][Sensor] Read length mismatch: "
+                    f"expected=24B actual={len(data)}B seq={self._seq} "
+                    f"raw={data.hex(' ')}"
                 )
                 return None
 
-        data: bytes = self._serial.read(24)
-        if len(data) != 24:
+            # データのチェック
+            if data[0] != 0x00 or data[1] != self._seq:
+                print(
+                    "[STM UART][Sensor] Header mismatch: "
+                    f"expected_cmd=0x00 actual_cmd=0x{data[0]:02X} "
+                    f"expected_seq={self._seq} actual_seq={data[1]} "
+                    f"raw={data.hex(' ')}"
+                )
+                return None
+
+            checkDigit = 0
+            for b in data[0:23]:
+                checkDigit ^= b
+            if checkDigit != data[23]:
+                print(
+                    "[STM UART][Sensor] Checksum mismatch: "
+                    f"expected=0x{checkDigit:02X} actual=0x{data[23]:02X} "
+                    f"seq={self._seq} raw={data.hex(' ')}"
+                )
+                return None
+
+            return data[2:23]
+        except serial.SerialException as e:
             print(
-                "[STM UART][Sensor] Read length mismatch: "
-                f"expected=24B actual={len(data)}B seq={self._seq} "
-                f"raw={data.hex(' ')}"
+                "[STM UART][Sensor] Serial error during transaction: "
+                f"port={self._port} seq={self._seq} error={e}"
             )
             return None
-
-        # データのチェック
-        if data[0] != 0x00 or data[1] != self._seq:
+        except Exception as e:
             print(
-                "[STM UART][Sensor] Header mismatch: "
-                f"expected_cmd=0x00 actual_cmd=0x{data[0]:02X} "
-                f"expected_seq={self._seq} actual_seq={data[1]} "
-                f"raw={data.hex(' ')}"
+                "[STM UART][Sensor] Unexpected exception: "
+                f"port={self._port} seq={self._seq} error={type(e).__name__}: {e}"
             )
             return None
-
-        checkDigit = 0
-        for b in data[0:23]:
-            checkDigit ^= b
-        if checkDigit != data[23]:
-            print(
-                "[STM UART][Sensor] Checksum mismatch: "
-                f"expected=0x{checkDigit:02X} actual=0x{data[23]:02X} "
-                f"seq={self._seq} raw={data.hex(' ')}"
-            )
-            return None
-
-        return data[2:23]
 
     def requestActuatorControl(
         self, type: deviceEnums.ActuatorControlType, data: bytes
     ) -> bool:
+        if self._serial is None:
+            print(
+                "[STM UART][Actuator] Request failed: "
+                f"type={type.name} serial is not initialized (port={self._port})"
+            )
+            return False
 
         # データ長のチェック
         expected_len = type.dataLength()
@@ -100,57 +155,71 @@ class STMUART:
             )
             return False
 
-        self._serial.write(bytes(type.value))
-        self.updateSeq()
-        self._serial.write(bytes([self._seq]))
-        for b in data:
-            self._serial.write(bytes([b]))
-        checkDigit = type.value[0] ^ self._seq
-        for b in data:
-            checkDigit ^= b
-        self._serial.write(bytes([checkDigit]))
+        try:
+            self._serial.write(bytes(type.value))
+            self.updateSeq()
+            self._serial.write(bytes([self._seq]))
+            for b in data:
+                self._serial.write(bytes([b]))
+            checkDigit = type.value[0] ^ self._seq
+            for b in data:
+                checkDigit ^= b
+            self._serial.write(bytes([checkDigit]))
 
-        # レスポンス待機
-        start_time = time.time()
-        while self._serial.in_waiting < 3:
-            if time.time() - start_time > self._timeout:
+            # レスポンス待機
+            start_time = time.time()
+            while self._serial.in_waiting < 3:
+                if time.time() - start_time > self._timeout:
+                    print(
+                        "[STM UART][Actuator] Timeout: "
+                        f"type={type.name} expected=3B waiting={self._serial.in_waiting}B "
+                        f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
+                        f"seq={self._seq} payload={data.hex(' ')}"
+                    )
+                    return False
+
+            response: bytes = self._serial.read(3)
+            if len(response) != 3:
                 print(
-                    "[STM UART][Actuator] Timeout: "
-                    f"type={type.name} expected=3B waiting={self._serial.in_waiting}B "
-                    f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
-                    f"seq={self._seq} payload={data.hex(' ')}"
+                    "[STM UART][Actuator] Read length mismatch: "
+                    f"type={type.name} expected=3B actual={len(response)}B "
+                    f"seq={self._seq} raw={response.hex(' ')}"
                 )
                 return False
 
-        response: bytes = self._serial.read(3)
-        if len(response) != 3:
+            # レスポンスのチェック
+            if response[0] != type.value[0] or response[1] != self._seq:
+                print(
+                    "[STM UART][Actuator] Header mismatch: "
+                    f"type={type.name} expected_cmd=0x{type.value[0]:02X} actual_cmd=0x{response[0]:02X} "
+                    f"expected_seq={self._seq} actual_seq={response[1]} "
+                    f"raw={response.hex(' ')}"
+                )
+                return False
+
+            checkDigit = type.value[0] ^ self._seq
+            if checkDigit != response[2]:
+                print(
+                    "[STM UART][Actuator] Checksum mismatch: "
+                    f"type={type.name} expected=0x{checkDigit:02X} actual=0x{response[2]:02X} "
+                    f"seq={self._seq} raw={response.hex(' ')}"
+                )
+                return False
+
+            return True
+        except serial.SerialException as e:
             print(
-                "[STM UART][Actuator] Read length mismatch: "
-                f"type={type.name} expected=3B actual={len(response)}B "
-                f"seq={self._seq} raw={response.hex(' ')}"
+                "[STM UART][Actuator] Serial error during transaction: "
+                f"type={type.name} port={self._port} seq={self._seq} error={e}"
             )
             return False
-
-        # レスポンスのチェック
-        if response[0] != type.value[0] or response[1] != self._seq:
+        except Exception as e:
             print(
-                "[STM UART][Actuator] Header mismatch: "
-                f"type={type.name} expected_cmd=0x{type.value[0]:02X} actual_cmd=0x{response[0]:02X} "
-                f"expected_seq={self._seq} actual_seq={response[1]} "
-                f"raw={response.hex(' ')}"
+                "[STM UART][Actuator] Unexpected exception: "
+                f"type={type.name} port={self._port} seq={self._seq} "
+                f"error={e.__class__.__name__}: {e}"
             )
             return False
-
-        checkDigit = type.value[0] ^ self._seq
-        if checkDigit != response[2]:
-            print(
-                "[STM UART][Actuator] Checksum mismatch: "
-                f"type={type.name} expected=0x{checkDigit:02X} actual=0x{response[2]:02X} "
-                f"seq={self._seq} raw={response.hex(' ')}"
-            )
-            return False
-
-        return True
 
     def updateSeq(self):
         self._seq += 1
@@ -604,50 +673,69 @@ class STM:
                     f"expected=21B actual={len(data)}B raw={data.hex(' ')}"
                 )
                 return False
-            self.unitv.setStatus(
-                {
-                    deviceEnums.Side.LEFT: deviceEnums.UnitVStatus(data[0]),
-                    deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus(data[1]),
-                },
-                {
-                    deviceEnums.Side.LEFT: data[2],
-                    deviceEnums.Side.RIGHT: data[3],
-                },
-            )
-            ## ロードセルでなくタッチセンサの値を取得している
-            self.loadcell.setValue(
-                {
-                    deviceEnums.Side.LEFT: data[4] & (1 << 7),
-                    deviceEnums.Side.RIGHT: (data[4] & (1 << 6)) * 2,
-                }
-            )
-            heading, pitch, roll = struct.unpack(">HHH", data[6:12])
-            self.gyro.setValue(
-                gyrodata=gyroData(
-                    heading=heading / 100.0,
-                    pitch=-pitch / 100.0,
-                    roll=-roll / 100.0,
+            try:
+                self.unitv.setStatus(
+                    {
+                        deviceEnums.Side.LEFT: deviceEnums.UnitVStatus(data[0]),
+                        deviceEnums.Side.RIGHT: deviceEnums.UnitVStatus(data[1]),
+                    },
+                    {
+                        deviceEnums.Side.LEFT: data[2],
+                        deviceEnums.Side.RIGHT: data[3],
+                    },
                 )
-            )
-            # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
-            self.switch.setValue(
-                pushSwitch1=bool((data[12] >> 7) & 0x01),
-                toggleSwitch1=bool((data[12] >> 6) & 0x01),
-            )
-            #   int distance = ((int)sensorData[11 + i * 2] << 8) + (int)sensorData[12 + i * 2];
-            # uart1.print(distance);
-            # uart1.print(" ")
-            tof_ok = self.tof.setDistance(
-                [
-                    (
-                        ((data[13 + i * 2] << 8 | data[14 + i * 2]) / 10)
-                        if ((data[13 + i * 2] << 8 | data[14 + i * 2]) != 0)
-                        else self.tof.getDistance()[i]
+                ## ロードセルでなくタッチセンサの値を取得している
+                self.loadcell.setValue(
+                    {
+                        deviceEnums.Side.LEFT: data[4] & (1 << 7),
+                        deviceEnums.Side.RIGHT: (data[4] & (1 << 6)) * 2,
+                    }
+                )
+                heading, pitch, roll = struct.unpack(">HHH", data[6:12])
+                self.gyro.setValue(
+                    gyrodata=gyroData(
+                        heading=heading / 100.0,
+                        pitch=-pitch / 100.0,
+                        roll=-roll / 100.0,
                     )
-                    for i in range(4)
-                ]
-            )
-            if not tof_ok:
-                print("[STM] update warning: failed to update ToF distances")
+                )
+                # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
+                self.switch.setValue(
+                    pushSwitch1=bool((data[12] >> 7) & 0x01),
+                    toggleSwitch1=bool((data[12] >> 6) & 0x01),
+                )
+                #   int distance = ((int)sensorData[11 + i * 2] << 8) + (int)sensorData[12 + i * 2];
+                # uart1.print(distance);
+                # uart1.print(" ")
+                tof_ok = self.tof.setDistance(
+                    [
+                        (
+                            ((data[13 + i * 2] << 8 | data[14 + i * 2]) / 10)
+                            if ((data[13 + i * 2] << 8 | data[14 + i * 2]) != 0)
+                            else self.tof.getDistance()[i]
+                        )
+                        for i in range(4)
+                    ]
+                )
+                if not tof_ok:
+                    print("[STM] update warning: failed to update ToF distances")
+            except ValueError as e:
+                print(
+                    "[STM] update failed: invalid enum/field value in sensor payload "
+                    f"error={e} raw={data.hex(' ')}"
+                )
+                return False
+            except struct.error as e:
+                print(
+                    "[STM] update failed: struct unpack error "
+                    f"error={e} raw={data.hex(' ')}"
+                )
+                return False
+            except Exception as e:
+                print(
+                    "[STM] update failed: unexpected parse error "
+                    f"error={type(e).__name__}: {e} raw={data.hex(' ')}"
+                )
+                return False
 
             return True
