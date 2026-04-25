@@ -90,6 +90,9 @@ def main():
             if isLoP:
                 isLoP = False
                 continue
+            
+            ##### 帰還開始 #####
+            
             stmInstance.buzzer.playMusic(buzzerSongs.hotaru)
             returnPath = mapInstance.getPathTo((20, 20))
             print(f"Return Path: {returnPath}")
