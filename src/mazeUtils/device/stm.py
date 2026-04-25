@@ -384,7 +384,7 @@ class Loadcell:
             deviceEnums.Side.LEFT: False,
             deviceEnums.Side.RIGHT: False,
         }
-        self.THRESHOULD = deviceConst.LOADCELL_THRESHOULD
+        self.THRESHOLD = deviceConst.LOADCELL_THRESHOLD
         self.minValue = 0
         self.maxValue = 255
         pass
@@ -399,7 +399,7 @@ class Loadcell:
         for side, value in setData.items():
             self.raw[side] = value
             if self.minValue <= value < self.maxValue:
-                if value > self.THRESHOULD:
+                if value > self.THRESHOLD:
                     self.pressed[side] = True
                 else:
                     self.pressed[side] = False

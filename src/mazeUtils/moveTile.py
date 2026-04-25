@@ -617,7 +617,7 @@ def dropRescueKit(
     turnToCertainDirection(firstHeading, stmInstance)
 
 
-def vitimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
+def victimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
     if victim == deviceEnums.UnitVStatus.H_VICTIM:
         return mazeEnums.wallType.H_VICTIM
     elif victim == deviceEnums.UnitVStatus.S_VICTIM:
@@ -999,7 +999,7 @@ def moveTile(
                             )
                             % 360
                         ),
-                        vitimToWallType(consequentSearchRes[side]),
+                        victimToWallType(consequentSearchRes[side]),
                     )
                     mapInstance.addSeenVictimType(
                         [
