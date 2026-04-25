@@ -40,8 +40,8 @@ CAR_HEIGHT: int = 10  # 車の高さ
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
-WALL_FOLLOW_ENABLE_DIST_CM: int = 20  # 片側でもこの距離以下なら壁距離制御を有効化
-WALL_FOLLOW_TARGET_DIST_CM: int = 16.5  # 片側のみ近い場合の目標距離
+WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
+WALL_FOLLOW_TARGET_DIST_CM: float = 16.5  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
 WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
