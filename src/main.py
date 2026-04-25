@@ -75,9 +75,7 @@ def main():
                         stmInstance.update()
                         isLoP = True
                         break
-                    
-                    
-                    moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                    moveTile.turnOffLED(stmInstance, mapInstance)
                 nextDirection = mapInstance.getNearestUnexploredTile()
             if isLoP:
                 isLoP = False
@@ -117,7 +115,7 @@ def main():
                         tileType = moveTile.detectTileColor()
                         mapInstance.setTileType(tileType)
                         moveTile.rescueVictim(mapInstance, stmInstance)
-                        moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                        moveTile.turnOffLED(stmInstance, mapInstance)
                         break
                     print(mapInstance.renderKnownTileAndWall())
             else:
@@ -154,12 +152,12 @@ def main():
                     tileType = moveTile.detectTileColor()
                     mapInstance.setTileType(tileType)
                     moveTile.rescueVictim(mapInstance, stmInstance)
-                    moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                    moveTile.turnOffLED(stmInstance, mapInstance)
             continue
     except:
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()      
-        moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0])  # Flash red LED to indicate error     
+        moveTile.turnOffLED(stmInstance, mapInstance) # Flash red LED to indicate error     
         import traceback
         traceback.print_exc()   
 if __name__ == "__main__":
