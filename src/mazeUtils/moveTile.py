@@ -861,7 +861,7 @@ def moveTile(
         turnAngle = regulationAngle(heading - direction.value)
         leftWallDist = stmInstance.tof.getDistance()[3]
         rightWallDist = stmInstance.tof.getDistance()[1]
-        gyroSteer = turnAngle * mazeConstraints.STRAGIHT_GYRO_P_GAIN
+        gyroSteer = turnAngle * mazeConstraints.STRAIGHT_GYRO_P_GAIN
         wallSteer = 0.0
 
         enableDist = mazeConstraints.WALL_FOLLOW_ENABLE_DIST_CM
@@ -1242,7 +1242,7 @@ def moveTile(
             if (
                 getTileColorDict[t] > getTileColorDict[tileType]
                 and getTileColorDict[t]
-                >= max(mazeConstraints.MIN_TILE_DETECTION_THERESHOLD, nowMaxCount)
+                >= max(mazeConstraints.MIN_TILE_DETECTION_THRESHOLD, nowMaxCount)
                 and t != mazeEnums.tileType.EMPTY
             ):
                 tileType = t

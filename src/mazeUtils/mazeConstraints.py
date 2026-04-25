@@ -1,8 +1,8 @@
 from . import mazeEnums
 from .device import deviceEnums
 
-STRAGIHT_GYRO_P_GAIN: float = 0.5
-STRAGIHT_TOF_P_GAIN: float = 0.3
+STRAIGHT_GYRO_P_GAIN: float = 0.5
+STRAIGHT_TOF_P_GAIN: float = 0.3
 
 USE_TURN_METHOD: mazeEnums.turnMethod = (
     mazeEnums.turnMethod.ONLY_GYRO
@@ -53,7 +53,7 @@ TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
     15  # 複数の救助キットを投下する際に回転する角度
 )
 
-MIN_TILE_DETECTION_THERESHOLD: int = 10  # タイル検出の最小回数閾値
+MIN_TILE_DETECTION_THRESHOLD: int = 10  # タイル検出の最小回数閾値
 
 TOF_BLACK_TILE_ESCAPE_DISTANCE_CM: int = 1  # 黒タイル検出後の後退許容誤差
 
@@ -73,7 +73,7 @@ REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
 RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
 # +1: 正の signed roll を上りとして扱う, -1: 逆に扱う
 RAMP_ROLL_SIGN_FOR_UP: int = 1
-MIN_THERESHOULD_FOR_DIFF: float = 15
+MIN_THRESHOLD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
 MOVE_STRAIGHT_SEC: float = 1.46  # 1マス直進にかかる時間
