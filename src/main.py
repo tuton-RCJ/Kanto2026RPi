@@ -49,10 +49,11 @@ def main():
                         print("Exploration paused. Toggle switch 1 to resume.")
 
                     while stmInstance.switch.getToggleSwitch1():
+                        # 進行停止中の待機
                         stmInstance.update()
                         toggleswitchFlag = True
-                    print(toggleswitchFlag)
-                    if toggleswitchFlag:
+                    
+                    if toggleswitchFlag:  # LoP検出後の再開処理
                         print("Exploration resumed.")
                         toggleswitchFlag = False
                         nowAngle = stmInstance.gyro.getValue().heading
@@ -71,6 +72,8 @@ def main():
                         stmInstance.update()
                         isLoP = True
                         break
+                    
+                    
                     moveTile.flashLED(stmInstance, mapInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
                 nextDirection = mapInstance.getNearestUnexploredTile()
             if isLoP:
