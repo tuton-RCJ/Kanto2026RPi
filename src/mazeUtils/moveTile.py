@@ -1272,7 +1272,7 @@ def moveNextTile(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     lidar: ydlidar.CYdLidar,
-) -> bool:
+) -> tuple[bool, bool]:
     """
     @brief direction の方向のタイルへ一マス移動する
     @param direction: 移動方向
