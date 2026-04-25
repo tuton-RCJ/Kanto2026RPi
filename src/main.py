@@ -41,6 +41,7 @@ def main():
                 for direction in nextDirection:
                     isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
                     print(mapInstance.renderKnownTileAndWall())
+                    
                     toggleswitchFlag = False
                     stmInstance.update()
 
@@ -55,8 +56,10 @@ def main():
                     if toggleswitchFlag:  # LoP検出後の再開処理
                         print("Exploration resumed.")
                         toggleswitchFlag = False
+                        
+                        # ジャイロセンサーの値から現在の絶対方向を推定
                         nowAngle = stmInstance.gyro.getValue().heading
-                        nowDirection = None
+                        nowDirection = mazeEnums.absDirection.NORTH 
                         error = 1e9
                         for direction in mazeEnums.absDirection:
                             diff = abs(nowAngle - direction.value)
@@ -65,6 +68,7 @@ def main():
                             if diff < error:
                                 error = diff
                                 nowDirection = direction
+                        
                         mapInstance.loadCache(nowDirection=nowDirection)
                         mapInstance.renderKnownTileAndWall()
                         time.sleep(1)  # Allow time for stabilization after resuming
