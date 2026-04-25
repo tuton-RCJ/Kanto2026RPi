@@ -47,6 +47,8 @@ class absDirection(Enum):
             return absDirection.NORTH
         elif self == absDirection.WEST:
             return absDirection.EAST
+        else:
+            raise ValueError("Invalid absDirection: {}".format(self))
         
 class wallType(Enum):
     UNKNOWN = 0
