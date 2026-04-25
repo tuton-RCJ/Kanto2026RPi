@@ -154,7 +154,7 @@ class mazeMap:
 
         self.wallTypes[y][x][direction] = wallType
 
-    def getWallType(self, direction: mazeEnums.absDirection = None) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
+    def getWallType(self, direction: mazeEnums.absDirection | None = None) -> dict[mazeEnums.absDirection, mazeEnums.wallType]:
         """
         @brief 現在位置の壁タイプを取得する
         @return: 現在位置の壁タイプの辞書
@@ -226,7 +226,7 @@ class mazeMap:
         """
         return self.seenVictimType[y][x]
 
-    def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection = None) -> None:
+    def setTileType(self, tiletype: mazeEnums.tileType, direction: mazeEnums.absDirection | None = None) -> None:
         """
         @brief 指定した方向のタイルタイプを設定する。directionがNoneの場合は現在位置に設定する
         @param tiletype: 設定するタイルタイプ
