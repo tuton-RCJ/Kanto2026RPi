@@ -33,9 +33,8 @@ def main():
             nextDirection = mapInstance.getNearestUnexploredTile()
             print(f"Next Direction: {nextDirection}")
             print("Exploration started.")
-            stopped = False
             isLoP = False
-            while nextDirection is not None or stopped and not isLoP:
+            while nextDirection is not None and not isLoP:
                 nextDirection = mapInstance.getNearestUnexploredTile()
                 if nextDirection is None:
                     continue
