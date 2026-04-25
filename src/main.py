@@ -9,6 +9,25 @@ from mazeUtils.device import deviceEnums
 import ydlidar
 import time
 
+
+def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
+    nowAngle = stmInstance.gyro.getValue().heading
+    nowDirection = mazeEnums.absDirection.NORTH
+    error = 1e9
+    for direction in mazeEnums.absDirection:
+        diff = abs(nowAngle - direction.value)
+        if diff > 180:
+            diff = 360 - diff
+        if diff < error:
+            error = diff
+            nowDirection = direction
+
+    mapInstance.loadCache(nowDirection=nowDirection)
+    time.sleep(1)
+    stmInstance.update()
+    moveTile.turnOffLED(stmInstance, mapInstance)
+
+
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
@@ -56,23 +75,8 @@ def main():
                     if toggleswitchFlag:  # LoP検出後の再開処理
                         print("Exploration resumed.")
                         toggleswitchFlag = False
-                        
-                        # ジャイロセンサーの値から現在の絶対方向を推定
-                        nowAngle = stmInstance.gyro.getValue().heading
-                        nowDirection = mazeEnums.absDirection.NORTH 
-                        error = 1e9
-                        for direction in mazeEnums.absDirection:
-                            diff = abs(nowAngle - direction.value)
-                            if diff > 180:
-                                diff = 360 - diff
-                            if diff < error:
-                                error = diff
-                                nowDirection = direction
-                        
-                        mapInstance.loadCache(nowDirection=nowDirection)
-                        mapInstance.renderKnownTileAndWall()
-                        time.sleep(1)  # Allow time for stabilization after resuming
-                        stmInstance.update()
+
+                        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         isLoP = True
                         break
                     moveTile.turnOffLED(stmInstance, mapInstance)
@@ -97,25 +101,8 @@ def main():
                     if toggleswitchFlag:
                         print("Exploration resumed.")
                         toggleswitchFlag = False
-                        nowAngle = stmInstance.gyro.getValue().heading
-                        nowDirection = None
-                        error = 1e9
-                        for direction in mazeEnums.absDirection:
-                            diff = abs(nowAngle - direction.value)
-                            if diff > 180:
-                                diff = 360 - diff
-                            if diff < error:
-                                error = diff
-                                nowDirection = direction
-                        mapInstance.loadCache(nowDirection=nowDirection)
-                        mapInstance.renderKnownTileAndWall()
-                        time.sleep(1)  # Allow time for stabilization after resuming
-                        stmInstance.update()
-                        moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
-                        tileType = moveTile.detectTileColor()
-                        mapInstance.setTileType(tileType)
-                        moveTile.rescueVictim(mapInstance, stmInstance)
-                        moveTile.turnOffLED(stmInstance, mapInstance)
+
+                        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         break
                     print(mapInstance.renderKnownTileAndWall())
             else:
@@ -134,25 +121,8 @@ def main():
                 if toggleswitchFlag:
                     print("Exploration resumed.")
                     toggleswitchFlag = False
-                    nowAngle = stmInstance.gyro.getValue().heading
-                    nowDirection = None
-                    error = 1e9
-                    for direction in mazeEnums.absDirection:
-                        diff = abs(nowAngle - direction.value)
-                        if diff > 180:
-                            diff = 360 - diff
-                        if diff < error:
-                            error = diff
-                            nowDirection = direction
-                    mapInstance.loadCache(nowDirection=nowDirection)
-                    mapInstance.renderKnownTileAndWall()
-                    time.sleep(1)  # Allow time for stabilization after resuming
-                    stmInstance.update()
-                    moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
-                    tileType = moveTile.detectTileColor()
-                    mapInstance.setTileType(tileType)
-                    moveTile.rescueVictim(mapInstance, stmInstance)
-                    moveTile.turnOffLED(stmInstance, mapInstance)
+
+                    _recover_from_lop(stmInstance, mapInstance, lidarInstance)
             continue
     except:
         LiDAR.liDARShutdown(lidarInstance)
