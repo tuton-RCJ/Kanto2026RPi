@@ -19,14 +19,14 @@ lastDist = {
 
 
 def turnOnLED(
-    stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, color: list[int]
+    stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, color: tuple[int, int, int]
 ) -> None:
     """
     @brief LEDを点灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
-    mapInstance.arduinoNanoEvery.victimled(tuple(color))
+    mapInstance.arduinoNanoEvery.victimled(color)
 
 
 def turnOffLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap) -> None:
@@ -43,7 +43,7 @@ def flashLED(
     mapInstance: mazeMap.mazeMap,
     loopCount: int,
     intervalSec: float,
-    color: list[int],
+    color: tuple[int, int, int],
 ) -> None:
     """
     @brief LEDを点滅させる
