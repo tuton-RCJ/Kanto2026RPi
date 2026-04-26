@@ -205,7 +205,7 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
     stmInstance.sts3032.stop()
 
 
-def regulationAngle(angle: int) -> int:
+def regulationAngle(angle: int | float) -> int | float:
     if angle > 180:
         angle -= 360
     if angle < -180:
@@ -248,7 +248,7 @@ def isSilverTile() -> bool:
     return pr.isReflecting()
 
 
-def getQuantizedDir(dir: int) -> list[mazeEnums.absDirection]:
+def getQuantizedDir(dir: int | float) -> list[mazeEnums.absDirection]:
     """
     @brief 方向を最も近い2方向に量子化する
     @param dir: 量子化する方向 (0-359)
@@ -267,10 +267,10 @@ def getQuantizedDir(dir: int) -> list[mazeEnums.absDirection]:
 
 
 def turnToCertainDirection(
-    targetDir: int,
+    targetDir: int | float,
     stmInstance: stm.STM,
     rescueVictim: bool = False,
-    mapInstance: mazeMap.mazeMap = None,
+    mapInstance: mazeMap.mazeMap | None = None,
 ) -> None:
     """
     @brief 指定した絶対方向に向く
@@ -462,7 +462,7 @@ def turnToCertainDirection(
     debugPrint(f"Turned to heading: {stmInstance.gyro.getValue().heading} deg")
 
 
-def getTurnDirection(fromDir: int, toDir: int) -> mazeEnums.turnDirection:
+def getTurnDirection(fromDir: int | float, toDir: int | float) -> mazeEnums.turnDirection:
     turnAngle = fromDir - toDir
     if turnAngle > 180:
         turnAngle -= 360

@@ -13,7 +13,7 @@ class Point:
     range: int
     angle: int
 
-def regulationAngle(angle: int) -> int:
+def regulationAngle(angle: int | float) -> int | float:
     if angle > 180:
         angle -= 360
     if angle < -180:
@@ -43,7 +43,7 @@ def initializeLidar(port: str = "/dev/ttyAMA2", baudrate: int = 230400) -> ydlid
     lidar.turnOn()
     return lidar
 
-def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
+def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[Point]:
     """
     @brief LiDAR のスキャンデータを取得する
     @param lidar: 使用する LiDAR インスタンス
@@ -58,7 +58,7 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[ydlidar.LaserPoint]:
     else:
         raise Exception("Failed to get LiDAR scan")
 
-def getCertainAngleDist(angle: int | list[int], points: list[Point]) -> int | list[int]:
+def getCertainAngleDist(angle: int | float | list[int] | list[float], points: list[Point]) -> int | list[int]:
     """
     @brief 指定した角度の距離を取得する
     @param angle: 取得したい角度(度). 複数指定する場合はリストで渡す
