@@ -839,7 +839,7 @@ def moveTile(
         for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
     print(avoidVictim)
-    consequentSearchRes = {
+    consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None] = {
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
 
