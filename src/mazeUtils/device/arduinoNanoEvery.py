@@ -165,3 +165,22 @@ class ArduinoNanoEveryUART:
             return False
 
         return True
+
+
+class _NullArduinoNanoEveryUART:
+    def __init__(self):
+        pass
+    def request_tof_distance_mm(self) -> int | None:
+        return None
+
+    def camled(self, color: tuple[int, int, int]) -> bool:
+        return False
+
+    def victimled(self, color: tuple[int, int, int]) -> bool:
+        return False
+
+    def update_oled(self, x_coord: int, y_coord: int, direction: int) -> bool:
+        return False
+    
+    def send_message(self,message:str)->bool:
+        return False

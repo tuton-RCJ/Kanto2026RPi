@@ -1,11 +1,12 @@
 from . import mazeEnums
 from . import mazeConstraints
 from .device import deviceEnums
-from .device.arduinoNanoEvery import ArduinoNanoEveryUART
+from .device.arduinoNanoEvery import ArduinoNanoEveryUART, _NullArduinoNanoEveryUART
 import heapq
 import itertools
 import copy
 from typing import Callable
+
 
 def _turn_quarters(from_dir: mazeEnums.absDirection, to_dir: mazeEnums.absDirection) -> int:
     """Return minimal number of 90-degree turns needed to rotate from from_dir to to_dir."""
@@ -105,7 +106,7 @@ class mazeMap:
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
-        self.arduinoNanoEvery: ArduinoNanoEveryUART | None = None
+        self.arduinoNanoEvery: ArduinoNanoEveryUART | _NullArduinoNanoEveryUART = _NullArduinoNanoEveryUART()
         self.seenVictimType = [[{d: set() for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         try:
             self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
@@ -546,8 +547,6 @@ class mazeMap:
         return mapping[direction]
 
     def updateArduinoStatus(self) -> None:
-        if self.arduinoNanoEvery is None:
-            return
         x, y = self.currentPosition
         direction = self._direction_to_display(self.frontDirection)
         self.arduinoNanoEvery.update_oled(x, y, direction)
