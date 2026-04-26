@@ -4,6 +4,7 @@ import numpy as np
 from dataclasses import dataclass
 from . import deviceConstraints
 from . import deviceEnums
+from typing import overload
 @dataclass
 class Point:
     """
@@ -57,6 +58,12 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[Point]:
         return res
     else:
         raise Exception("Failed to get LiDAR scan")
+
+@overload
+def getCertainAngleDist(angle: int | float, points: list[Point]) -> int : ...
+
+@overload
+def getCertainAngleDist(angle: list[int] | list[float], points: list[Point]) -> list[int] : ...
 
 def getCertainAngleDist(angle: int | float | list[int] | list[float], points: list[Point]) -> int | list[int]:
     """
