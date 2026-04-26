@@ -100,7 +100,7 @@ class mazeMap:
         self.currentPosition = (maxSize // 2, maxSize // 2)
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
-        self.wallTypesOnly45Deg = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)] 
+        
         self.wallSeenCount = [[{d: 0 for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
@@ -381,12 +381,6 @@ class mazeMap:
             self.currentPosition = (x-1, y)
         self.updateFrontDirection(direction)
         
-    def setFrontDirection(self, direction: mazeEnums.absDirection) -> None:
-        """
-        @brief 前方方向を設定する
-        @param direction: 設定する方向
-        """
-        self.updateFrontDirection(direction)
 
     def updateFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         """
