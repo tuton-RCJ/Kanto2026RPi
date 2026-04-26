@@ -136,14 +136,18 @@ def main():
                 print("Exploration resumed.")
                 _recover_from_lop(stmInstance, mapInstance, lidarInstance)
             continue
-    except:
+
+    except KeyboardInterrupt:
+        print("Program interrupted by user.")
+        raise
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        raise
+    finally:
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()
-        moveTile.turnOffLED(stmInstance, mapInstance)  # Flash red LED to indicate error
-        import traceback
-
-        traceback.print_exc()
-
+        moveTile.turnOffLED(stmInstance, mapInstance)
 
 if __name__ == "__main__":
     main()
