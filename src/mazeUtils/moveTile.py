@@ -481,6 +481,13 @@ def detectWall(
     stmInstance: stm.STM,
     points: list[LiDAR.Point] | None = None,
 ) -> None:
+    """
+    @brief LiDARのデータから壁を検出して、mapInstanceの壁情報を更新する
+    @param lidar: 使用する LiDAR インスタンス
+    @param mapInstance: 迷路のマップインスタンス
+    @param stmInstance: 通信に使用する STM インスタンス
+    @param points: LiDARのスキャンデータのリスト。Noneの場合はLiDARから取得する。
+    """
     if points is None:
         points = LiDAR.getLiDARScan(lidar)
     currentDirVal = mapInstance.frontDirection.value
