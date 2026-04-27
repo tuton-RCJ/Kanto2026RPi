@@ -462,7 +462,9 @@ def turnToCertainDirection(
     debugPrint(f"Turned to heading: {stmInstance.gyro.getValue().heading} deg")
 
 
-def getTurnDirection(fromDir: int | float, toDir: int | float) -> mazeEnums.turnDirection:
+def getTurnDirection(
+    fromDir: int | float, toDir: int | float
+) -> mazeEnums.turnDirection:
     turnAngle = fromDir - toDir
     if turnAngle > 180:
         turnAngle -= 360
@@ -673,6 +675,7 @@ def moveTile(
     mapInstance.updateFrontDirection(direction)
     point = LiDAR.getLiDARScan(lidar)
     """
+    # 坂道を壁とする処理。登れないときに使った。
     if ((LiDAR.getCertainAngleDist(0,point) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,point) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
         return False, False
@@ -750,6 +753,7 @@ def moveTile(
             stmInstance.sts3032.stop()
             return False, True
 
+        ############ モーター制御 #############
         heading = stmInstance.gyro.getValue().heading
         roll = stmInstance.gyro.getValue().roll
 
@@ -788,6 +792,8 @@ def moveTile(
             {deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed}
         )
 
+
+        ##### 坂道判定 #####
         if (
             min(
                 stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll
@@ -803,6 +809,7 @@ def moveTile(
         ):
             isBigUpperRamp = True
 
+        ###### 黒タイル回避処理 ######
         if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
             stmInstance.sts3032.stop()
             mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
@@ -827,6 +834,7 @@ def moveTile(
             if tempTileColor == mazeEnums.tileType.RED:
                 isRedTile = True
 
+        ###### 障害物回避処理 ######
         escapeFlag = False
         timeBeforeEscape = time.time()
         if (
@@ -850,6 +858,7 @@ def moveTile(
                 escapeFlag = True
                 time.sleep(0.1)
 
+        ###### 1マス移動完了判定（時間制御） ######
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
             if isBigRamp:
                 if (
@@ -868,6 +877,8 @@ def moveTile(
         ):
             stmInstance.sts3032.stop()
             break
+        
+        ####### 被災者発見処理 ######
         victimRescueFlag = False
         for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
             if isWallAhead[side]:
@@ -997,8 +1008,9 @@ def moveTile(
         )
         oldTime = time.time()
         print(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
-    pts = LiDAR.getLiDARScan(lidar)
 
+    ###### 移動後、目の前が壁であれば位置調整のため少し前進 ######
+    pts = LiDAR.getLiDARScan(lidar)
     if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
         debugPrint("Little forward to adjust position")
@@ -1016,6 +1028,8 @@ def moveTile(
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
     stmInstance.sts3032.stop()
+    
+    ##### 上り坂をのぼった後の被災者検知 #####
     oldTime = time.time()
     if isBigUpperRamp and (not isBigRamp):
         turnToCertainDirection((direction.value + 30) % 360, stmInstance)
@@ -1124,6 +1138,10 @@ def moveTile(
             if maxVictimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                 print(f"Decided victim on {side} side: {maxVictimInfo[side]}")
                 dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
+                
+                
+                
+    ###### 銀・青タイル判別処理 ######
     tileType = mazeEnums.tileType.EMPTY
     nowMaxCount = 0
     if isSilverTile():
