@@ -122,7 +122,7 @@ def main():
                 mapInstance,
                 loopCount=5,
                 intervalSec=1,
-                color=[255, 255, 255],
+                color=(255, 255, 255),
             )  # Flash white LED to indicate completion
             stmInstance.sts3032.stop()
             print(mapInstance.renderKnownTileAndWall())
