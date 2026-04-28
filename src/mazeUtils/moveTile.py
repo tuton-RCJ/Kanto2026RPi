@@ -10,12 +10,6 @@ from collections import defaultdict
 colorSensor = None
 pr = None
 
-lastDist = {
-    mazeEnums.absDirection.NORTH: 0,
-    mazeEnums.absDirection.EAST: 0,
-    mazeEnums.absDirection.SOUTH: 0,
-    mazeEnums.absDirection.WEST: 0,
-}
 
 
 def turnOnLED(
