@@ -1,12 +1,15 @@
 import time
 
 import serial
+from config import get_logger
+
+logger = get_logger(__name__)
 
 
 class ArduinoNanoEveryUART:
     def __init__(
         self,
-        port: str = "/dev/ttyUSB0", # ttyACM0 : Arduino nano every, ttyUSB0 : 06-Display Board(CH340E)
+        port: str = "/dev/ttyUSB0",  # ttyACM0 : Arduino nano every, ttyUSB0 : 06-Display Board(CH340E)
         baudrate: int = 115200,
         timeout: float = 0.5,
     ):
@@ -65,10 +68,10 @@ class ArduinoNanoEveryUART:
             return None
 
         return (response[2] << 8) | response[3]
-    
+
     def camled(self, color: tuple[int, int, int]) -> bool:
         if any(c < 0 or c > 255 for c in color):
-            print("Invalid color value for CamLED")
+            logger.warning("Invalid color value for CamLED")
             return False
         msg_type = 4
         self._update_seq()
@@ -89,10 +92,10 @@ class ArduinoNanoEveryUART:
             return False
 
         return True
-    
+
     def victimled(self, color: tuple[int, int, int]) -> bool:
         if any(c < 0 or c > 255 for c in color):
-            print("Invalid color value for VictimLED")
+            logger.warning("Invalid color value for VictimLED")
             return False
         msg_type = 5
         self._update_seq()
@@ -113,7 +116,7 @@ class ArduinoNanoEveryUART:
             return False
 
         return True
-    
+
     def update_oled(self, x_coord: int, y_coord: int, direction: int) -> bool:
         if not (0 <= x_coord <= 255 and 0 <= y_coord <= 255):
             return False
@@ -139,16 +142,16 @@ class ArduinoNanoEveryUART:
             return False
 
         return True
-    
-    def send_message(self,message:str)->bool:
+
+    def send_message(self, message: str) -> bool:
         if len(message) > 60:
-            print("Message too long for OLED display")
+            logger.warning("Message too long for OLED display")
             return False
-        
+
         msg_type = 2
         self._update_seq()
         data_length = len(message)
-        payload = [msg_type, self._seq, data_length] + list(message.encode('utf-8'))
+        payload = [msg_type, self._seq, data_length] + list(message.encode("utf-8"))
         check_digit = self._xor_check_digit(payload)
         self._serial.write(bytes(payload + [check_digit]))
 
@@ -170,6 +173,7 @@ class ArduinoNanoEveryUART:
 class _NullArduinoNanoEveryUART:
     def __init__(self):
         pass
+
     def request_tof_distance_mm(self) -> int | None:
         return None
 
@@ -181,6 +185,6 @@ class _NullArduinoNanoEveryUART:
 
     def update_oled(self, x_coord: int, y_coord: int, direction: int) -> bool:
         return False
-    
-    def send_message(self,message:str)->bool:
+
+    def send_message(self, message: str) -> bool:
         return False

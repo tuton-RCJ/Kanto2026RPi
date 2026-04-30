@@ -1,3 +1,4 @@
+from config import setup_logging, get_logger
 from mazeUtils import mazeMap
 from mazeUtils import moveTile
 from mazeUtils.device import stm
@@ -8,6 +9,10 @@ from mazeUtils import mazeConstraints
 from mazeUtils.device import deviceEnums
 import ydlidar
 import time
+
+# ロギング設定
+setup_logging()
+logger = get_logger(__name__)
 
 
 def _detect_and_wait_for_lop(stmInstance) -> bool:
@@ -61,12 +66,12 @@ def main():
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
             mapInstance.saveCache()
-            print("Initial Map:")
-            print(mapInstance.renderKnownTileAndWall())
+            logger.info("Initial Map:")
+            logger.debug(mapInstance.renderKnownTileAndWall())
 
             nextDirection = mapInstance.getNearestUnexploredTile()
-            print(f"Next Direction: {nextDirection}")
-            print("Exploration started.")
+            logger.info(f"Next Direction: {nextDirection}")
+            logger.info("Exploration started.")
             isLoP = False
             while nextDirection is not None and not isLoP:
                 nextDirection = mapInstance.getNearestUnexploredTile()
@@ -76,11 +81,10 @@ def main():
                     isBlack, stopped = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
-                    print(mapInstance.renderKnownTileAndWall())
-
+                    logger.debug(mapInstance.renderKnownTileAndWall())
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                        print("Exploration resumed.")
+                        logger.info("Exploration resumed.")
 
                         _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         isLoP = True
@@ -90,14 +94,14 @@ def main():
             if isLoP:
                 isLoP = False
                 continue
-            
+
             ##### 帰還開始 #####
-            
+
             stmInstance.buzzer.playMusic(buzzerSongs.hotaru)
             returnPath = mapInstance.getPathTo((20, 20))
-            print(f"Return Path: {returnPath}")
-            
-            isLop = False   
+            logger.info(f"Return Path: {returnPath}")
+
+            isLop = False
             if returnPath:
                 for direction in returnPath:
                     moveTile.moveNextTile(
@@ -105,17 +109,16 @@ def main():
                     )
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                        print("Exploration resumed.")
+                        logger.info("Exploration resumed.")
                         _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         isLop = True
                         break
-                    
-                    print(mapInstance.renderKnownTileAndWall())
+
+                    logger.debug(mapInstance.renderKnownTileAndWall())
             if isLop:
                 continue
-            
-            
-            print("Robot now at the starting position, Congratulations!")
+
+            logger.info("Robot now at the starting position, Congratulations!")
             stmInstance.buzzer.playMusic(buzzerSongs.matuken)
             moveTile.flashLED(
                 stmInstance,
@@ -125,29 +128,28 @@ def main():
                 color=(255, 255, 255),
             )  # Flash white LED to indicate completion
             stmInstance.sts3032.stop()
-            print(mapInstance.renderKnownTileAndWall())
-            
+            logger.debug(mapInstance.renderKnownTileAndWall())
+
             ### LoP検出後の再開処理
             while not stmInstance.switch.getToggleSwitch1():
                 stmInstance.update()
-            print("detect LoP. back to last check point.")
-            
+            logger.warning("detect LoP. back to last check point.")
+
             if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                print("Exploration resumed.")
+                logger.info("Exploration resumed.")
                 _recover_from_lop(stmInstance, mapInstance, lidarInstance)
             continue
 
     except KeyboardInterrupt:
-        print("Program interrupted by user.")
+        logger.info("Program interrupted by user.")
         raise
     except Exception:
-        import traceback
-        traceback.print_exc()
-        raise
+        logger.exception("An unexpected error occurred:")
     finally:
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()
         moveTile.turnOffLED(stmInstance, mapInstance)
+
 
 if __name__ == "__main__":
     main()

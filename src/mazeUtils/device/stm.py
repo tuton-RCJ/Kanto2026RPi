@@ -3,6 +3,7 @@ import time
 import struct
 from typing import Optional
 import serial
+from config import get_logger
 
 from . import deviceConstraints as deviceConst
 from . import deviceEnums
@@ -10,6 +11,8 @@ from .buzzerSongs import MusicData, detectedVictim
 
 
 from . import buzzerSongs
+
+logger = get_logger(__name__)
 
 
 class STMUART:
@@ -28,46 +31,46 @@ class STMUART:
                 # timeout=1,
             )
         except serial.SerialException as e:
-            print(
-                "[STM UART] Serial open failed: "
-                f"port={self._port} baudrate=115200 error={e}"
+            logger.error(
+                "Serial open failed: " f"port={self._port} baudrate=115200 error={e}"
             )
         except Exception as e:
-            print(
-                "[STM UART] Unexpected serial init error: "
+            logger.error(
+                "Unexpected serial init error: "
                 f"port={self._port} error={type(e).__name__}: {e}"
             )
 
     def read(self) -> bytes:
         # シリアル通信でSTMからデータを読む
         if self._serial is None:
-            print(f"[STM UART] Read failed: serial is not initialized (port={self._port})")
+            logger.warning(
+                f"Read failed: serial is not initialized (port={self._port})"
+            )
             return b""
         try:
             return self._serial.read(1)
         except serial.SerialException as e:
-            print(f"[STM UART] Read failed: port={self._port} error={e}")
+            logger.error(f"Read failed: port={self._port} error={e}")
             return b""
 
     def write(self, data: bytes):
         # シリアル通信でSTMにデータを書く
         if self._serial is None:
-            print(
-                f"[STM UART] Write failed: serial is not initialized (port={self._port})"
+            logger.warning(
+                f"Write failed: serial is not initialized (port={self._port})"
             )
             return
         try:
             self._serial.write(data)
         except serial.SerialException as e:
-            print(
-                "[STM UART] Write failed: "
-                f"port={self._port} size={len(data)}B error={e}"
+            logger.error(
+                "Write failed: " f"port={self._port} size={len(data)}B error={e}"
             )
 
     def requestSensorValues(self) -> bytes | None:
         if self._serial is None:
-            print(
-                f"[STM UART][Sensor] Request failed: serial is not initialized (port={self._port})"
+            logger.warning(
+                f"Request failed: serial is not initialized (port={self._port})"
             )
             return None
 
@@ -106,8 +109,8 @@ class STMUART:
                         checksum ^= b
 
                     if checksum != frame[23]:
-                        print(
-                            "[STM UART][Sensor] Checksum mismatch while resync: "
+                        logger.warning(
+                            "Checksum mismatch while resync: "
                             f"expected=0x{checksum:02X} actual=0x{frame[23]:02X} "
                             f"seq={self._seq} candidate={frame.hex(' ')}"
                         )
@@ -116,8 +119,8 @@ class STMUART:
                         continue
 
                     if dropped_bytes > 0:
-                        print(
-                            "[STM UART][Sensor] Frame resynchronized: "
+                        logger.debug(
+                            "Frame resynchronized: "
                             f"dropped={dropped_bytes}B seq={self._seq}"
                         )
 
@@ -126,23 +129,23 @@ class STMUART:
 
                 time.sleep(0.001)
 
-            print(
-                "[STM UART][Sensor] Timeout while searching valid frame: "
+            logger.error(
+                "Timeout while searching valid frame: "
                 f"elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
                 f"seq={self._seq} buffered={len(buffer)}B dropped={dropped_bytes}B "
                 f"tail={bytes(buffer[-24:]).hex(' ')}"
             )
             return None
         except serial.SerialException as e:
-            print(
-                "[STM UART][Sensor] Serial error during transaction: "
+            logger.error(
+                "Serial error during transaction: "
                 f"port={self._port} seq={self._seq} error={e}"
             )
             return None
         except Exception as e:
-            print(
-                "[STM UART][Sensor] Unexpected exception: "
-                f"port={self._port} seq={self._seq} error={type(e).__name__}: {e}"
+            logger.exception(
+                "Unexpected exception during sensor request: "
+                f"port={self._port} seq={self._seq}"
             )
             return None
 
@@ -150,8 +153,8 @@ class STMUART:
         self, type: deviceEnums.ActuatorControlType, data: bytes
     ) -> bool:
         if self._serial is None:
-            print(
-                "[STM UART][Actuator] Request failed: "
+            logger.warning(
+                "Request failed: "
                 f"type={type.name} serial is not initialized (port={self._port})"
             )
             return False
@@ -159,8 +162,8 @@ class STMUART:
         # データ長のチェック
         expected_len = type.dataLength()
         if expected_len is not None and expected_len >= 0 and len(data) != expected_len:
-            print(
-                "[STM UART][Actuator] Data length mismatch: "
+            logger.warning(
+                "Data length mismatch: "
                 f"type={type.name} expected={expected_len}B actual={len(data)}B "
                 f"data={data.hex(' ')}"
             )
@@ -198,8 +201,8 @@ class STMUART:
                     response = bytes(buffer[:ack_len])
                     checksum = type.value[0] ^ self._seq
                     if checksum != response[2]:
-                        print(
-                            "[STM UART][Actuator] Checksum mismatch while resync: "
+                        logger.warning(
+                            "Checksum mismatch while resync: "
                             f"type={type.name} expected=0x{checksum:02X} actual=0x{response[2]:02X} "
                             f"seq={self._seq} candidate={response.hex(' ')}"
                         )
@@ -208,8 +211,8 @@ class STMUART:
                         continue
 
                     if dropped_bytes > 0:
-                        print(
-                            "[STM UART][Actuator] ACK resynchronized: "
+                        logger.debug(
+                            "ACK resynchronized: "
                             f"type={type.name} dropped={dropped_bytes}B seq={self._seq}"
                         )
 
@@ -218,24 +221,23 @@ class STMUART:
 
                 time.sleep(0.001)
 
-            print(
-                "[STM UART][Actuator] Timeout while searching valid ACK: "
+            logger.error(
+                "Timeout while searching valid ACK: "
                 f"type={type.name} elapsed={time.time() - start_time:.3f}s timeout={self._timeout:.3f}s "
                 f"seq={self._seq} payload={data.hex(' ')} buffered={len(buffer)}B dropped={dropped_bytes}B "
                 f"tail={bytes(buffer[-24:]).hex(' ')}"
             )
             return False
         except serial.SerialException as e:
-            print(
-                "[STM UART][Actuator] Serial error during transaction: "
+            logger.error(
+                "Serial error during transaction: "
                 f"type={type.name} port={self._port} seq={self._seq} error={e}"
             )
             return False
         except Exception as e:
-            print(
-                "[STM UART][Actuator] Unexpected exception: "
-                f"type={type.name} port={self._port} seq={self._seq} "
-                f"error={e.__class__.__name__}: {e}"
+            logger.exception(
+                "Unexpected exception during actuator control: "
+                f"type={type.name} port={self._port} seq={self._seq}"
             )
             return False
 
@@ -261,14 +263,14 @@ class STS3032:
         """
         global stmUART
         if not (-100 <= motorSpeed[deviceEnums.Side.LEFT] <= 100):
-            print(
-                "[STS3032] Invalid motor speed: "
+            logger.warning(
+                "Invalid motor speed: "
                 f"side=LEFT value={motorSpeed[deviceEnums.Side.LEFT]} range=[-100, 100]"
             )
             return False
         if not (-100 <= motorSpeed[deviceEnums.Side.RIGHT] <= 100):
-            print(
-                "[STS3032] Invalid motor speed: "
+            logger.warning(
+                "Invalid motor speed: "
                 f"side=RIGHT value={motorSpeed[deviceEnums.Side.RIGHT]} range=[-100, 100]"
             )
             return False
@@ -404,8 +406,8 @@ class Loadcell:
                 else:
                     self.pressed[side] = False
             else:
-                print(
-                    "[Loadcell] Value out of range: "
+                logger.warning(
+                    "Value out of range: "
                     f"side={side.name} value={value} range=[{self.minValue}, {self.maxValue})"
                 )
                 error = True
@@ -440,8 +442,8 @@ class ToF:
         """
         # 今のところ 4 つしか tof ついてないので
         if len(distances) != 4:
-            print(
-                "[ToF] Invalid distance list length: "
+            logger.warning(
+                "Invalid distance list length: "
                 f"expected=4 actual={len(distances)} values={distances}"
             )
             return False
@@ -505,7 +507,6 @@ class Gyro:
         res.pitch %= 360
         res.roll %= 360
         return res
-
 
 
 class Buzzer:
@@ -605,13 +606,13 @@ class LED:
         global stmUART
         # 値の範囲チェック
         if not (0 <= r <= 255):
-            print(f"[LED] Invalid color value: channel=R value={r} range=[0, 255]")
+            logger.warning(f"Invalid color value: channel=R value={r} range=[0, 255]")
             return False
         if not (0 <= g <= 255):
-            print(f"[LED] Invalid color value: channel=G value={g} range=[0, 255]")
+            logger.warning(f"Invalid color value: channel=G value={g} range=[0, 255]")
             return False
         if not (0 <= b <= 255):
-            print(f"[LED] Invalid color value: channel=B value={b} range=[0, 255]")
+            logger.warning(f"Invalid color value: channel=B value={b} range=[0, 255]")
             return False
 
         data: bytes = bytes(
@@ -640,13 +641,13 @@ class CamLED:
         global stmUART
         # 値の範囲チェック
         if not (0 <= r <= 255):
-            print(f"[CamLED] Invalid color value: channel=R value={r} range=[0, 255]")
+            logger.warning(f"Invalid color value: channel=R value={r} range=[0, 255]")
             return False
         if not (0 <= g <= 255):
-            print(f"[CamLED] Invalid color value: channel=G value={g} range=[0, 255]")
+            logger.warning(f"Invalid color value: channel=G value={g} range=[0, 255]")
             return False
         if not (0 <= b <= 255):
-            print(f"[CamLED] Invalid color value: channel=B value={b} range=[0, 255]")
+            logger.warning(f"Invalid color value: channel=B value={b} range=[0, 255]")
             return False
 
         data: bytes = bytes(
@@ -682,12 +683,12 @@ class STM:
 
         data = stmUART.requestSensorValues()
         if data is None:
-            print("[STM] update failed: requestSensorValues returned None")
+            logger.error("update failed: requestSensorValues returned None")
             return False
         else:
             if len(data) != 21:
-                print(
-                    "[STM] Sensor payload length mismatch: "
+                logger.warning(
+                    "Sensor payload length mismatch: "
                     f"expected=21B actual={len(data)}B raw={data.hex(' ')}"
                 )
                 return False
@@ -736,23 +737,22 @@ class STM:
                     ]
                 )
                 if not tof_ok:
-                    print("[STM] update warning: failed to update ToF distances")
+                    logger.warning("update warning: failed to update ToF distances")
             except ValueError as e:
-                print(
-                    "[STM] update failed: invalid enum/field value in sensor payload "
+                logger.warning(
+                    "update failed: invalid enum/field value in sensor payload "
                     f"error={e} raw={data.hex(' ')}"
                 )
                 return False
             except struct.error as e:
-                print(
-                    "[STM] update failed: struct unpack error "
+                logger.warning(
+                    "update failed: struct unpack error "
                     f"error={e} raw={data.hex(' ')}"
                 )
                 return False
             except Exception as e:
-                print(
-                    "[STM] update failed: unexpected parse error "
-                    f"error={type(e).__name__}: {e} raw={data.hex(' ')}"
+                logger.exception(
+                    "update failed: unexpected parse error " f"raw={data.hex(' ')}"
                 )
                 return False
 

@@ -1,11 +1,14 @@
 import ydlidar
 from . import mazeConstraints, mazeEnums, mazeMap
 from .device import LiDAR, deviceConstraints, deviceEnums, stm, camera, buzzerSongs
+from config import get_logger
 import time
 import threading
 import numpy as np
 import math
 from collections import defaultdict
+
+logger = get_logger(__name__)
 
 colorSensor = None
 pr = None
@@ -74,7 +77,7 @@ def flashLED(
 
 def debugPrint(*message: object) -> None:
     if mazeConstraints.DEBUG_MODE:
-        print(*message)
+        logger.debug(" ".join(str(m) for m in message))
 
 
 class LiDARScanCache:
@@ -191,7 +194,7 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
     @param deviceEnumsSide: 押された Loadcell の側
     @param stmInstance: 通信に使用する STM インスタンス
     """
-    print(f"Escape from obstacle on {deviceEnumsSide} side")
+    logger.warning(f"Escape from obstacle on {deviceEnumsSide} side")
     stmInstance.sts3032.setMotorSpeed(
         {deviceEnums.Side.LEFT: -30, deviceEnums.Side.RIGHT: -30}
     )
@@ -344,7 +347,7 @@ def turnToCertainDirection(
                         ):
                             stmInstance.sts3032.stop()
                             rescueStopped = True
-                            print(
+                            logger.info(
                                 f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during turn: {victimInfo[s]}"
                             )
                             mapInstance.addSeenVictimType(
@@ -355,7 +358,7 @@ def turnToCertainDirection(
                                 victimInfo[s],
                             )
                             dropRescueKit(stmInstance, mapInstance, victimInfo, s)
-                            print(
+                            logger.info(
                                 f"Dropped rescue kit, detected victim info: {victimInfo}"
                             )
             turnDirection = getTurnDirection(
@@ -376,11 +379,9 @@ def turnToCertainDirection(
         ), f"Gyro turn failed to reach target heading, current: {stmInstance.gyro.getValue().heading}, target: {targetDir}"
         stmInstance.sts3032.stop()
 
-        print(
-            "stopped turning at heading:",
-            stmInstance.gyro.getValue().heading,
-            "diff:",
-            abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir)),
+        logger.debug(
+            f"stopped turning at heading: {stmInstance.gyro.getValue().heading}, "
+            f"diff: {abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))}"
         )
         stmInstance.update()
         if stmInstance.switch.getToggleSwitch1():
@@ -502,7 +503,7 @@ def detectWall(
     ]:
         angle = (direction.value - currentDirVal + 360) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
-        print(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
+        logger.debug(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
         if mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN:
             if (
                 min(

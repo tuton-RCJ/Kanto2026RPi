@@ -2,10 +2,13 @@ from . import mazeEnums
 from . import mazeConstraints
 from .device import deviceEnums
 from .device.arduinoNanoEvery import ArduinoNanoEveryUART, _NullArduinoNanoEveryUART
+from config import get_logger
 import heapq
 import itertools
 import copy
 from typing import Callable
+
+logger = get_logger(__name__)
 
 
 def _turn_quarters(from_dir: mazeEnums.absDirection, to_dir: mazeEnums.absDirection) -> int:
@@ -111,7 +114,7 @@ class mazeMap:
         try:
             self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
         except Exception as exc:
-            print(f"ArduinoNanoEveryUART init failed: {exc}")
+            logger.warning(f"ArduinoNanoEveryUART init failed: {exc}")
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
@@ -265,7 +268,7 @@ class mazeMap:
                     self.mazeAsGraph[y][x-1].discard((x, y))
 
         if tiletype == mazeEnums.tileType.SILVER:
-            print("a")
+            logger.debug("Silver tile detected, saving cache")
             self.saveCache()
             
 
@@ -370,7 +373,7 @@ class mazeMap:
         """
         x, y = self.currentPosition
         if self.wallTypes[y][x][direction] != mazeEnums.wallType.NO_WALL:
-            print(self.renderKnownTileAndWall())
+            logger.debug(f"Moving to wall direction: {direction}\n{self.renderKnownTileAndWall()}")
 
         if direction == mazeEnums.absDirection.NORTH:
             self.currentPosition = (x, y-1)

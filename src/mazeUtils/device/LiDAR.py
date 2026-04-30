@@ -2,17 +2,24 @@ import os
 import ydlidar
 import numpy as np
 from dataclasses import dataclass
+from config import get_logger
 from . import deviceConstraints
 from . import deviceEnums
 from typing import overload
+
+logger = get_logger(__name__)
+
+
 @dataclass
 class Point:
     """
     @brief: LiDAR の点群データ構造体。
     @note range は cm, angle は相対角度、反時計回りに正。
     """
+
     range: int
     angle: int
+
 
 def regulationAngle(angle: int | float) -> int | float:
     if angle > 180:
@@ -22,10 +29,11 @@ def regulationAngle(angle: int | float) -> int | float:
     return angle
 
 
-
-def initializeLidar(port: str = "/dev/ttyAMA2", baudrate: int = 230400) -> ydlidar.CYdLidar:
+def initializeLidar(
+    port: str = "/dev/ttyAMA2", baudrate: int = 230400
+) -> ydlidar.CYdLidar:
     ydlidar.os_init()
-    print("Available ports:", *ydlidar.lidarPortList())
+    logger.info(f"Available ports: {ydlidar.lidarPortList()}")
     lidar = ydlidar.CYdLidar()
     lidar.setlidaropt(ydlidar.LidarPropSerialPort, port)
     lidar.setlidaropt(ydlidar.LidarPropSerialBaudrate, baudrate)
@@ -44,6 +52,7 @@ def initializeLidar(port: str = "/dev/ttyAMA2", baudrate: int = 230400) -> ydlid
     lidar.turnOn()
     return lidar
 
+
 def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[Point]:
     """
     @brief LiDAR のスキャンデータを取得する
@@ -54,18 +63,31 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> list[Point]:
     if lidar.doProcessSimple(scan):
         res = []
         for s in scan.points:
-            res.append(Point(s.range * 100,(-((s.angle - np.pi/2)%(np.pi*2)*360/(np.pi*2)+4))%360)) # LiDAR の角度補正 4 度
+            res.append(
+                Point(
+                    s.range * 100,
+                    (-((s.angle - np.pi / 2) % (np.pi * 2) * 360 / (np.pi * 2) + 4))
+                    % 360,
+                )
+            )  # LiDAR の角度補正 4 度
         return res
     else:
         raise Exception("Failed to get LiDAR scan")
 
-@overload
-def getCertainAngleDist(angle: int | float, points: list[Point]) -> int : ...
 
 @overload
-def getCertainAngleDist(angle: list[int] | list[float], points: list[Point]) -> list[int] : ...
+def getCertainAngleDist(angle: int | float, points: list[Point]) -> int: ...
 
-def getCertainAngleDist(angle: int | float | list[int] | list[float], points: list[Point]) -> int | list[int]:
+
+@overload
+def getCertainAngleDist(
+    angle: list[int] | list[float], points: list[Point]
+) -> list[int]: ...
+
+
+def getCertainAngleDist(
+    angle: int | float | list[int] | list[float], points: list[Point]
+) -> int | list[int]:
     """
     @brief 指定した角度の距離を取得する
     @param angle: 取得したい角度(度). 複数指定する場合はリストで渡す
@@ -89,13 +111,16 @@ def getCertainAngleDist(angle: int | float | list[int] | list[float], points: li
             if p.range < 10 or p.range > 400:
                 continue
             if abs(regulationAngle(p.angle - a)) < 20:
-                distlist.append(p.range * np.cos(np.deg2rad(regulationAngle(p.angle - a))))
+                distlist.append(
+                    p.range * np.cos(np.deg2rad(regulationAngle(p.angle - a)))
+                )
         if len(distlist) > 0:
             distlist.sort()
             distances.append(distlist[-1])
         else:
             distances.append(10**9)  # LiDAR の測定範囲外は非常に大きな値とする
     return distances[0] if single else distances
+
 
 def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
     """
@@ -108,13 +133,20 @@ def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
     for p in points:
         if side == deviceEnums.Side.LEFT:
             if p.angle >= 10 and p.angle <= 90:
-                if p.range*np.cos(np.deg2rad(p.angle-90)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+                if (
+                    p.range * np.cos(np.deg2rad(p.angle - 90))
+                    > deviceConstraints.WALL_DETECTION_THRESHOLD_CM
+                ):
                     return False
         elif side == deviceEnums.Side.RIGHT:
             if p.angle >= 270 and p.angle <= 350:
-                if p.range*np.cos(np.deg2rad(p.angle-270)) > deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+                if (
+                    p.range * np.cos(np.deg2rad(p.angle - 270))
+                    > deviceConstraints.WALL_DETECTION_THRESHOLD_CM
+                ):
                     return False
     return res
+
 
 def liDARShutdown(lidar: ydlidar.CYdLidar):
     """
