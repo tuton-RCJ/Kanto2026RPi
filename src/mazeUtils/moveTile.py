@@ -514,7 +514,7 @@ def detectWall(
                 and direction == mapInstance.frontDirection
             ):
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
-                print(
+                logger.debug(
                     f"Detected no wall at {direction} due to high roll angle: {stmInstance.gyro.getValue().roll} deg"
                 )
                 continue
@@ -737,7 +737,7 @@ def moveTile(
         ]
         for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
-    print(avoidVictim)
+    logger.debug(f"avoidVictim: {avoidVictim}")
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None] = {
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
@@ -850,10 +850,8 @@ def moveTile(
             if stmInstance.tof.getDistance()[0] > 20:
                 escapeFromObstacle(pressedSide, stmInstance)
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
-                print(
-                    (time.time() - oldTime)
-                    * np.cos(np.radians(abs(stmInstance.gyro.getValue().roll)))
-                    * 0.1
+                logger.debug(
+                    f"Obstacle escape adjustment: {(time.time() - oldTime) * np.cos(np.radians(abs(stmInstance.gyro.getValue().roll))) * 0.1}"
                 )
                 practicalMoveTime -= 0.1
                 escapeFlag = True
@@ -920,7 +918,7 @@ def moveTile(
                         ],
                         consequentSearchRes[side],
                     )
-                    print(f"Detected victim info ahead: {victimInfo}")
+                    logger.info(f"Detected victim info ahead: {victimInfo}")
                     dropRescueKit(stmInstance, mapInstance, victimInfo, side)
                     victimRescueFlag = True
             else:
@@ -932,7 +930,7 @@ def moveTile(
                     victimInfo = stmInstance.unitv.getStatus()
                     if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                         getVictimDict[side][victimInfo[side]] += 1
-                        print(f"Detected victim info during movement: {victimInfo}")
+                        logger.debug(f"Detected victim info during movement: {victimInfo}")
                 if (
                     practicalMoveTime - lastUpdateTime / 1000
                 ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:
@@ -976,7 +974,7 @@ def moveTile(
                             continue
                         stmInstance.sts3032.stop()
                         t = time.time()
-                        print(
+                        logger.info(
                             f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
                         )
                         dropRescueKit(stmInstance, mapInstance, victimInfo, side)
@@ -1008,7 +1006,7 @@ def moveTile(
             f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec"
         )
         oldTime = time.time()
-        print(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
+        logger.debug(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
 
     ###### 移動後、目の前が壁であれば位置調整のため少し前進 ######
     pts = LiDAR.getLiDARScan(lidar)
@@ -1041,7 +1039,7 @@ def moveTile(
             for s in deviceEnums.Side:
                 if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
                     getVictimDict[s][unitvStatus[s]] += 1
-                    print(
+                    logger.debug(
                         f"Detected victim info during big upper ramp movement: {unitvStatus}"
                     )
         turnToCertainDirection((direction.value - 30) % 360, stmInstance)
@@ -1052,7 +1050,7 @@ def moveTile(
             for s in deviceEnums.Side:
                 if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
                     getVictimDict[s][unitvStatus[s]] += 1
-                    print(
+                    logger.debug(
                         f"Detected victim info during big upper ramp movement: {unitvStatus}"
                     )
         turnToCertainDirection(direction.value, stmInstance)
@@ -1137,7 +1135,7 @@ def moveTile(
                 maxVictimInfo[side],
             )
             if maxVictimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
-                print(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+                logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
                 dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
                 
                 
@@ -1166,7 +1164,7 @@ def moveTile(
             if tileType != mazeEnums.tileType.BLACK
             else mazeEnums.tileType.EMPTY
         )
-    print(
+    logger.info(
         f"Tile color detection counts: {dict(getTileColorDict)}, decided tile type: {tileType}"
     )
 
@@ -1174,7 +1172,7 @@ def moveTile(
         stmInstance.buzzer.playMusic(buzzerSongs.swamp)
         time.sleep(5.2)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
-        print(
+        logger.info(
             f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}"
         )
     stmInstance.sts3032.stop()
