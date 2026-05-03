@@ -208,6 +208,33 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
     stmInstance.sts3032.stop()
 
 
+def escapeFromBlackTile(
+    stmInstance: stm.STM,
+    mapInstance: mazeMap.mazeMap,
+    direction: mazeEnums.absDirection,
+    practicalMoveTime: float,
+    cameraBlackTileDetected: bool,
+) -> bool:
+    tempTileColor = detectTileColor()
+    if tempTileColor == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
+        stmInstance.sts3032.stop()
+        mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
+        logger.info("Black tile detected! Stopping movement. Starting escape maneuver.")
+        startEscapeTime = time.time()
+        stmInstance.sts3032.setMotorSpeed(
+            {deviceEnums.Side.LEFT: -50, deviceEnums.Side.RIGHT: -50}
+        )
+        while time.time() - startEscapeTime < practicalMoveTime:
+            stmInstance.update()
+            if stmInstance.switch.getToggleSwitch1():
+                stmInstance.sts3032.stop()
+        stmInstance.sts3032.stop()
+        debugPrint(f"Escape maneuver complete.")
+        return True
+    else:
+        return False
+
+
 def regulationAngle(angle: int | float) -> int | float:
     if angle > 180:
         angle -= 360
@@ -644,6 +671,146 @@ def victimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
         return mazeEnums.wallType.WALL
 
 
+def findVictimDuringMove(
+    mapInstance: mazeMap.mazeMap,
+    stmInstance: stm.STM,
+    isWallAhead: dict[deviceEnums.Side, bool],
+
+    consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None],
+    getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]],
+    practicalMoveTime: float,
+) -> bool:
+    direction = mapInstance.frontDirection
+    dx = mazeEnums.directionToDelta[direction][0]
+    dy = mazeEnums.directionToDelta[direction][1]
+    currentPosX, currentPosY = mapInstance.currentPosition
+
+    avoidVictim = {
+        s: mapInstance.getSeenVictimType(currentPosX, currentPosY)[
+            mazeEnums.absDirection(
+                (
+                    mapInstance.frontDirection.value
+                    + (90 if s == deviceEnums.Side.LEFT else 270)
+                )
+                % 360
+            )
+        ]
+        | mapInstance.getSeenVictimType(currentPosX + dx, currentPosY + dy)[
+            mazeEnums.absDirection(
+                (
+                    mapInstance.frontDirection.value
+                    + (90 if s == deviceEnums.Side.LEFT else 270)
+                )
+                % 360
+            )
+        ]
+        for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
+    }
+    # logger.debug(f"avoidVictim: {avoidVictim}")
+
+    ####### 被災者発見処理 ######
+    victimRescueFlag = False
+    for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+        if isWallAhead[side]:  # 連続して壁の時はずっと見る
+            victimInfo = stmInstance.unitv.getStatus()
+            if (
+                victimInfo[side] != deviceEnums.UnitVStatus.NOTHING
+                and (victimInfo[side] not in avoidVictim[side])
+                and consequentSearchRes[side] is None
+            ):  # 被災者を発見した
+                stmInstance.sts3032.stop()
+                t = time.time()
+                consequentSearchRes[side] = victimInfo[side]
+                mapInstance.setWallType(
+                    mazeEnums.absDirection(
+                        (
+                            mapInstance.frontDirection.value
+                            + (90 if side == deviceEnums.Side.LEFT else 270)
+                        )
+                        % 360
+                    ),
+                    victimToWallType(consequentSearchRes[side]),
+                )
+                mapInstance.addSeenVictimType(
+                    [
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + (90 if side == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ],
+                    consequentSearchRes[side],
+                )
+                logger.info(f"Detected victim info ahead: {victimInfo}")
+                dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                victimRescueFlag = True
+        else:
+            lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
+            if (
+                mazeConstraints.MOVE_STRAIGHT_SEC - practicalMoveTime
+                < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20
+            ):  # 移動終了間際
+                victimInfo = stmInstance.unitv.getStatus()
+                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
+                    getVictimDict[side][victimInfo[side]] += 1
+                    logger.debug(f"Detected victim info during movement: {victimInfo}")
+            if (
+                practicalMoveTime - lastUpdateTime / 1000
+            ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:  # 移動開始直後ならば
+                victimInfo = stmInstance.unitv.getStatus()
+                if (  # 発見した方向に壁があり、すでに見たことのある被災者でもない　ならば
+                    victimInfo[side] != deviceEnums.UnitVStatus.NOTHING
+                    and mapInstance.getWallType()[
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + (90 if side == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ]
+                    != mazeEnums.wallType.NO_WALL
+                    and (
+                        not mapInstance.isSeenVictimType(
+                            [
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + (90 if side == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ],
+                            victimInfo[side],
+                        )
+                    )
+                ):
+
+                    stmInstance.sts3032.stop()
+                    t = time.time()
+                    logger.info(
+                        f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
+                    )
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                    mapInstance.addSeenVictimType(
+                        [
+                            mazeEnums.absDirection(
+                                (
+                                    mapInstance.frontDirection.value
+                                    + (90 if side == deviceEnums.Side.LEFT else 270)
+                                )
+                                % 360
+                            )
+                        ],
+                        victimInfo[side],
+                    )
+
+                    victimRescueFlag = True
+    return victimRescueFlag
+
+
 def moveTile(
     direction: mazeEnums.absDirection,
     mapInstance: mazeMap.mazeMap,
@@ -697,7 +864,6 @@ def moveTile(
     )
     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
     littleFowardFlag = False
-    isRamp = True
     isBigRamp = False
     isBigUpperRamp = False
     startTime = time.time()
@@ -713,31 +879,7 @@ def moveTile(
         s: LiDAR.isWallAheadTile(points, s)
         for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
-    dx = mazeEnums.directionToDelta[direction][0]
-    dy = mazeEnums.directionToDelta[direction][1]
-    currentPosX, currentPosY = mapInstance.currentPosition
-    avoidVictim = {
-        s: mapInstance.getSeenVictimType(currentPosX, currentPosY)[
-            mazeEnums.absDirection(
-                (
-                    mapInstance.frontDirection.value
-                    + (90 if s == deviceEnums.Side.LEFT else 270)
-                )
-                % 360
-            )
-        ]
-        | mapInstance.getSeenVictimType(currentPosX + dx, currentPosY + dy)[
-            mazeEnums.absDirection(
-                (
-                    mapInstance.frontDirection.value
-                    + (90 if s == deviceEnums.Side.LEFT else 270)
-                )
-                % 360
-            )
-        ]
-        for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
-    }
-    logger.debug(f"avoidVictim: {avoidVictim}")
+
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None] = {
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
@@ -793,7 +935,6 @@ def moveTile(
             {deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed}
         )
 
-
         ##### 坂道判定 #####
         if (
             min(
@@ -811,22 +952,14 @@ def moveTile(
             isBigUpperRamp = True
 
         ###### 黒タイル回避処理 ######
-        if detectTileColor() == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
-            stmInstance.sts3032.stop()
-            mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
-            debugPrint(
-                "Black tile detected! Stopping movement. Starting escape maneuver."
-            )
-            startEscapeTime = time.time()
-            stmInstance.sts3032.setMotorSpeed(
-                {deviceEnums.Side.LEFT: -50, deviceEnums.Side.RIGHT: -50}
-            )
-            while time.time() - startEscapeTime < practicalMoveTime:
-                stmInstance.update()
-                if stmInstance.switch.getToggleSwitch1():
-                    stmInstance.sts3032.stop()
-            stmInstance.sts3032.stop()
-            debugPrint(f"Escape maneuver complete.")
+        escapeFromBlackTileRes = escapeFromBlackTile(
+            stmInstance,
+            mapInstance,
+            direction,
+            practicalMoveTime,
+            cameraBlackTileDetected,
+        )
+        if escapeFromBlackTileRes:
             return True, False
         else:
             tempTileColor = detectTileColor()
@@ -858,7 +991,7 @@ def moveTile(
                 time.sleep(0.1)
 
         ###### 1マス移動完了判定（時間制御） ######
-        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC and isRamp:
+        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC:
             if isBigRamp:
                 if (
                     stmInstance.tof.getDistance()[2]
@@ -866,6 +999,8 @@ def moveTile(
                     * math.tan(math.radians(stmInstance.gyro.getValue().roll))
                     < mazeConstraints.RAMP_END_THRESHOLD_CM
                 ):
+                    # 登り坂バンプの対策として、上り坂では後ろまでの距離が一定以上になるまでは停止しない
+                    # 1マスの坂にしか対応できていないので後でこれは消す。
                     continue
             stmInstance.sts3032.stop()
             break
@@ -874,123 +1009,20 @@ def moveTile(
             < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM
             and not isBigRamp
         ):
+            # 坂でなく、前方の壁までの距離が小さくなったときは止める。
             stmInstance.sts3032.stop()
             break
-        
+
         ####### 被災者発見処理 ######
-        victimRescueFlag = False
-        for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-            if isWallAhead[side]:
-                victimInfo = stmInstance.unitv.getStatus()
-                if (
-                    victimInfo[side] != deviceEnums.UnitVStatus.NOTHING
-                    and (victimInfo[side] not in avoidVictim[side])
-                    and consequentSearchRes[side] is None
-                ):
-                    if (
-                        isRedTile
-                        and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM
-                    ):
-                        debugPrint("Skipping red victim on red tile")
-                        continue
-                    stmInstance.sts3032.stop()
-                    t = time.time()
-                    consequentSearchRes[side] = victimInfo[side]
-                    mapInstance.setWallType(
-                        mazeEnums.absDirection(
-                            (
-                                mapInstance.frontDirection.value
-                                + (90 if side == deviceEnums.Side.LEFT else 270)
-                            )
-                            % 360
-                        ),
-                        victimToWallType(consequentSearchRes[side]),
-                    )
-                    mapInstance.addSeenVictimType(
-                        [
-                            mazeEnums.absDirection(
-                                (
-                                    mapInstance.frontDirection.value
-                                    + (90 if side == deviceEnums.Side.LEFT else 270)
-                                )
-                                % 360
-                            )
-                        ],
-                        consequentSearchRes[side],
-                    )
-                    logger.info(f"Detected victim info ahead: {victimInfo}")
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                    victimRescueFlag = True
-            else:
-                lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
-                if (
-                    mazeConstraints.MOVE_STRAIGHT_SEC - practicalMoveTime
-                    < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20
-                ):
-                    victimInfo = stmInstance.unitv.getStatus()
-                    if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
-                        getVictimDict[side][victimInfo[side]] += 1
-                        logger.debug(f"Detected victim info during movement: {victimInfo}")
-                if (
-                    practicalMoveTime - lastUpdateTime / 1000
-                ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:
-                    victimInfo = stmInstance.unitv.getStatus()
-                    if (
-                        victimInfo[side] != deviceEnums.UnitVStatus.NOTHING
-                        and mapInstance.getWallType()[
-                            mazeEnums.absDirection(
-                                (
-                                    mapInstance.frontDirection.value
-                                    + (90 if side == deviceEnums.Side.LEFT else 270)
-                                )
-                                % 360
-                            )
-                        ]
-                        != mazeEnums.wallType.NO_WALL
-                        and (
-                            not mapInstance.isSeenVictimType(
-                                [
-                                    mazeEnums.absDirection(
-                                        (
-                                            mapInstance.frontDirection.value
-                                            + (
-                                                90
-                                                if side == deviceEnums.Side.LEFT
-                                                else 270
-                                            )
-                                        )
-                                        % 360
-                                    )
-                                ],
-                                victimInfo[side],
-                            )
-                        )
-                    ):
-                        if (
-                            isRedTile
-                            and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM
-                        ):
-                            debugPrint("Skipping red victim on red tile")
-                            continue
-                        stmInstance.sts3032.stop()
-                        t = time.time()
-                        logger.info(
-                            f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
-                        )
-                        dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-                        mapInstance.addSeenVictimType(
-                            [
-                                mazeEnums.absDirection(
-                                    (
-                                        mapInstance.frontDirection.value
-                                        + (90 if side == deviceEnums.Side.LEFT else 270)
-                                    )
-                                    % 360
-                                )
-                            ],
-                            victimInfo[side],
-                        )
-                        victimRescueFlag = True
+        victimRescueFlag = findVictimDuringMove(
+            mapInstance,
+            stmInstance,
+            isWallAhead,
+            consequentSearchRes,
+            getVictimDict,
+            practicalMoveTime,
+        )
+
         if not victimRescueFlag:
             practicalMoveTime += (
                 (
@@ -1003,10 +1035,12 @@ def moveTile(
             )
 
         debugPrint(
-            f"isramp: {isRamp}, roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec"
+            f"roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec"
         )
         oldTime = time.time()
-        logger.debug(f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms")
+        logger.debug(
+            f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms"
+        )
 
     ###### 移動後、目の前が壁であれば位置調整のため少し前進 ######
     pts = LiDAR.getLiDARScan(lidar)
@@ -1027,7 +1061,7 @@ def moveTile(
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
     stmInstance.sts3032.stop()
-    
+
     ##### 上り坂をのぼった後の被災者検知 #####
     oldTime = time.time()
     if isBigUpperRamp and (not isBigRamp):
@@ -1057,6 +1091,9 @@ def moveTile(
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)
+    
+    ##### 移動終了時の被災者検出処理 #####
+    ##### 移動終了直前、移動終了時に見たもの、上り坂をのぼったあとの特殊処理で見たものについて、ここで救助動作を行う。
     maxVictimInfo = {
         side: (
             max(getVictimDict[side], key=getVictimDict[side].get)
@@ -1118,9 +1155,6 @@ def moveTile(
             ]
             == mazeEnums.wallType.WALL
         ):
-            if isRedTile and maxVictimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
-                debugPrint("Skipping red victim on red tile")
-                continue
 
             mapInstance.addSeenVictimType(
                 [
@@ -1134,12 +1168,10 @@ def moveTile(
                 ],
                 maxVictimInfo[side],
             )
-            if maxVictimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
-                logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
-                dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
-                
-                
-                
+
+            logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
+
     ###### 銀・青タイル判別処理 ######
     tileType = mazeEnums.tileType.EMPTY
     nowMaxCount = 0
