@@ -508,6 +508,9 @@ def detectWall(
         mazeEnums.absDirection.SOUTH,
         mazeEnums.absDirection.WEST,
     ]:
+        # すでに壁の有無がわかっている方向はスキップ
+        if mapInstance.getWallType()[direction] != mazeEnums.wallType.UNKNOWN:
+            continue
         angle = (direction.value - currentDirVal + 360) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
         logger.debug(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
@@ -930,6 +933,29 @@ def moveTile(
             and 0 < stmInstance.gyro.getValue().roll < 180
         ):
             isBigUpperRamp = True
+            
+        ### 坂道を検出したら、平らになるまで直進する
+        timeBeforeRamp = time.time()
+        if isBigRamp:
+            nowDist = 0
+            nowhight = 0
+            lastToFDist = stmInstance.tof.getDistance()[2]
+            while  min(
+                stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll
+            ) > 3:
+                stmInstance.update()
+                if stmInstance.switch.getToggleSwitch1():
+                    stmInstance.sts3032.stop()
+                    return False, True
+                movedDist = stmInstance.tof.getDistance()[2] - lastToFDist  
+                lastToFDist = stmInstance.tof.getDistance()[2]
+                nowDist += movedDist * math.cos(math.radians(stmInstance.gyro.getValue().roll))
+                nowhight += movedDist * math.sin(math.radians(stmInstance.gyro.getValue().roll))
+                stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50})
+                time.sleep(0.05)
+            logger.debug(f"Detected big ramp, height: {nowhight:.1f} cm, distance: {nowDist:.1f} cm")
+            mapInstance.setSlope(direction, nowDist,nowhight)
+            
 
         ###### 黒タイル回避処理 ######
         escapeFromBlackTileRes = escapeFromBlackTile(
@@ -1004,12 +1030,16 @@ def moveTile(
         )
 
         if not victimRescueFlag:
+            pratical_loop_time = 0
+            if escapeFlag:
+                pratical_loop_time = timeBeforeEscape - oldTime
+            elif isBigRamp:
+                pratical_loop_time = timeBeforeRamp - oldTime
+            else:
+                pratical_loop_time = time.time() - oldTime
+                
             practicalMoveTime += (
-                (
-                    (time.time() - oldTime)
-                    if not escapeFlag
-                    else (timeBeforeEscape - oldTime)
-                )
+                pratical_loop_time
                 * np.cos(np.radians(abs(roll)))
                 * (1 if roll > 180 else 0.9)
             )

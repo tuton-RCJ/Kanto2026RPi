@@ -72,7 +72,8 @@ REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (30, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
+# RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 15  # 傾斜検出の閾値(度)
 # +1: 正の signed roll を上りとして扱う, -1: 逆に扱う
 RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THRESHOLD_FOR_DIFF: float = 15
