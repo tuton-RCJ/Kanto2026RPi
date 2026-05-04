@@ -370,12 +370,16 @@ class mazeMap:
             y_offset = self.layerInfo[z].y_offset - self.layerInfo[nextLayer].y_offset
             if direction == mazeEnums.absDirection.NORTH:
                 y_offset -= horizontalDistance
+                y_offset -= mazeConstraints.TILE_SIZE_CM
             elif direction == mazeEnums.absDirection.EAST:
                 x_offset += horizontalDistance
+                x_offset += mazeConstraints.TILE_SIZE_CM
             elif direction == mazeEnums.absDirection.SOUTH:
                 y_offset += horizontalDistance
+                y_offset += mazeConstraints.TILE_SIZE_CM
             elif direction == mazeEnums.absDirection.WEST:
                 x_offset -= horizontalDistance
+                x_offset -= mazeConstraints.TILE_SIZE_CM
             # マス数に変換
             x_offset_tiles = round(x_offset / mazeConstraints.TILE_SIZE_CM)
             y_offset_tiles = round(y_offset / mazeConstraints.TILE_SIZE_CM)
@@ -407,12 +411,16 @@ class mazeMap:
             new_y_offset = self.layerInfo[z].y_offset
             if direction == mazeEnums.absDirection.NORTH:
                 new_y_offset -= horizontalDistance
+                new_y_offset -= mazeConstraints.TILE_SIZE_CM
             elif direction == mazeEnums.absDirection.EAST:
                 new_x_offset += horizontalDistance
+                new_x_offset += mazeConstraints.TILE_SIZE_CM
             elif direction == mazeEnums.absDirection.SOUTH:
                 new_y_offset += horizontalDistance
+                new_y_offset += mazeConstraints.TILE_SIZE_CM
             elif direction == mazeEnums.absDirection.WEST:
                 new_x_offset -= horizontalDistance
+                new_x_offset -= mazeConstraints.TILE_SIZE_CM
             self.layerInfo[nextLayer] = layerInfoData(
                 isKnown=True,
                 layerNumber=nextLayer,
