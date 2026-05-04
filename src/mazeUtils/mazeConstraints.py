@@ -1,6 +1,8 @@
 from . import mazeEnums
 from .device import deviceEnums
 
+TILE_SIZE_CM: int = 30  # タイル1枚のサイズ
+
 STRAIGHT_GYRO_P_GAIN: float = 0.5
 STRAIGHT_TOF_P_GAIN: float = 0.3
 

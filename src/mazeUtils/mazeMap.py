@@ -7,6 +7,7 @@ import heapq
 import itertools
 import copy
 from typing import Callable
+from dataclasses import dataclass
 
 logger = get_logger(__name__)
 
@@ -20,27 +21,10 @@ def _turn_quarters(
     return int(diff // 90)
 
 
-def _step_direction(
-    current: tuple[int, int, int],
-    neighbor: tuple[int, int, int],
-) -> mazeEnums.absDirection:
-    cx, cy, cz = current
-    nx, ny, nz = neighbor
-    dx = nx - cx
-    dy = ny - cy
-    if dx == 0 and dy == -1:
-        return mazeEnums.absDirection.NORTH
-    if dx == 1 and dy == 0:
-        return mazeEnums.absDirection.EAST
-    if dx == 0 and dy == 1:
-        return mazeEnums.absDirection.SOUTH
-    if dx == -1 and dy == 0:
-        return mazeEnums.absDirection.WEST
-    raise ValueError(f"neighbor must be adjacent: {current} -> {neighbor}")
-
-
 def dijkstra(
-    mazeGraph: list[list[list[set[tuple[int, int, int]]]]],
+    mazeGraph: list[
+        list[list[dict[mazeEnums.absDirection, tuple[int, int, int] | None]]]
+    ],
     start: tuple[int, int, int],
     startDirection: mazeEnums.absDirection,
     goalCondition: Callable[[tuple[int, int, int]], bool],
@@ -88,8 +72,10 @@ def dijkstra(
                     path.append((sx, sy, sz))
             return path
 
-        for neighbor in mazeGraph[z][y][x]:
-            move_dir = _step_direction(pos, neighbor)
+        for move_dir in mazeEnums.absDirection:
+            neighbor = mazeGraph[z][y][x][move_dir]
+            if neighbor is None:
+                continue
             turn_q = _turn_quarters(heading, move_dir)
             step_cost = (turn_q * float(mazeConstraints.TURN_90_SEC)) + float(
                 mazeConstraints.MOVE_STRAIGHT_SEC
@@ -104,6 +90,17 @@ def dijkstra(
                 heapq.heappush(heap, (new_cost, next(push_id), nx, ny, nz, move_dir))
 
     return None
+
+
+@dataclass
+class layerInfoData:
+    """レイヤーの情報構造体。"""
+
+    isKnown: bool  # 発見済みのレイヤーかどうか
+    layerNumber: int  # レイヤー番号（z座標）
+    altitude: float  # レイヤー0からの高度差（cm）
+    x_offset: float  # レイヤー0からのx方向のオフセット（cm）
+    y_offset: float  # レイヤー0からのy方向のオフセット（cm）
 
 
 class mazeMap:
@@ -131,8 +128,13 @@ class mazeMap:
         ]
 
         self.tileTypes[0][maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
-        self.mazeAsGraph = [
-            [[set() for _ in range(maxSize)] for _ in range(maxSize)]
+        self.mazeAsGraph: list[
+            list[list[dict[mazeEnums.absDirection, tuple[int, int, int] | None]]]
+        ] = [
+            [
+                [{d: None for d in mazeEnums.absDirection} for _ in range(maxSize)]
+                for _ in range(maxSize)
+            ]
             for _ in range(maxLayer)
         ]
         self.frontDirection = mazeEnums.absDirection.NORTH
@@ -146,6 +148,17 @@ class mazeMap:
             ]
             for _ in range(maxLayer)
         ]
+
+        self.layerInfo: list[layerInfoData] = [
+            layerInfoData(
+                isKnown=False, layerNumber=i, altitude=0.0, x_offset=0.0, y_offset=0.0
+            )
+            for i in range(maxLayer)
+        ]
+        self.layerInfo[0] = layerInfoData(
+            isKnown=True, layerNumber=0, altitude=0.0, x_offset=0.0, y_offset=0.0
+        )
+        self.knownLayerCount = 1  # すでに登録済みのレイヤー数
 
         try:
             self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
@@ -166,33 +179,33 @@ class mazeMap:
         if wallType == mazeEnums.wallType.NO_WALL:
             if direction == mazeEnums.absDirection.NORTH and y > 0:
                 if self.tileTypes[z][y - 1][x] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x].add((x, y - 1, z))
-                    self.mazeAsGraph[z][y - 1][x].add((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = (x, y - 1, z)
+                    self.mazeAsGraph[z][y - 1][x][direction.opposite()] = (x, y, z)
             elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
                 if self.tileTypes[z][y][x + 1] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x].add((x + 1, y, z))
-                    self.mazeAsGraph[z][y][x + 1].add((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = (x + 1, y, z)
+                    self.mazeAsGraph[z][y][x + 1][direction.opposite()] = (x, y, z)
             elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
                 if self.tileTypes[z][y + 1][x] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x].add((x, y + 1, z))
-                    self.mazeAsGraph[z][y + 1][x].add((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = (x, y + 1, z)
+                    self.mazeAsGraph[z][y + 1][x][direction.opposite()] = (x, y, z)
             elif direction == mazeEnums.absDirection.WEST and x > 0:
                 if self.tileTypes[z][y][x - 1] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x].add((x - 1, y, z))
-                    self.mazeAsGraph[z][y][x - 1].add((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = (x - 1, y, z)
+                    self.mazeAsGraph[z][y][x - 1][direction.opposite()] = (x, y, z)
         elif wallType == mazeEnums.wallType.WALL:
             if direction == mazeEnums.absDirection.NORTH and y > 0:
-                self.mazeAsGraph[z][y][x].discard((x, y - 1, z))
-                self.mazeAsGraph[z][y - 1][x].discard((x, y, z))
+                self.mazeAsGraph[z][y][x][direction] = None
+                self.mazeAsGraph[z][y - 1][x][direction.opposite()] = None
             elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
-                self.mazeAsGraph[z][y][x].discard((x + 1, y, z))
-                self.mazeAsGraph[z][y][x + 1].discard((x, y, z))
+                self.mazeAsGraph[z][y][x][direction] = None
+                self.mazeAsGraph[z][y][x + 1][direction.opposite()] = None
             elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
-                self.mazeAsGraph[z][y][x].discard((x, y + 1, z))
-                self.mazeAsGraph[z][y + 1][x].discard((x, y, z))
+                self.mazeAsGraph[z][y][x][direction] = None
+                self.mazeAsGraph[z][y + 1][x][direction.opposite()] = None
             elif direction == mazeEnums.absDirection.WEST and x > 0:
-                self.mazeAsGraph[z][y][x].discard((x - 1, y, z))
-                self.mazeAsGraph[z][y][x - 1].discard((x, y, z))
+                self.mazeAsGraph[z][y][x][direction] = None
+                self.mazeAsGraph[z][y][x - 1][direction.opposite()] = None
 
         self.wallTypes[z][y][x][direction] = wallType
 
@@ -293,21 +306,120 @@ class mazeMap:
             # 黒タイルならその周囲の通路を塞ぐ
             for direction in mazeEnums.absDirection:
                 if direction == mazeEnums.absDirection.NORTH and y > 0:
-                    self.mazeAsGraph[z][y][x].discard((x, y - 1, z))
-                    self.mazeAsGraph[z][y - 1][x].discard((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = None
+                    self.mazeAsGraph[z][y - 1][x][direction.opposite()] = None
                 elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
-                    self.mazeAsGraph[z][y][x].discard((x + 1, y, z))
-                    self.mazeAsGraph[z][y][x + 1].discard((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = None
+                    self.mazeAsGraph[z][y][x + 1][direction.opposite()] = None
                 elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
-                    self.mazeAsGraph[z][y][x].discard((x, y + 1, z))
-                    self.mazeAsGraph[z][y + 1][x].discard((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = None
+                    self.mazeAsGraph[z][y + 1][x][direction.opposite()] = None
                 elif direction == mazeEnums.absDirection.WEST and x > 0:
-                    self.mazeAsGraph[z][y][x].discard((x - 1, y, z))
-                    self.mazeAsGraph[z][y][x - 1].discard((x, y, z))
+                    self.mazeAsGraph[z][y][x][direction] = None
+                    self.mazeAsGraph[z][y][x - 1][direction.opposite()] = None
 
         if tiletype == mazeEnums.tileType.SILVER:
             logger.debug("Silver tile detected, saving cache")
             self.saveCache()
+
+    def existsLayerWithinAltitude(
+        self, altitude: float, tolerance: float = 5.0
+    ) -> int | None:
+        """
+        @brief 指定した高度に近いレイヤーが存在するか確認する
+        @param altitude: 確認する高度（cm）
+        @param tolerance: 高度の許容誤差（cm）
+        @return: 近いレイヤーが存在する場合はそのレイヤー番号、存在しない場合は None
+        """
+        for layerNumber, info in enumerate(self.layerInfo):
+            if info.isKnown and abs(info.altitude - altitude) <= tolerance:
+                return layerNumber
+        return None
+
+    def setSlope(
+        self,
+        direction: mazeEnums.absDirection,
+        horizontalDistance: float,
+        verticalDistance: float,
+    ) -> None:
+        """
+        @brief 指定した方向に坂があると設定する
+        @param direction: 坂がある方向
+        @param horizontalDistance: 水平距離
+        @param verticalDistance: 垂直距離
+        """
+        x, y, z = self.currentPosition
+
+        nextLayerAltitude = self.layerInfo[z].altitude + verticalDistance
+        existingLayer = self.existsLayerWithinAltitude(nextLayerAltitude)
+        if existingLayer is not None:
+            nextLayer = existingLayer
+            x_offset = self.layerInfo[z].x_offset - self.layerInfo[nextLayer].x_offset
+            y_offset = self.layerInfo[z].y_offset - self.layerInfo[nextLayer].y_offset
+            if direction == mazeEnums.absDirection.NORTH:
+                y_offset -= horizontalDistance
+            elif direction == mazeEnums.absDirection.EAST:
+                x_offset += horizontalDistance
+            elif direction == mazeEnums.absDirection.SOUTH:
+                y_offset += horizontalDistance
+            elif direction == mazeEnums.absDirection.WEST:
+                x_offset -= horizontalDistance
+            # マス数に変換
+            x_offset_tiles = round(x_offset / mazeConstraints.TILE_SIZE_CM)
+            y_offset_tiles = round(y_offset / mazeConstraints.TILE_SIZE_CM)
+            next_x = x + x_offset_tiles
+            next_y = y + y_offset_tiles
+            assert (
+                0 <= next_x < self.maxSize and 0 <= next_y < self.maxSize
+            ), f"Calculated layer offset leads to out-of-bounds position: ({next_x}, {next_y})"
+
+            # グラフ情報更新
+            ## direction方向のグラフを削除
+            if self.mazeAsGraph[z][y][x][direction] is not None:
+                _x, _y, _z = self.mazeAsGraph[z][y][x][direction]  # type: ignore
+                self.mazeAsGraph[z][y][x][direction] = None
+                self.mazeAsGraph[_z][_y][_x][direction.opposite()] = None
+
+            self.mazeAsGraph[nextLayer][next_y][next_x][direction.opposite()] = None
+
+            ## 新しいレイヤーのグラフを追加
+            self.mazeAsGraph[z][y][x][direction] = (next_x, next_y, nextLayer)
+            self.mazeAsGraph[nextLayer][next_y][next_x][direction.opposite()] = (
+                x,
+                y,
+                z,
+            )
+        else:
+            nextLayer = self.knownLayerCount
+            new_x_offset = self.layerInfo[z].x_offset
+            new_y_offset = self.layerInfo[z].y_offset
+            if direction == mazeEnums.absDirection.NORTH:
+                new_y_offset -= horizontalDistance
+            elif direction == mazeEnums.absDirection.EAST:
+                new_x_offset += horizontalDistance
+            elif direction == mazeEnums.absDirection.SOUTH:
+                new_y_offset += horizontalDistance
+            elif direction == mazeEnums.absDirection.WEST:
+                new_x_offset -= horizontalDistance
+            self.layerInfo[nextLayer] = layerInfoData(
+                isKnown=True,
+                layerNumber=nextLayer,
+                altitude=nextLayerAltitude,
+                x_offset=new_x_offset,
+                y_offset=new_y_offset,
+            )
+            self.knownLayerCount += 1
+
+            # グラフ情報更新
+            ## direction方向のグラフを削除
+            if self.mazeAsGraph[z][y][x][direction] is not None:
+                _x, _y, _z = self.mazeAsGraph[z][y][x][direction]  # type: ignore
+                self.mazeAsGraph[z][y][x][direction] = None
+                self.mazeAsGraph[_z][_y][_x][direction.opposite()] = None
+
+            ## 新しいレイヤーのグラフを追加
+            self.mazeAsGraph[z][y][x][direction] = (x, y, nextLayer)
+            self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (x, y, z)
 
     # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
     #     """
@@ -359,14 +471,11 @@ class mazeMap:
         for i in range(1, len(path)):
             currX, currY, currZ = path[i - 1]
             nextX, nextY, nextZ = path[i]
-            if nextX == currX and nextY == currY - 1:
-                directions.append(mazeEnums.absDirection.NORTH)
-            elif nextX == currX + 1 and nextY == currY:
-                directions.append(mazeEnums.absDirection.EAST)
-            elif nextX == currX and nextY == currY + 1:
-                directions.append(mazeEnums.absDirection.SOUTH)
-            elif nextX == currX - 1 and nextY == currY:
-                directions.append(mazeEnums.absDirection.WEST)
+            for direction in mazeEnums.absDirection:
+                neighbor = self.mazeAsGraph[currZ][currY][currX][direction]
+                if neighbor == (nextX, nextY, nextZ):
+                    directions.append(direction)
+                    break
 
         return directions
 
@@ -392,14 +501,11 @@ class mazeMap:
         for i in range(1, len(path)):
             currX, currY, currZ = path[i - 1]
             nextX, nextY, nextZ = path[i]
-            if nextX == currX and nextY == currY - 1:
-                directions.append(mazeEnums.absDirection.NORTH)
-            elif nextX == currX + 1 and nextY == currY:
-                directions.append(mazeEnums.absDirection.EAST)
-            elif nextX == currX and nextY == currY + 1:
-                directions.append(mazeEnums.absDirection.SOUTH)
-            elif nextX == currX - 1 and nextY == currY:
-                directions.append(mazeEnums.absDirection.WEST)
+            for direction in mazeEnums.absDirection:
+                neighbor = self.mazeAsGraph[currZ][currY][currX][direction]
+                if neighbor == (nextX, nextY, nextZ):
+                    directions.append(direction)
+                    break
 
         return directions
 
@@ -463,6 +569,9 @@ class mazeMap:
             ]
             for z in range(self.maxLayer)
         ]
+
+        self.savedCache["layerInfo"] = copy.deepcopy(self.layerInfo)
+        self.savedCache["knownLayerCount"] = self.knownLayerCount
         self.lastCheckpoint = self.currentPosition
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
@@ -492,6 +601,8 @@ class mazeMap:
             ]
             self.frontDirection = nowDirection
             self.currentPosition = self.lastCheckpoint
+            self.layerInfo = copy.deepcopy(self.savedCache["layerInfo"])
+            self.knownLayerCount = self.savedCache["knownLayerCount"]
             self.updateArduinoStatus()
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
@@ -500,40 +611,43 @@ class mazeMap:
         wt = self.wallTypes[z][y][x]
         return any(v != mazeEnums.wallType.UNKNOWN for v in wt.values())
 
-    def _get_known_bounds(self) -> tuple[int, int, int, int, int, int]:
+    def _get_known_bounds(self, z: int) -> tuple[int, int, int, int]:
         """known な情報(タイル/壁)が存在する範囲に切り詰めた bbox を返す。
 
         戻り値: (min_x, min_y, max_x, max_y) いずれも inclusive。
         """
         min_x = self.maxSize
         min_y = self.maxSize
-        min_z = self.maxLayer
         max_x = -1
         max_y = -1
-        max_z = -1
 
-        for z in range(self.maxLayer):
-            for y in range(self.maxSize):
-                for x in range(self.maxSize):
-                    if self._is_known_cell(x, y, z):
-                        if x < min_x:
-                            min_x = x
-                        if y < min_y:
-                            min_y = y
-                        if x > max_x:
-                            max_x = x
-                        if y > max_y:
-                            max_y = y
-                        if z < min_z:
-                            min_z = z
-                        if z > max_z:
-                            max_z = z
+        for y in range(self.maxSize):
+            for x in range(self.maxSize):
+                if self._is_known_cell(x, y, z):
+                    if x < min_x:
+                        min_x = x
+                    if y < min_y:
+                        min_y = y
+                    if x > max_x:
+                        max_x = x
+                    if y > max_y:
+                        max_y = y
 
         # 少なくとも START が known のはずだが、念のため。
         if max_x < 0:
             cx, cy, cz = self.currentPosition
-            return cx, cy, cx, cy, cz, cz
-        return min_x, min_y, max_x, max_y, min_z, max_z
+            return (
+                cx,
+                cy,
+                cx,
+                cy,
+            )
+        return (
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+        )
 
     def _wall_as_bool(self, wall: mazeEnums.wallType) -> bool:
         """表示用: wall / noWall の2分類。UNKNOWNは表示上 noWall と同等に扱う。"""
@@ -548,7 +662,6 @@ class mazeMap:
 
     def renderKnownTileAndWall(self) -> str:
         """tileTypes と wallTypes をまとめて、UNKNOWNのみの行列が出ない範囲でASCII表示する。"""
-        min_x, min_y, max_x, max_y, min_z, max_z = self._get_known_bounds()
 
         def tile_char(x: int, y: int, z: int) -> str:
             if (x, y, z) == self.currentPosition:
@@ -590,43 +703,50 @@ class mazeMap:
         lines: list[str] = []
         cx, cy, cz = self.currentPosition
         lines.append(
-            f"Known map area: x={min_x}..{max_x}, y={min_y}..{max_y}, z={min_z}..{max_z} (current=@ at {cx},{cy},{cz})"
+            f"Current position: ({cx}, {cy}, {cz}), front direction: {self.frontDirection}"
         )
 
-        # 上端(NORTH)
-        top = ["+"]
-        for x in range(min_x, max_x + 1):
-            top.append(
-                "---"
-                if wall_at(x, min_y, min_z, mazeEnums.absDirection.NORTH)
-                else "   "
+        for z in range(self.knownLayerCount):
+            min_x, min_y, max_x, max_y = self._get_known_bounds(z)
+            lines.append(
+                f"Layer {z} (altitude={self.layerInfo[z].altitude}cm, offset=({self.layerInfo[z].x_offset}cm, {self.layerInfo[z].y_offset}cm)):"
             )
-            top.append("+")
-        lines.append("".join(top))
+            lines.append(f"Known map area: x={min_x}..{max_x}, y={min_y}..{max_y}")
 
-        for y in range(min_y, max_y + 1):
-            row = []
-            # 左端(WEST)
-            row.append(
-                "|" if wall_at(min_x, y, min_z, mazeEnums.absDirection.WEST) else " "
-            )
+            # 上端(NORTH)
+            top = ["+"]
             for x in range(min_x, max_x + 1):
-                row.append(f" {tile_char(x, y, min_z)} ")
-                row.append(
-                    "|" if wall_at(x, y, min_z, mazeEnums.absDirection.EAST) else " "
-                )
-            lines.append("".join(row))
-
-            # 下端(SOUTH)
-            sep = ["+"]
-            for x in range(min_x, max_x + 1):
-                sep.append(
+                top.append(
                     "---"
-                    if wall_at(x, y, min_z, mazeEnums.absDirection.SOUTH)
+                    if wall_at(x, min_y, z, mazeEnums.absDirection.NORTH)
                     else "   "
                 )
-                sep.append("+")
-            lines.append("".join(sep))
+                top.append("+")
+            lines.append("".join(top))
+
+            for y in range(min_y, max_y + 1):
+                row = []
+                # 左端(WEST)
+                row.append(
+                    "|" if wall_at(min_x, y, z, mazeEnums.absDirection.WEST) else " "
+                )
+                for x in range(min_x, max_x + 1):
+                    row.append(f" {tile_char(x, y, z)} ")
+                    row.append(
+                        "|" if wall_at(x, y, z, mazeEnums.absDirection.EAST) else " "
+                    )
+                lines.append("".join(row))
+
+                # 下端(SOUTH)
+                sep = ["+"]
+                for x in range(min_x, max_x + 1):
+                    sep.append(
+                        "---"
+                        if wall_at(x, y, z, mazeEnums.absDirection.SOUTH)
+                        else "   "
+                    )
+                    sep.append("+")
+                lines.append("".join(sep))
 
         return "\n".join(lines)
 
