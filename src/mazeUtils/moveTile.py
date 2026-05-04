@@ -984,11 +984,17 @@ def moveTile(
                 )
                 time.sleep(0.05)
                 logger.debug(f"Tof:{stmInstance.tof.getDistance()[ 2 if stmInstance.gyro.getValue().roll < 180 else 0 ]}, nowDist: {nowDist:.1f} cm, nowHeight: {nowhight:.1f} cm")
-            stmInstance.sts3032.stop()
-            time.sleep(0.5)
+            # stmInstance.sts3032.stop()
+            # time.sleep(0.5)
             logger.info(
                 f"Detected big ramp, height: {nowhight:.1f} cm, distance: {nowDist:.1f} cm"
             )
+            stmInstance.sts3032.setMotorSpeed(
+                {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
+            )
+            time.sleep(0.15)
+            stmInstance.sts3032.stop()
+            time.sleep(0.5)
             mapInstance.setSlope(direction, nowDist, nowhight)
 
         ###### 黒タイル回避処理 ######
@@ -1108,30 +1114,30 @@ def moveTile(
 
     ##### 上り坂をのぼった後の被災者検知 #####
     oldTime = time.time()
-    if isBigUpperRamp and (not isBigRamp):
-        turnToCertainDirection((direction.value + 30) % 360, stmInstance)
-        t = time.time()
-        while time.time() - t < 0.5:
-            stmInstance.update()
-            unitvStatus = stmInstance.unitv.getStatus()
-            for s in deviceEnums.Side:
-                if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
-                    getVictimDict[s][unitvStatus[s]] += 1
-                    logger.debug(
-                        f"Detected victim info during big upper ramp movement: {unitvStatus}"
-                    )
-        turnToCertainDirection((direction.value - 30) % 360, stmInstance)
-        t = time.time()
-        while time.time() - t < 0.5:
-            stmInstance.update()
-            unitvStatus = stmInstance.unitv.getStatus()
-            for s in deviceEnums.Side:
-                if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
-                    getVictimDict[s][unitvStatus[s]] += 1
-                    logger.debug(
-                        f"Detected victim info during big upper ramp movement: {unitvStatus}"
-                    )
-        turnToCertainDirection(direction.value, stmInstance)
+    # if isBigUpperRamp and (not isBigRamp):
+    #     turnToCertainDirection((direction.value + 30) % 360, stmInstance)
+    #     t = time.time()
+    #     while time.time() - t < 0.5:
+    #         stmInstance.update()
+    #         unitvStatus = stmInstance.unitv.getStatus()
+    #         for s in deviceEnums.Side:
+    #             if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
+    #                 getVictimDict[s][unitvStatus[s]] += 1
+    #                 logger.debug(
+    #                     f"Detected victim info during big upper ramp movement: {unitvStatus}"
+    #                 )
+    #     turnToCertainDirection((direction.value - 30) % 360, stmInstance)
+    #     t = time.time()
+    #     while time.time() - t < 0.5:
+    #         stmInstance.update()
+    #         unitvStatus = stmInstance.unitv.getStatus()
+    #         for s in deviceEnums.Side:
+    #             if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
+    #                 getVictimDict[s][unitvStatus[s]] += 1
+    #                 logger.debug(
+    #                     f"Detected victim info during big upper ramp movement: {unitvStatus}"
+    #                 )
+    #     turnToCertainDirection(direction.value, stmInstance)
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)
