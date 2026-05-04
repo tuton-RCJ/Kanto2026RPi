@@ -350,6 +350,18 @@ class mazeMap:
         """
         x, y, z = self.currentPosition
 
+        # horizontalDistanceが30cmの倍数になるように調整
+        new_horizontalDistance = (
+            round(horizontalDistance / mazeConstraints.TILE_SIZE_CM)
+            * mazeConstraints.TILE_SIZE_CM
+        )
+        verticalDistance = (
+            verticalDistance * (new_horizontalDistance / horizontalDistance)
+            if horizontalDistance != 0
+            else verticalDistance
+        )
+        horizontalDistance = new_horizontalDistance
+
         nextLayerAltitude = self.layerInfo[z].altitude + verticalDistance
         existingLayer = self.existsLayerWithinAltitude(nextLayerAltitude)
         if existingLayer is not None:
@@ -519,15 +531,15 @@ class mazeMap:
             logger.debug(
                 f"Moving to wall direction: {direction}\n{self.renderKnownTileAndWall()}"
             )
-
-        if direction == mazeEnums.absDirection.NORTH:
-            self.currentPosition = (x, y - 1, z)
-        elif direction == mazeEnums.absDirection.EAST:
-            self.currentPosition = (x + 1, y, z)
-        elif direction == mazeEnums.absDirection.SOUTH:
-            self.currentPosition = (x, y + 1, z)
-        elif direction == mazeEnums.absDirection.WEST:
-            self.currentPosition = (x - 1, y, z)
+        self.currentPosition = self.mazeAsGraph[z][y][x][direction]  # type: ignore
+        # if direction == mazeEnums.absDirection.NORTH:
+        #     self.currentPosition = (x, y - 1, z)
+        # elif direction == mazeEnums.absDirection.EAST:
+        #     self.currentPosition = (x + 1, y, z)
+        # elif direction == mazeEnums.absDirection.SOUTH:
+        #     self.currentPosition = (x, y + 1, z)
+        # elif direction == mazeEnums.absDirection.WEST:
+        #     self.currentPosition = (x - 1, y, z)
         self.updateFrontDirection(direction)
 
     def updateFrontDirection(self, direction: mazeEnums.absDirection) -> None:

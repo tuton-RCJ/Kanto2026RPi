@@ -67,7 +67,7 @@ def main():
             moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
             mapInstance.saveCache()
             logger.info("Initial Map:")
-            logger.debug(mapInstance.renderKnownTileAndWall())
+            logger.info(mapInstance.renderKnownTileAndWall())
 
             nextDirection = mapInstance.getNearestUnexploredTile()
             logger.info(f"Next Direction: {nextDirection}")
@@ -81,7 +81,7 @@ def main():
                     isBlack, stopped = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
-                    logger.debug(mapInstance.renderKnownTileAndWall())
+                    logger.info(mapInstance.renderKnownTileAndWall())
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
                         logger.info("Exploration resumed.")
@@ -114,7 +114,7 @@ def main():
                         isLop = True
                         break
 
-                    logger.debug(mapInstance.renderKnownTileAndWall())
+                    logger.info(mapInstance.renderKnownTileAndWall())
             if isLop:
                 continue
 
@@ -128,7 +128,7 @@ def main():
                 color=(255, 255, 255),
             )  # Flash white LED to indicate completion
             stmInstance.sts3032.stop()
-            logger.debug(mapInstance.renderKnownTileAndWall())
+            logger.info(mapInstance.renderKnownTileAndWall())
 
             ### LoP検出後の再開処理
             while not stmInstance.switch.getToggleSwitch1():

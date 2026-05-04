@@ -243,8 +243,6 @@ def regulationAngle(angle: int | float) -> int | float:
     return angle
 
 
-
-
 def isSilverTile() -> bool:
     """
     @brief カラーセンサで銀タイルを検出する
@@ -658,7 +656,6 @@ def findVictimDuringMove(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     isWallAhead: dict[deviceEnums.Side, bool],
-
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None],
     getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]],
     practicalMoveTime: float,
@@ -678,7 +675,9 @@ def findVictimDuringMove(
                 % 360
             )
         ]
-        | mapInstance.getSeenVictimType(currentPosX + dx, currentPosY + dy, currentPosZ)[
+        | mapInstance.getSeenVictimType(
+            currentPosX + dx, currentPosY + dy, currentPosZ
+        )[
             mazeEnums.absDirection(
                 (
                     mapInstance.frontDirection.value
@@ -933,29 +932,64 @@ def moveTile(
             and 0 < stmInstance.gyro.getValue().roll < 180
         ):
             isBigUpperRamp = True
-            
+
         ### 坂道を検出したら、平らになるまで直進する
         timeBeforeRamp = time.time()
         if isBigRamp:
             nowDist = 0
             nowhight = 0
-            lastToFDist = stmInstance.tof.getDistance()[2]
-            while  min(
-                stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll
-            ) > 3:
+            stmInstance.sts3032.stop()
+            time.sleep(0.5)
+            stmInstance.sts3032.setMotorSpeed(
+                {deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50}
+            )
+            time.sleep(0.6)
+            stmInstance.sts3032.stop()
+            stmInstance.update()
+            lastToFDist = stmInstance.tof.getDistance()[
+                2 if stmInstance.gyro.getValue().roll < 180 else 0
+            ]
+            logger.info(
+                f"Detected big ramp, lastTofDist: {lastToFDist} cm, roll: {stmInstance.gyro.getValue().roll} deg"
+            )
+            while (
+                min(
+                    stmInstance.gyro.getValue().roll,
+                    360 - stmInstance.gyro.getValue().roll,
+                )
+                > 10
+            ):
                 stmInstance.update()
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
                     return False, True
-                movedDist = stmInstance.tof.getDistance()[2] - lastToFDist  
-                lastToFDist = stmInstance.tof.getDistance()[2]
-                nowDist += movedDist * math.cos(math.radians(stmInstance.gyro.getValue().roll))
-                nowhight += movedDist * math.sin(math.radians(stmInstance.gyro.getValue().roll))
-                stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50})
+                
+                movedDist = (
+                    stmInstance.tof.getDistance()[
+                        2 if stmInstance.gyro.getValue().roll < 180 else 0
+                    ]
+                    - lastToFDist
+                ) *(1 if stmInstance.gyro.getValue().roll < 180 else -1)
+                lastToFDist = stmInstance.tof.getDistance()[
+                    2 if stmInstance.gyro.getValue().roll < 180 else 0
+                ]
+                nowDist += movedDist * math.cos(
+                    math.radians(stmInstance.gyro.getValue().roll)
+                ) 
+                nowhight += movedDist * math.sin(
+                    math.radians(stmInstance.gyro.getValue().roll)
+                )
+                stmInstance.sts3032.setMotorSpeed(
+                    {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
+                )
                 time.sleep(0.05)
-            logger.debug(f"Detected big ramp, height: {nowhight:.1f} cm, distance: {nowDist:.1f} cm")
-            mapInstance.setSlope(direction, nowDist,nowhight)
-            
+                logger.debug(f"Tof:{stmInstance.tof.getDistance()[ 2 if stmInstance.gyro.getValue().roll < 180 else 0 ]}, nowDist: {nowDist:.1f} cm, nowHeight: {nowhight:.1f} cm")
+            stmInstance.sts3032.stop()
+            time.sleep(0.5)
+            logger.info(
+                f"Detected big ramp, height: {nowhight:.1f} cm, distance: {nowDist:.1f} cm"
+            )
+            mapInstance.setSlope(direction, nowDist, nowhight)
 
         ###### 黒タイル回避処理 ######
         escapeFromBlackTileRes = escapeFromBlackTile(
@@ -1037,7 +1071,7 @@ def moveTile(
                 pratical_loop_time = timeBeforeRamp - oldTime
             else:
                 pratical_loop_time = time.time() - oldTime
-                
+
             practicalMoveTime += (
                 pratical_loop_time
                 * np.cos(np.radians(abs(roll)))
@@ -1101,7 +1135,7 @@ def moveTile(
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)
-    
+
     ##### 移動終了時の被災者検出処理 #####
     ##### 移動終了直前、移動終了時に見たもの、上り坂をのぼったあとの特殊処理で見たものについて、ここで救助動作を行う。
     maxVictimInfo = {
