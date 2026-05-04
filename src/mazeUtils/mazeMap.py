@@ -347,7 +347,7 @@ class mazeMap:
             (x, y, z),
             self.frontDirection,
             lambda pos: pos != (x, y, z)
-            and self.tileTypes[pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
+            and self.tileTypes[pos[2]][pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
         )
 
         if path is None:
@@ -528,7 +528,6 @@ class mazeMap:
                             min_z = z
                         if z > max_z:
                             max_z = z
-                    
 
         # 少なくとも START が known のはずだが、念のため。
         if max_x < 0:
@@ -554,7 +553,7 @@ class mazeMap:
         def tile_char(x: int, y: int, z: int) -> str:
             if (x, y, z) == self.currentPosition:
                 return "@"
-            t = self.tileTypes[y][x]
+            t = self.tileTypes[z][y][x]
             # tileType は __str__ 実装済み(U/E/R/...)。
             return str(t)
 
@@ -598,7 +597,9 @@ class mazeMap:
         top = ["+"]
         for x in range(min_x, max_x + 1):
             top.append(
-                "---" if wall_at(x, min_y, min_z, mazeEnums.absDirection.NORTH) else "   "
+                "---"
+                if wall_at(x, min_y, min_z, mazeEnums.absDirection.NORTH)
+                else "   "
             )
             top.append("+")
         lines.append("".join(top))
@@ -606,17 +607,23 @@ class mazeMap:
         for y in range(min_y, max_y + 1):
             row = []
             # 左端(WEST)
-            row.append("|" if wall_at(min_x, y, min_z, mazeEnums.absDirection.WEST) else " ")
+            row.append(
+                "|" if wall_at(min_x, y, min_z, mazeEnums.absDirection.WEST) else " "
+            )
             for x in range(min_x, max_x + 1):
                 row.append(f" {tile_char(x, y, min_z)} ")
-                row.append("|" if wall_at(x, y, min_z, mazeEnums.absDirection.EAST) else " ")
+                row.append(
+                    "|" if wall_at(x, y, min_z, mazeEnums.absDirection.EAST) else " "
+                )
             lines.append("".join(row))
 
             # 下端(SOUTH)
             sep = ["+"]
             for x in range(min_x, max_x + 1):
                 sep.append(
-                    "---" if wall_at(x, y, min_z, mazeEnums.absDirection.SOUTH) else "   "
+                    "---"
+                    if wall_at(x, y, min_z, mazeEnums.absDirection.SOUTH)
+                    else "   "
                 )
                 sep.append("+")
             lines.append("".join(sep))

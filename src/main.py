@@ -98,7 +98,7 @@ def main():
             ##### 帰還開始 #####
 
             stmInstance.buzzer.playMusic(buzzerSongs.hotaru)
-            returnPath = mapInstance.getPathTo((20, 20))
+            returnPath = mapInstance.getPathTo((20, 20, 0))
             logger.info(f"Return Path: {returnPath}")
 
             isLop = False

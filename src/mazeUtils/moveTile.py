@@ -663,10 +663,10 @@ def findVictimDuringMove(
     direction = mapInstance.frontDirection
     dx = mazeEnums.directionToDelta[direction][0]
     dy = mazeEnums.directionToDelta[direction][1]
-    currentPosX, currentPosY = mapInstance.currentPosition
+    currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
 
     avoidVictim = {
-        s: mapInstance.getSeenVictimType(currentPosX, currentPosY)[
+        s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
             mazeEnums.absDirection(
                 (
                     mapInstance.frontDirection.value
@@ -675,7 +675,7 @@ def findVictimDuringMove(
                 % 360
             )
         ]
-        | mapInstance.getSeenVictimType(currentPosX + dx, currentPosY + dy)[
+        | mapInstance.getSeenVictimType(currentPosX + dx, currentPosY + dy, currentPosZ)[
             mazeEnums.absDirection(
                 (
                     mapInstance.frontDirection.value
