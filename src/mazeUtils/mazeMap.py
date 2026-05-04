@@ -105,7 +105,6 @@ class mazeMap:
         self.wallTypes = [[{d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes = [[mazeEnums.tileType.UNKNOWN for _ in range(maxSize)] for _ in range(maxSize)]
         
-        self.wallSeenCount = [[{d: 0 for d in mazeEnums.absDirection} for _ in range(maxSize)] for _ in range(maxSize)]
         self.tileTypes[maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
         self.mazeAsGraph = [[set() for _ in range(maxSize)] for _ in range(maxSize)]
         self.frontDirection = mazeEnums.absDirection.NORTH
@@ -179,13 +178,7 @@ class mazeMap:
         x, y = self.currentPosition
         return self.wallTypes[y][x]
     
-    def getSeenCount(self) -> dict[mazeEnums.absDirection, int]:
-        """
-        @brief 現在位置の壁の検出回数を取得する
-        @return: 現在位置の壁の検出回数の辞書
-        """
-        x, y = self.currentPosition
-        return self.wallSeenCount[y][x]
+
 
     def getTileType(self) -> mazeEnums.tileType:
         """
@@ -195,14 +188,7 @@ class mazeMap:
         x, y = self.currentPosition
         return self.tileTypes[y][x]
         
-    def addSeenCount(self) -> None:
-        """
-        @brief: nowDirection に対して水平な壁の検出回数を増やす
-        """
-        x, y = self.currentPosition
-        for direction in mazeEnums.absDirection:
-            if direction == mazeEnums.absDirection((self.frontDirection.value + 90) % 360) or direction == mazeEnums.absDirection((self.frontDirection.value + 270) % 360):
-                self.wallSeenCount[y][x][direction] += 1
+
     def isSeenVictimType(self, direction: list[mazeEnums.absDirection], victimType: deviceEnums.UnitVStatus) -> bool:
         """
         @brief 指定した方向に見えた被災者タイプが存在するか確認する

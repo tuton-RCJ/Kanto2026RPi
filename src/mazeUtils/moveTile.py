@@ -243,26 +243,6 @@ def regulationAngle(angle: int | float) -> int | float:
     return angle
 
 
-def isUturn(fromDir: int, toDir: int, mapInstance: mazeMap.mazeMap) -> bool:
-    turnAngle = fromDir - toDir
-    if turnAngle > 180:
-        turnAngle -= 360
-    if turnAngle < -180:
-        turnAngle += 360
-
-    if abs(turnAngle) == 180 and (
-        mapInstance.getSeenCount()[
-            mazeEnums.absDirection((mapInstance.frontDirection.value + 90) % 360)
-        ]
-        <= 1
-        and mapInstance.getSeenCount()[
-            mazeEnums.absDirection((mapInstance.frontDirection.value + 270) % 360)
-        ]
-        <= 1
-    ):
-        return True
-    else:
-        return False
 
 
 def isSilverTile() -> bool:
