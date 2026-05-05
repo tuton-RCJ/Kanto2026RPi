@@ -506,9 +506,6 @@ def detectWall(
         mazeEnums.absDirection.SOUTH,
         mazeEnums.absDirection.WEST,
     ]:
-        # すでに壁の有無がわかっている方向はスキップ
-        if mapInstance.getWallType()[direction] != mazeEnums.wallType.UNKNOWN:
-            continue
         angle = (direction.value - currentDirVal + 360) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
         logger.debug(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
@@ -532,6 +529,18 @@ def detectWall(
             #    mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             else:
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+        else:
+            # 壁情報が一致してなかったらエラーとしてログに出す
+            if (
+                (dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
+                and mapInstance.getWallType()[direction] != mazeEnums.wallType.WALL
+            ) or (
+                (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
+                and mapInstance.getWallType()[direction] == mazeEnums.wallType.WALL
+            ):
+                logger.warning(
+                    f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
+                )
 
 
 def getVictimInfo(
@@ -963,23 +972,33 @@ def moveTile(
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
                     return False, True
-                
-                if  abs(stmInstance.tof.getDistance()[2 if stmInstance.gyro.getValue().roll < 180 else 0] - lastToFDist) > 8:
-                    lastToFDist = stmInstance.tof.getDistance()[2 if stmInstance.gyro.getValue().roll < 180 else 0]
+
+                if (
+                    abs(
+                        stmInstance.tof.getDistance()[
+                            2 if stmInstance.gyro.getValue().roll < 180 else 0
+                        ]
+                        - lastToFDist
+                    )
+                    > 8
+                ):
+                    lastToFDist = stmInstance.tof.getDistance()[
+                        2 if stmInstance.gyro.getValue().roll < 180 else 0
+                    ]
                     continue
-                
+
                 movedDist = (
                     stmInstance.tof.getDistance()[
                         2 if stmInstance.gyro.getValue().roll < 180 else 0
                     ]
                     - lastToFDist
-                ) *(1 if stmInstance.gyro.getValue().roll < 180 else -1)
+                ) * (1 if stmInstance.gyro.getValue().roll < 180 else -1)
                 lastToFDist = stmInstance.tof.getDistance()[
                     2 if stmInstance.gyro.getValue().roll < 180 else 0
                 ]
                 nowDist += movedDist * math.cos(
                     math.radians(stmInstance.gyro.getValue().roll)
-                ) 
+                )
                 nowhight += movedDist * math.sin(
                     math.radians(stmInstance.gyro.getValue().roll)
                 )
@@ -987,7 +1006,9 @@ def moveTile(
                     {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
                 )
                 time.sleep(0.05)
-                logger.debug(f"Tof:{stmInstance.tof.getDistance()[ 2 if stmInstance.gyro.getValue().roll < 180 else 0 ]}, nowDist: {nowDist:.1f} cm, nowHeight: {nowhight:.1f} cm")
+                logger.debug(
+                    f"Tof:{stmInstance.tof.getDistance()[ 2 if stmInstance.gyro.getValue().roll < 180 else 0 ]}, nowDist: {nowDist:.1f} cm, nowHeight: {nowhight:.1f} cm"
+                )
             # stmInstance.sts3032.stop()
             # time.sleep(0.5)
             logger.info(
