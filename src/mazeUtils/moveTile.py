@@ -964,6 +964,10 @@ def moveTile(
                     stmInstance.sts3032.stop()
                     return False, True
                 
+                if  abs(stmInstance.tof.getDistance()[2 if stmInstance.gyro.getValue().roll < 180 else 0] - lastToFDist) > 8:
+                    lastToFDist = stmInstance.tof.getDistance()[2 if stmInstance.gyro.getValue().roll < 180 else 0]
+                    continue
+                
                 movedDist = (
                     stmInstance.tof.getDistance()[
                         2 if stmInstance.gyro.getValue().roll < 180 else 0

@@ -58,6 +58,7 @@ def dijkstra(
 
         pos = (x, y, z)
         if goalCondition(pos):
+            logger.info(f"next goal: {pos}")
             # Reconstruct via state chain, then drop heading.
             states: list[tuple[int, int, int, mazeEnums.absDirection]] = []
             cur: tuple[int, int, int, mazeEnums.absDirection] | None = state
@@ -405,6 +406,8 @@ class mazeMap:
                 y,
                 z,
             )
+            self.wallTypes[nextLayer][next_y][next_x][direction.opposite()] = mazeEnums.wallType.NO_WALL
+
         else:
             nextLayer = self.knownLayerCount
             new_x_offset = self.layerInfo[z].x_offset
@@ -440,6 +443,10 @@ class mazeMap:
             ## 新しいレイヤーのグラフを追加
             self.mazeAsGraph[z][y][x][direction] = (x, y, nextLayer)
             self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (x, y, z)
+            
+            # WallTypeも更新
+            self.wallTypes[nextLayer][y][x][direction.opposite()] = mazeEnums.wallType.NO_WALL
+            
 
     # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
     #     """
@@ -767,7 +774,19 @@ class mazeMap:
                     )
                     sep.append("+")
                 lines.append("".join(sep))
-
+        # 既知のすべてのマスについてmazeAsGraphの値を出力
+        for z in range(self.knownLayerCount):
+            for y in range(self.maxSize):
+                for x in range(self.maxSize):
+                    if self._is_known_cell(x, y, z):
+                        neighbors = self.mazeAsGraph[z][y][x]
+                        lines.append(
+                            f"mazeAsGraph[{z}][{y}][{x}] = {{"
+                            + ", ".join(
+                                f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
+                            )
+                            + "}"
+                        )
         return "\n".join(lines)
 
     def _direction_to_display(self, direction: mazeEnums.absDirection) -> int:
