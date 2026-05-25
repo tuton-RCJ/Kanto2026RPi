@@ -20,6 +20,25 @@ MOVE_1cm_TIME = 0.050
 
 def main():
     stmInstance = stm.STM()
+    print(stmInstance.gyro.headingOffset, stmInstance.gyro.rollOffset, stmInstance.gyro.pitchOffset)
+    try:
+        while True:
+            stmInstance.update()
+            print(
+                stmInstance.gyro.getValue().heading,
+                stmInstance.gyro.getValue().roll,
+                stmInstance.gyro.getValue().pitch,
+            )
+            print(
+                stmInstance.gyro.getValue().heading,
+                stmInstance.gyro.getValue().roll,
+                stmInstance.gyro.getValue().pitch,
+            )
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        return
     nowDist = 0
     lastTime = time.time()
     nowhight = 0

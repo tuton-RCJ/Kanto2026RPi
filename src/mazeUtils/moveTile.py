@@ -1158,9 +1158,10 @@ def moveTile(
         mapInstance.setSlope(
             direction,
             (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
-            (targetSteps - 1)
-            * mazeConstraints.TILE_SIZE_CM
-            * math.tan(math.radians(lastRollOnRamp)),
+            (targetSteps - 1) * 15 * (1 if lastRollOnRamp < 180 else -1),
+            # (targetSteps - 1)
+            # * mazeConstraints.TILE_SIZE_CM
+            # * math.tan(math.radians(lastRollOnRamp)),
         )
 
     mapInstance.moveTo(direction)

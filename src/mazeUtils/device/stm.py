@@ -425,6 +425,7 @@ class Loadcell:
         @brief センサが押されているかを取得する
         @return: センサが押されているかの辞書[Side, 押されているか]
         """
+        return {deviceEnums.Side.LEFT: False, deviceEnums.Side.RIGHT: False}
         return self.pressed
 
 
