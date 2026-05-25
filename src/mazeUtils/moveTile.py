@@ -859,6 +859,11 @@ def moveTile(
     isBigUpperRamp = False
     startTime = time.time()
     practicalMoveTime = 0.0
+    targetSteps = (
+        1  # 現在のマスから何マス先の位置まで移動するか。基本は1。坂道では伸ばす。
+    )
+    lastRollOnRamp = 0
+
     oldTime = startTime
     getVictimDict = {
         deviceEnums.Side.LEFT: defaultdict(int),
@@ -927,100 +932,90 @@ def moveTile(
         )
 
         ##### 坂道判定 #####
-        if (
-            min(
-                stmInstance.gyro.getValue().roll, 360 - stmInstance.gyro.getValue().roll
-            )
-            > mazeConstraints.RAMP_DEG_THRESHOLD
-        ):
+        if min(roll, 360 - roll) > mazeConstraints.RAMP_DEG_THRESHOLD:
             isBigRamp = True
         else:
             isBigRamp = False
-        if (
-            stmInstance.gyro.getValue().roll > mazeConstraints.RAMP_DEG_THRESHOLD
-            and 0 < stmInstance.gyro.getValue().roll < 180
-        ):
-            isBigUpperRamp = True
 
         ### 坂道を検出したら、平らになるまで直進する
         timeBeforeRamp = time.time()
-        if isBigRamp:
-            nowDist = 0
-            nowhight = 0
-            stmInstance.sts3032.stop()
-            time.sleep(0.5)
-            stmInstance.sts3032.setMotorSpeed(
-                {deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50}
-            )
-            time.sleep(0.6)
-            stmInstance.sts3032.stop()
-            stmInstance.update()
-            lastToFDist = stmInstance.tof.getDistance()[
-                2 if stmInstance.gyro.getValue().roll < 180 else 0
-            ]
-            logger.info(
-                f"Detected big ramp, lastTofDist: {lastToFDist} cm, roll: {stmInstance.gyro.getValue().roll} deg"
-            )
-            while (
-                min(
-                    stmInstance.gyro.getValue().roll,
-                    360 - stmInstance.gyro.getValue().roll,
-                )
-                > 10
-            ):
-                stmInstance.update()
-                if stmInstance.switch.getToggleSwitch1():
-                    stmInstance.sts3032.stop()
-                    return False, True
+        # if isBigRamp:
+        #     nowDist = 0
+        #     nowhight = 0
+        #     stmInstance.sts3032.stop()
+        #     time.sleep(0.5)
+        #     stmInstance.sts3032.setMotorSpeed(
+        #         {deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50}
+        #     )
+        #     time.sleep(0.6)
+        #     stmInstance.sts3032.stop()
+        #     stmInstance.update()
+        #     lastToFDist = stmInstance.tof.getDistance()[
+        #         2 if stmInstance.gyro.getValue().roll < 180 else 0
+        #     ]
+        #     logger.info(
+        #         f"Detected big ramp, lastTofDist: {lastToFDist} cm, roll: {stmInstance.gyro.getValue().roll} deg"
+        #     )
+        #     while (
+        #         min(
+        #             stmInstance.gyro.getValue().roll,
+        #             360 - stmInstance.gyro.getValue().roll,
+        #         )
+        #         > 10
+        #     ):
+        #         stmInstance.update()
+        #         if stmInstance.switch.getToggleSwitch1():
+        #             stmInstance.sts3032.stop()
+        #             return False, True
 
-                if (
-                    abs(
-                        stmInstance.tof.getDistance()[
-                            2 if stmInstance.gyro.getValue().roll < 180 else 0
-                        ]
-                        - lastToFDist
-                    )
-                    > 8
-                ):
-                    lastToFDist = stmInstance.tof.getDistance()[
-                        2 if stmInstance.gyro.getValue().roll < 180 else 0
-                    ]
-                    continue
+        #         if (
+        #             abs(
+        #                 stmInstance.tof.getDistance()[
+        #                     2 if stmInstance.gyro.getValue().roll < 180 else 0
+        #                 ]
+        #                 - lastToFDist
+        #             )
+        #             > 8
+        #         ):
+        #             lastToFDist = stmInstance.tof.getDistance()[
+        #                 2 if stmInstance.gyro.getValue().roll < 180 else 0
+        #             ]
+        #             continue
 
-                movedDist = (
-                    stmInstance.tof.getDistance()[
-                        2 if stmInstance.gyro.getValue().roll < 180 else 0
-                    ]
-                    - lastToFDist
-                ) * (1 if stmInstance.gyro.getValue().roll < 180 else -1)
-                lastToFDist = stmInstance.tof.getDistance()[
-                    2 if stmInstance.gyro.getValue().roll < 180 else 0
-                ]
-                nowDist += movedDist * math.cos(
-                    math.radians(stmInstance.gyro.getValue().roll)
-                )
-                nowhight += movedDist * math.sin(
-                    math.radians(stmInstance.gyro.getValue().roll)
-                )
-                stmInstance.sts3032.setMotorSpeed(
-                    {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
-                )
-                time.sleep(0.05)
-                logger.debug(
-                    f"Tof:{stmInstance.tof.getDistance()[ 2 if stmInstance.gyro.getValue().roll < 180 else 0 ]}, nowDist: {nowDist:.1f} cm, nowHeight: {nowhight:.1f} cm"
-                )
-            # stmInstance.sts3032.stop()
-            # time.sleep(0.5)
-            logger.info(
-                f"Detected big ramp, height: {nowhight:.1f} cm, distance: {nowDist:.1f} cm"
-            )
-            stmInstance.sts3032.setMotorSpeed(
-                {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
-            )
-            time.sleep(0.15)
-            stmInstance.sts3032.stop()
-            time.sleep(0.5)
-            mapInstance.setSlope(direction, nowDist, nowhight)
+        #         movedDist = (
+        #             stmInstance.tof.getDistance()[
+        #                 2 if stmInstance.gyro.getValue().roll < 180 else 0
+        #             ]
+        #             - lastToFDist
+        #         ) * (1 if stmInstance.gyro.getValue().roll < 180 else -1)
+        #         lastToFDist = stmInstance.tof.getDistance()[
+        #             2 if stmInstance.gyro.getValue().roll < 180 else 0
+        #         ]
+        #         nowDist += movedDist * math.cos(
+        #             math.radians(stmInstance.gyro.getValue().roll)
+        #         )
+        #         nowhight += movedDist * math.sin(
+        #             math.radians(stmInstance.gyro.getValue().roll)
+        #         )
+        #         stmInstance.sts3032.setMotorSpeed(
+        #             {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
+        #         )
+        #         time.sleep(0.05)
+        #         logger.debug(
+        #             f"Tof:{stmInstance.tof.getDistance()[ 2 if stmInstance.gyro.getValue().roll < 180 else 0 ]}, nowDist: {nowDist:.1f} cm, nowHeight: {nowhight:.1f} cm"
+        #         )
+        #     # stmInstance.sts3032.stop()
+        #     # time.sleep(0.5)
+        #     logger.info(
+        #         f"Detected big ramp, height: {nowhight:.1f} cm, distance: {nowDist:.1f} cm"
+        #     )
+        #     stmInstance.sts3032.setMotorSpeed(
+        #         {deviceEnums.Side.LEFT: 30, deviceEnums.Side.RIGHT: 30}
+        #     )
+        #     time.sleep(0.15)
+        #     stmInstance.sts3032.stop()
+        #     time.sleep(0.5)
+        #     mapInstance.setSlope(direction, nowDist, nowhight)
 
         ###### 黒タイル回避処理 ######
         escapeFromBlackTileRes = escapeFromBlackTile(
@@ -1062,17 +1057,11 @@ def moveTile(
                 time.sleep(0.1)
 
         ###### 1マス移動完了判定（時間制御） ######
-        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC:
+        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
             if isBigRamp:
-                if (
-                    stmInstance.tof.getDistance()[2]
-                    - mazeConstraints.CAR_HEIGHT
-                    * math.tan(math.radians(stmInstance.gyro.getValue().roll))
-                    < mazeConstraints.RAMP_END_THRESHOLD_CM
-                ):
-                    # 登り坂バンプの対策として、上り坂では後ろまでの距離が一定以上になるまでは停止しない
-                    # 1マスの坂にしか対応できていないので後でこれは消す。
-                    continue
+                targetSteps += 1
+                lastRollOnRamp = roll
+                continue
             stmInstance.sts3032.stop()
             break
         if (
@@ -1163,6 +1152,16 @@ def moveTile(
     #                     f"Detected victim info during big upper ramp movement: {unitvStatus}"
     #                 )
     #     turnToCertainDirection(direction.value, stmInstance)
+
+    ##### 坂を上ったのであればマップに登録 #####
+    if targetSteps > 1:
+        mapInstance.setSlope(
+            direction,
+            (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
+            (targetSteps - 1)
+            * mazeConstraints.TILE_SIZE_CM
+            * math.tan(math.radians(lastRollOnRamp)),
+        )
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)

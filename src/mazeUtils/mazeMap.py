@@ -346,8 +346,8 @@ class mazeMap:
         """
         @brief 指定した方向に坂があると設定する
         @param direction: 坂がある方向
-        @param horizontalDistance: 水平距離
-        @param verticalDistance: 垂直距離
+        @param horizontalDistance: 水平距離 (cm)
+        @param verticalDistance: 垂直距離 (cm)
         """
         x, y, z = self.currentPosition
 
