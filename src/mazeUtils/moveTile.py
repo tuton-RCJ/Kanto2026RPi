@@ -828,9 +828,10 @@ def moveTile(
     debugPrint(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
-    turnToCertainDirection(
-        direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
-    )
+    if direction != mapInstance.frontDirection:
+        turnToCertainDirection(
+            direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
+        )
     mapInstance.updateFrontDirection(direction)
     point = LiDAR.getLiDARScan(lidar)
     """
@@ -1155,14 +1156,19 @@ def moveTile(
 
     ##### 坂を上ったのであればマップに登録 #####
     if targetSteps > 1:
-        mapInstance.setSlope(
-            direction,
-            (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
-            (targetSteps - 1) * 15 * (1 if lastRollOnRamp < 180 else -1),
-            # (targetSteps - 1)
-            # * mazeConstraints.TILE_SIZE_CM
-            # * math.tan(math.radians(lastRollOnRamp)),
-        )
+        if targetSteps == 2:   
+            mapInstance.setSlope(
+                direction,
+                (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
+                (targetSteps - 1) * 15 * (1 if lastRollOnRamp < 180 else -1),
+            )
+        else:
+            mapInstance.setSlope(
+                direction,
+                (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
+                (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM * math.tan(math.radians(lastRollOnRamp)),
+            )
+            
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)

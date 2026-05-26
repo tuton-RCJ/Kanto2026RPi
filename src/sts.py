@@ -34,7 +34,7 @@ def main():
                 stmInstance.gyro.getValue().roll,
                 stmInstance.gyro.getValue().pitch,
             )
-            time.sleep(0.5)
+            time.sleep(0.2)
     except KeyboardInterrupt:
         pass
     finally:
