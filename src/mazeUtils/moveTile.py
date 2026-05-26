@@ -864,6 +864,7 @@ def moveTile(
         1  # 現在のマスから何マス先の位置まで移動するか。基本は1。坂道では伸ばす。
     )
     lastRollOnRamp = 0
+    RampFinishTime = 0
 
     oldTime = startTime
     getVictimDict = {
@@ -937,6 +938,10 @@ def moveTile(
             isBigRamp = True
         else:
             isBigRamp = False
+            
+        if targetSteps > 1 and min(roll, 360 - roll) < 10 and RampFinishTime == 0:
+            RampFinishTime = time.time()
+            print(f"Ramp finished, RampFinishTile : {RampFinishTime }")
 
         ### 坂道を検出したら、平らになるまで直進する
         timeBeforeRamp = time.time()
@@ -1063,6 +1068,10 @@ def moveTile(
                 targetSteps += 1
                 lastRollOnRamp = roll
                 continue
+
+            # print(time.time()-RampFinishTime)
+            # if targetSteps > 1 and ((time.time() - RampFinishTime) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.5):
+            #     time.sleep(mazeConstraints.MOVE_STRAIGHT_SEC * 0.5 - (time.time() - RampFinishTime))
             stmInstance.sts3032.stop()
             break
         if (
@@ -1168,8 +1177,6 @@ def moveTile(
                 (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
                 (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM * math.tan(math.radians(lastRollOnRamp)),
             )
-            
-
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)
 
