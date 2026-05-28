@@ -6,6 +6,7 @@ from . import (
 	deviceEnums,
 	photoReflector,
 	stm,
+	tsd10,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
 	"deviceEnums",
 	"photoReflector",
 	"stm",
+	"tsd10",
 ]
