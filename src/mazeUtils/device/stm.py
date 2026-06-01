@@ -8,6 +8,7 @@ from config import get_logger
 from . import deviceConstraints as deviceConst
 from . import deviceEnums
 from .buzzerSongs import MusicData, detectedVictim
+from . import tsd10
 
 
 from . import buzzerSongs
@@ -678,6 +679,8 @@ class STM:
         # self.camled: CamLED = CamLED()
         self.tof: ToF = ToF()
         self.buzzer: Buzzer = Buzzer()
+        self.frontTSD10: tsd10.TSD10 = tsd10.TSD10(port="/dev/ttyUSB0")
+        self.frontTSD10.start()
 
     def update(self) -> bool:
         global stmUART

@@ -161,10 +161,10 @@ class mazeMap:
         )
         self.knownLayerCount = 1  # すでに登録済みのレイヤー数
 
-        try:
-            self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
-        except Exception as exc:
-            logger.warning(f"ArduinoNanoEveryUART init failed: {exc}")
+        # try:
+        #     self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
+        # except Exception as exc:
+        #     logger.warning(f"ArduinoNanoEveryUART init failed: {exc}")
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
@@ -775,18 +775,18 @@ class mazeMap:
                     sep.append("+")
                 lines.append("".join(sep))
         # 既知のすべてのマスについてmazeAsGraphの値を出力
-        for z in range(self.knownLayerCount):
-            for y in range(self.maxSize):
-                for x in range(self.maxSize):
-                    if self._is_known_cell(x, y, z):
-                        neighbors = self.mazeAsGraph[z][y][x]
-                        lines.append(
-                            f"mazeAsGraph[{z}][{y}][{x}] = {{"
-                            + ", ".join(
-                                f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
-                            )
-                            + "}"
-                        )
+        # for z in range(self.knownLayerCount):
+        #     for y in range(self.maxSize):
+        #         for x in range(self.maxSize):
+        #             if self._is_known_cell(x, y, z):
+        #                 neighbors = self.mazeAsGraph[z][y][x]
+        #                 lines.append(
+        #                     f"mazeAsGraph[{z}][{y}][{x}] = {{"
+        #                     + ", ".join(
+        #                         f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
+        #                     )
+        #                     + "}"
+        #                 )
         return "\n".join(lines)
 
     def _direction_to_display(self, direction: mazeEnums.absDirection) -> int:

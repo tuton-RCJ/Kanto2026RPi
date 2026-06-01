@@ -22,7 +22,7 @@ def main():
     # USBシリアル変換モジュールの場合、通常 '/dev/ttyUSB0' や '/dev/ttyACM0' になります。
     # ボーレートはTSD10の既定値（不明な場合は通常 9600 や 115200 など）に合わせ変化させてください。
     sensor = tsd10.TSD10(port='/dev/ttyUSB0', baudrate=460800)
-
+    lidar = LiDAR.initializeLidar()
     try:
         print("センサーを開始します...")
         sensor.start()
@@ -37,7 +37,9 @@ def main():
                     print("測定範囲外エラー")
                 else:
                     print(f"距離: {distance} mm")
-            
+            points = LiDAR.getLiDARScan(lidar)
+            dist = LiDAR.getCertainAngleDist(0, points)
+            print(f"LiDAR前方距離: {dist} cm")
             # CPU負荷を下げるためのわずかなウェイト
             # time.sleep(2)
 

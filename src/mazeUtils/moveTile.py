@@ -500,6 +500,7 @@ def detectWall(
         points = LiDAR.getLiDARScan(lidar)
     currentDirVal = mapInstance.frontDirection.value
     stmInstance.update()
+    stmInstance.frontTSD10.update()
     for direction in [
         mazeEnums.absDirection.NORTH,
         mazeEnums.absDirection.EAST,
@@ -529,6 +530,17 @@ def detectWall(
             #    mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             else:
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+
+            if angle == 0:
+                if (
+                    dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
+                    and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                    > mazeConstraints.WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM
+                ):
+                    mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                    logger.debug(
+                        f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
+                    )
         else:
             # 壁情報が一致してなかったらエラーとしてログに出す
             if (
@@ -989,8 +1001,8 @@ def moveTile(
                 targetSteps += 1
                 RollonRamp.append(stmInstance.gyro.getValue().roll)
                 continue
-            debugPrint(
-                f"practicalVerticalMove: {practicalVerticalMoveTime*mazeConstraints.TILE_SIZE_CM/mazeConstraints.MOVE_STRAIGHT_SEC} sec"
+            logger.info(
+                f"practicalVerticalMove: {practicalVerticalMoveTime*mazeConstraints.TILE_SIZE_CM/mazeConstraints.MOVE_STRAIGHT_SEC} CM"
             )
             # print(time.time()-RampFinishTime)
             # if targetSteps > 1 and ((time.time() - RampFinishTime) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.5):
@@ -1026,9 +1038,9 @@ def moveTile(
             practicalMoveTime += (
                 pratical_loop_time
                 * np.cos(np.radians(abs(roll)))
-                * (1 if roll > 180 else 0.9)
+                * (1 if roll > 180 else 0.85)
             )
-            practicalVerticalMoveTime = practicalMoveTime * math.tan(math.radians(roll))
+            practicalVerticalMoveTime += pratical_loop_time * math.sin(math.radians(roll))* (1 if roll > 180 else 0.85)
 
         debugPrint(
             f"roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec"
@@ -1108,6 +1120,17 @@ def moveTile(
                                 % 360
                             ),
                             mazeEnums.wallType.WALL,
+                        )
+                        # 前後にはNO_WALLを設定
+                        mapInstance.setWallType(
+                            mazeEnums.absDirection(
+                                (
+                                    direction.value
+                                    + (0 if s == deviceEnums.Side.LEFT else 180)
+                                )
+                                % 360
+                            ),
+                            mazeEnums.wallType.NO_WALL,
                         )
             else:
                 mapInstance.setSlope(
