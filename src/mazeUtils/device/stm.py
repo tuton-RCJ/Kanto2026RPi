@@ -402,9 +402,9 @@ class Loadcell:
             self.raw[side] = value
             if self.minValue <= value < self.maxValue:
                 if value > self.THRESHOLD:
-                    self.pressed[side] = True
-                else:
                     self.pressed[side] = False
+                else:
+                    self.pressed[side] = True
             else:
                 logger.warning(
                     "Value out of range: "
@@ -425,7 +425,7 @@ class Loadcell:
         @brief センサが押されているかを取得する
         @return: センサが押されているかの辞書[Side, 押されているか]
         """
-        return {deviceEnums.Side.LEFT: False, deviceEnums.Side.RIGHT: False}
+        # return {deviceEnums.Side.LEFT: False, deviceEnums.Side.RIGHT: False}
         return self.pressed
 
 
