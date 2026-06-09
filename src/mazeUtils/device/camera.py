@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 from picamera2 import Picamera2, Preview
 from libcamera import controls
 import time
@@ -11,6 +12,7 @@ logger = get_logger(__name__)
 
 current_frame = None
 save_requested = False
+CAMERA_DISABLED = True
 
 
 class CameraColorDetector:
@@ -79,6 +81,17 @@ class CameraColorDetector:
         self.picam2.stop()
 
 
+class NullCameraDetector:
+    def __init__(self):
+        logger.warning("Camera disabled mode is active")
+
+    def detectTileColor(self):
+        return "UNKNOWN"
+
+    def stop(self):
+        pass
+
+
 def judge_color(image_bgr):
     return CameraColorDetector.judge_color(image_bgr)
 
@@ -89,13 +102,19 @@ _default_detector = None
 def _get_default_detector():
     global _default_detector
     if _default_detector is None:
-        _default_detector = CameraColorDetector()
+        if CAMERA_DISABLED:
+            _default_detector = NullCameraDetector()
+            return _default_detector
+        try:
+            _default_detector = CameraColorDetector()
+        except Exception as exc:
+            logger.error("Failed to initialize camera: %s", exc)
+            raise RuntimeError("Camera is not available or already in use") from exc
         atexit.register(_default_detector.stop)
     return _default_detector
 
 
 def detectTileColor():
     return _get_default_detector().detectTileColor()
-
 
 _get_default_detector()

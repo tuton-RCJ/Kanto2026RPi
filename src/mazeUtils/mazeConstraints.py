@@ -35,7 +35,7 @@ MOVE_THRESHOLD_CM: int = (
     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 )
 MOVE_STRAIGHT_THRESHOLD_CM: int = (
-    15  # 直進時に前方との距離がこの値以下になったら停止する
+    17  # 直進時に前方との距離がこの値以下になったら停止する
 )
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
@@ -80,7 +80,7 @@ RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THRESHOLD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 0.96  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 0.85  # 1マス直進にかかる時間
 MIN_MOVE_STRAIGHT_SEC: float = 0.8  # 最短で1マス直進にかかると考えられる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
