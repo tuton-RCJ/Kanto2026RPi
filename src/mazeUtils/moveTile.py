@@ -532,6 +532,9 @@ def detectWall(
                 mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
 
             if angle == 0:
+                logger.debug(
+                    f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
+                )
                 if (
                     dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
                     and (dist - stmInstance.frontTSD10.get_distance() / 10)
@@ -813,7 +816,24 @@ def findVictimDuringMove(
                     victimRescueFlag = True
     return victimRescueFlag
 
-
+def turnWith45VictimCheck(targetDir: mazeEnums.absDirection,
+    stmInstance: stm.STM,
+    mapInstance: mazeMap.mazeMap):
+    """
+    @brief 回転する際に45度で止まって被災者を確認する関数
+    @param targetDir: 目標の絶対方向 (0-359)
+    """
+    
+    turnDir = targetDir.value - mapInstance.frontDirection.value
+    # 現在のマスの周囲の壁情報
+    current
+    if turnDir == 90:
+        # 前と右に壁があるなら、途中で止まる
+        
+    
+    
+    
+    
 def moveTile(
     direction: mazeEnums.absDirection,
     mapInstance: mazeMap.mazeMap,

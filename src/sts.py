@@ -23,7 +23,17 @@ def main():
     # ボーレートはTSD10の既定値（不明な場合は通常 9600 や 115200 など）に合わせ変化させてください。
     sensor = tsd10.TSD10(port='/dev/ttyUSB0', baudrate=460800)
     lidar = LiDAR.initializeLidar()
+    stmInstance = stm.STM()
+    
     try:
+        stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: 70, deviceEnums.Side.RIGHT: 70})
+        time.sleep(30)
+        stmInstance.sts3032.stop()
+        # while True:
+        #     stmInstance.frontTSD10.update()
+        #     print(f"TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm")
+        #     time.sleep(1)
+            
         print("センサーを開始します...")
         sensor.start()
         
@@ -49,6 +59,8 @@ def main():
         print("センサーを停止します...")
         sensor.stop()
         sensor.close()
+        stmInstance.sts3032.stop()
+        
 
 # def main():
 #     stmInstance = stm.STM()

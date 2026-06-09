@@ -53,7 +53,7 @@ RAMP_END_THRESHOLD_CM: int = 28
 TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
 
 TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
-    15  # 複数の救助キットを投下する際に回転する角度
+    0  # 複数の救助キットを投下する際に回転する角度
 )
 
 MIN_TILE_DETECTION_THRESHOLD: int = 10  # タイル検出の最小回数閾値

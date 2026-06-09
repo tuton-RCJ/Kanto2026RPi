@@ -2,7 +2,7 @@ import serial
 import time
 
 class TSD10:
-    def __init__(self, port='/dev/ttyUSB0', baudrate=115200, timeout=0.1):
+    def __init__(self, port='/dev/ttyUSB0', baudrate=460800, timeout=0.1):
         """
         TSD10センサークラスの初期化
         :param port: シリアルポートのパス (環境に合わせて変更してください)
