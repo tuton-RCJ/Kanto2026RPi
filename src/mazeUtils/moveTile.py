@@ -198,13 +198,13 @@ def escapeFromObstacle(deviceEnumsSide: deviceEnums.Side, stmInstance: stm.STM) 
     stmInstance.sts3032.setMotorSpeed(
         {deviceEnums.Side.LEFT: -30, deviceEnums.Side.RIGHT: -30}
     )
-    time.sleep(0.2)
+    time.sleep(0.3)
     if deviceEnumsSide == deviceEnums.Side.LEFT:
-        stmInstance.sts3032.turnRight(30)
-        time.sleep(0.2)
+        stmInstance.sts3032.turnRight(40)
+        time.sleep(0.3)
     else:
-        stmInstance.sts3032.turnLeft(30)
-        time.sleep(0.2)
+        stmInstance.sts3032.turnLeft(40)
+        time.sleep(0.3)
     stmInstance.sts3032.stop()
 
 
@@ -816,19 +816,19 @@ def findVictimDuringMove(
                     victimRescueFlag = True
     return victimRescueFlag
 
-def turnWith45VictimCheck(targetDir: mazeEnums.absDirection,
-    stmInstance: stm.STM,
-    mapInstance: mazeMap.mazeMap):
-    """
-    @brief 回転する際に45度で止まって被災者を確認する関数
-    @param targetDir: 目標の絶対方向 (0-359)
-    """
+# def turnWith45VictimCheck(targetDir: mazeEnums.absDirection,
+#     stmInstance: stm.STM,
+#     mapInstance: mazeMap.mazeMap):
+#     """
+#     @brief 回転する際に45度で止まって被災者を確認する関数
+#     @param targetDir: 目標の絶対方向 (0-359)
+#     """
     
-    turnDir = targetDir.value - mapInstance.frontDirection.value
-    # 現在のマスの周囲の壁情報
-    current
-    if turnDir == 90:
-        # 前と右に壁があるなら、途中で止まる
+#     turnDir = targetDir.value - mapInstance.frontDirection.value
+#     # 現在のマスの周囲の壁情報
+#     current
+#     if turnDir == 90:
+#         # 前と右に壁があるなら、途中で止まる
         
     
     
@@ -872,6 +872,30 @@ def moveTile(
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
         return False, False
     """
+    stmInstance.sts3032.stop()
+    
+    ###### 移動前、真後ろが壁であれば位置調整 ######
+    pts = LiDAR.getLiDARScan(lidar)
+    behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
+    target_behind_dist = 20
+    if 0 < behind_wall_dist < 30:
+        stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED if behind_wall_dist < target_behind_dist else {
+    deviceEnums.Side.LEFT: -30,
+    deviceEnums.Side.RIGHT: -30,
+})
+        debugPrint("Little backward to adjust position")
+        while True:
+            stmInstance.update()
+            if stmInstance.switch.getToggleSwitch1():
+                stmInstance.sts3032.stop()
+                return False, True
+            scanPoints = LiDAR.getLiDARScan(lidar)
+            heading = stmInstance.gyro.getValue().heading
+            currentDist = LiDAR.getCertainAngleDist(
+                180, scanPoints
+            )
+            if (currentDist > target_behind_dist) == (behind_wall_dist < target_behind_dist):
+                break
     stmInstance.sts3032.stop()
 
     stmInstance.update()
@@ -1011,7 +1035,7 @@ def moveTile(
                 logger.debug(
                     f"Obstacle escape adjustment: {(time.time() - oldTime) * np.cos(np.radians(abs(stmInstance.gyro.getValue().roll))) * 0.1}"
                 )
-                practicalMoveTime -= 0.1
+                practicalMoveTime -= 0.16
                 escapeFlag = True
                 time.sleep(0.1)
                 stmInstance.update()

@@ -35,7 +35,7 @@ MOVE_THRESHOLD_CM: int = (
     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
 )
 MOVE_STRAIGHT_THRESHOLD_CM: int = (
-    17  # 直進時に前方との距離がこの値以下になったら停止する
+    15  # 直進時に前方との距離がこの値以下になったら停止する
 )
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
@@ -47,7 +47,7 @@ WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら�
 WALL_FOLLOW_TARGET_DIST_CM: float = 16.5  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
-WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
+WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 10.0  # この角度誤差以内なら壁距離制御も併用
 
 RAMP_END_THRESHOLD_CM: int = 28
 TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
