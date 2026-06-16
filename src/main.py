@@ -67,7 +67,6 @@ def main():
         while True:
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
-            mapInstance.saveCache()
             logger.info("Initial Map:")
             logger.info(mapInstance.renderKnownTileAndWall())
 
