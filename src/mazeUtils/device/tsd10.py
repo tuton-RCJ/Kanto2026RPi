@@ -67,7 +67,7 @@ class TSD10:
 
     def _verify_checksum(self, l: int, h: int, check: int) -> bool:
         """チェックサムの検証"""
-        # Pythonは型上限がないため、& 0xFF で8ビット（uint8_t相当）にマスクします
+        # Pythonは型上限がないため、& 0xFF で8ビット（uint8_t相当）にマスクする
         total_sum = (l + h) & 0xFF
         # ビット反転（~）を行い、再度8ビットにマスク
         inverted = (~total_sum) & 0xFF

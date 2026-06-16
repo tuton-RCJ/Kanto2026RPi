@@ -7,6 +7,7 @@ from . import (
 	photoReflector,
 	stm,
 	tsd10,
+	rearSTM,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
 	"photoReflector",
 	"stm",
 	"tsd10",
+	"rearSTM",
 ]

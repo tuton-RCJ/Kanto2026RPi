@@ -9,6 +9,7 @@ from . import deviceConstraints as deviceConst
 from . import deviceEnums
 from .buzzerSongs import MusicData, detectedVictim
 from . import tsd10
+from . import rearSTM
 
 
 from . import buzzerSongs
@@ -697,6 +698,7 @@ class STM:
         self.buzzer: Buzzer = Buzzer()
         self.frontTSD10: tsd10.TSD10 = tsd10.TSD10(port="/dev/ttyUSB0")
         self.frontTSD10.start()
+        self.rearSTM: rearSTM.RearSTM = rearSTM.RearSTM(port="/dev/ttyUSB1")
 
     def update(self) -> bool:
         global stmUART
