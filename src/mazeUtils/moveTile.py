@@ -29,7 +29,7 @@ def turnOnLED(
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
-    mapInstance.arduinoNanoEvery.victimled(color)
+    # mapInstance.arduinoNanoEvery.victimled(color)
 
 
 def turnOffLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap) -> None:
@@ -38,7 +38,7 @@ def turnOffLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap) -> None:
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(0, 0, 0)
-    mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
+    # mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
 
 
 def flashLED(
@@ -840,6 +840,8 @@ def turnWith45VictimCheck(
         turnDir = 90
     for _c in range(cnt):
         if turnDir == 90 or turnDir == 270:
+            if turnDir == 270:
+                turnDir = -90
             # 前と右に壁があるなら、途中で止まる
 
             watchVictimFlag = {  # 45度回転後に見るか
@@ -872,7 +874,14 @@ def turnWith45VictimCheck(
                     != mazeEnums.wallType.NO_WALL
                 ):
                     watchVictimFlag[s] = True
-
+            if (not watchVictimFlag[deviceEnums.Side.LEFT]) and (not watchVictimFlag[deviceEnums.Side.RIGHT]):
+                turnToCertainDirection(
+                    (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
+                    stmInstance,
+                    rescueVictim=False,
+                    mapInstance=mapInstance,
+                )
+                continue
             # まず45度周る
             turnToCertainDirection(
                 (mapInstance.frontDirection.value + turnDir * _c + turnDir // 2) % 360,
@@ -962,8 +971,10 @@ def moveTile(
         return False, True
 
     isRedTile = detectTileColor() == mazeEnums.tileType.RED
-    isUnknownTileAhead = mapInstance.getTileType(direction) == mazeEnums.tileType.UNKNOWN
-    
+    isUnknownTileAhead = (
+        mapInstance.getTileType(direction) == mazeEnums.tileType.UNKNOWN
+    )
+
     debugPrint(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
@@ -1037,8 +1048,12 @@ def moveTile(
     if not isUnknownTileAhead:
         _dist_to_next_tile = mapInstance.getDistanceToNextTile(direction)
         if _dist_to_next_tile is not None:
-            targetSteps = round(_dist_to_next_tile / mazeConstraints.TILE_SIZE_CM)  # 目標とするステップ数を計算
-            logger.debug(f"Calculated target steps to next tile: {targetSteps} based on distance {_dist_to_next_tile} cm")
+            targetSteps = round(
+                _dist_to_next_tile / mazeConstraints.TILE_SIZE_CM
+            )  # 目標とするステップ数を計算
+            logger.debug(
+                f"Calculated target steps to next tile: {targetSteps} based on distance {_dist_to_next_tile} cm"
+            )
 
     RollonRamp = []
     RampFinishTime = 0
@@ -1330,7 +1345,7 @@ def moveTile(
                         True,
                     )
                 else:
-                    mapInstance.setMovedVerticalDistance(0,False)
+                    mapInstance.setMovedVerticalDistance(0, False)
         else:
             if RollonRamp[0] < 180 and RollonRamp[-1] > 180:  # 階段だった
                 for i in range(targetSteps - 1):
@@ -1359,7 +1374,7 @@ def moveTile(
                             mazeEnums.wallType.NO_WALL,
                         )
                 for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0,False)
+                    mapInstance.setMovedVerticalDistance(0, False)
             else:
                 mapInstance.setSlope(
                     direction,
@@ -1369,7 +1384,7 @@ def moveTile(
                     * math.tan(math.radians(RollonRamp[-1])),
                 )
                 for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0,False)
+                    mapInstance.setMovedVerticalDistance(0, False)
 
     #### movedVerticalDistanceを更新、上り坂検出下り坂未検出の階段検知
     if targetSteps == 1 and isUnknownTileAhead:

@@ -232,7 +232,7 @@ class mazeMap:
                 return self.wallTypes[z][y][x - 1]
         return self.wallTypes[z][y][x]
 
-    def getTileType(self,direction: mazeEnums.absDirection|None) -> mazeEnums.tileType:
+    def getTileType(self,direction: mazeEnums.absDirection|None = None) -> mazeEnums.tileType:
         """
         @brief 現在位置のタイルタイプを取得する
         @return: 現在位置のタイルタイプ
@@ -409,7 +409,7 @@ class mazeMap:
             # グラフ情報更新
             ## direction方向のグラフを削除
             if self.mazeAsGraph[z][y][x][direction] is not None:
-                _x, _y, _z = self.mazeAsGraph[z][y][x][direction]  # type: ignore
+                _x, _y, _z, _d = self.mazeAsGraph[z][y][x][direction]  # type: ignore
                 self.mazeAsGraph[z][y][x][direction] = None
                 self.mazeAsGraph[_z][_y][_x][direction.opposite()] = None
 
@@ -455,7 +455,7 @@ class mazeMap:
             # グラフ情報更新
             ## direction方向のグラフを削除
             if self.mazeAsGraph[z][y][x][direction] is not None:
-                _x, _y, _z = self.mazeAsGraph[z][y][x][direction]  # type: ignore
+                _x, _y, _z, _d = self.mazeAsGraph[z][y][x][direction]  # type: ignore
                 self.mazeAsGraph[z][y][x][direction] = None
                 self.mazeAsGraph[_z][_y][_x][direction.opposite()] = None
 
@@ -537,7 +537,10 @@ class mazeMap:
             nextX, nextY, nextZ = path[i]
             for direction in mazeEnums.absDirection:
                 neighbor = self.mazeAsGraph[currZ][currY][currX][direction]
-                if neighbor == (nextX, nextY, nextZ):
+                if neighbor is None:
+                    continue
+                nx, ny, nz, _d = neighbor
+                if (nx, ny, nz) == (nextX, nextY, nextZ):
                     directions.append(direction)
                     break
 
@@ -567,7 +570,10 @@ class mazeMap:
             nextX, nextY, nextZ = path[i]
             for direction in mazeEnums.absDirection:
                 neighbor = self.mazeAsGraph[currZ][currY][currX][direction]
-                if neighbor == (nextX, nextY, nextZ):
+                if neighbor is None:
+                    continue
+                nx, ny, nz, _d = neighbor
+                if (nx, ny, nz) == (nextX, nextY, nextZ):
                     directions.append(direction)
                     break
 
@@ -583,7 +589,7 @@ class mazeMap:
             logger.debug(
                 f"Moving to wall direction: {direction}\n{self.renderKnownTileAndWall()}"
             )
-        self.currentPosition = self.mazeAsGraph[z][y][x][direction]  # type: ignore
+        self.currentPosition = self.mazeAsGraph[z][y][x][direction][0:3]  # type: ignore
         # if direction == mazeEnums.absDirection.NORTH:
         #     self.currentPosition = (x, y - 1, z)
         # elif direction == mazeEnums.absDirection.EAST:

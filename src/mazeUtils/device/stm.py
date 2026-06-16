@@ -387,9 +387,10 @@ class UnitV:
                 1 if enable else 0,
             ]
         )
-        return stmUART.requestActuatorControl(
-            deviceEnums.ActuatorControlType.UNITV_45_MODE, data
-        )
+        # return stmUART.requestActuatorControl(
+        #     deviceEnums.ActuatorControlType.UNITV_45_MODE, data
+        # )
+        return True
 
 
 class Loadcell:
