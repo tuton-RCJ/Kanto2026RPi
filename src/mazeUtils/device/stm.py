@@ -373,6 +373,22 @@ class UnitV:
         @return: 最終更新時間の辞書[Side, 時間(ms)]
         """
         return self.lastUpdateTime
+    
+    def set45Mode(self, enable:bool):
+        """
+        @brief 45度回転の時のモードを設定する
+        @param enable: 45度回転の時に被災者検出をするかどうか
+        """
+        global stmUART
+
+        data: bytes = bytes(
+            [
+                1 if enable else 0,
+            ]
+        )
+        return stmUART.requestActuatorControl(
+            deviceEnums.ActuatorControlType.UNITV_45_MODE, data
+        )
 
 
 class Loadcell:

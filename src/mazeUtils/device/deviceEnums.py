@@ -28,6 +28,7 @@ class ActuatorControlType(Enum):
     LED = bytes([3])
     BUZZER = bytes([4])
     CAMLED = bytes([5])
+    UNITV_45_MODE = bytes([6])
     def dataLength(self):
         if self == ActuatorControlType.STS_MOTOR:
             return 2
@@ -38,4 +39,6 @@ class ActuatorControlType(Enum):
         elif self == ActuatorControlType.BUZZER:
             # 可変長: 音符数(1byte) + 各音符(周波数2byte, 長さ2byte) * N
             return -1
+        elif self == ActuatorControlType.UNITV_45_MODE:
+            return 1
         return -1

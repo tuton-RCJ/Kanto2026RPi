@@ -284,6 +284,8 @@ def turnToCertainDirection(
     @brief 指定した絶対方向に向く
     @param targetDir: 目標の絶対方向 (0-359)
     @param stmInstance: 通信に使用する STM インスタンス
+    @param rescueVictim: 回転中に被災者を救助するかどうか
+    @param mapInstance: 迷路のマップインスタンス。rescueVictimがTrueのときには必要
     """
 
     stmInstance.update()
@@ -593,7 +595,7 @@ def dropRescueKit(
     oppositeFlag = False
     tileColor = detectTileColor()
     firstHeading = stmInstance.gyro.getValue().heading
-    if tileColor == mazeEnums.tileType.RED:
+    if tileColor == mazeEnums.tileType.RED:  # 床色が赤ならレスキューキットを落とさない
         return
     for i in range(needRescueKitCount):
         if (
@@ -762,6 +764,7 @@ def findVictimDuringMove(
                 if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
                     getVictimDict[side][victimInfo[side]] += 1
                     logger.debug(f"Detected victim info during movement: {victimInfo}")
+
             if (
                 practicalMoveTime - lastUpdateTime / 1000
             ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:  # 移動開始直後ならば
@@ -816,24 +819,120 @@ def findVictimDuringMove(
                     victimRescueFlag = True
     return victimRescueFlag
 
-# def turnWith45VictimCheck(targetDir: mazeEnums.absDirection,
-#     stmInstance: stm.STM,
-#     mapInstance: mazeMap.mazeMap):
-#     """
-#     @brief 回転する際に45度で止まって被災者を確認する関数
-#     @param targetDir: 目標の絶対方向 (0-359)
-#     """
-    
-#     turnDir = targetDir.value - mapInstance.frontDirection.value
-#     # 現在のマスの周囲の壁情報
-#     current
-#     if turnDir == 90:
-#         # 前と右に壁があるなら、途中で止まる
-        
-    
-    
-    
-    
+
+def turnWith45VictimCheck(
+    targetDir: mazeEnums.absDirection,
+    stmInstance: stm.STM,
+    mapInstance: mazeMap.mazeMap,
+):
+    """
+    @brief 回転する際に45度で止まって被災者を確認する関数
+    @param targetDir: 目標の絶対方向 (0-359)
+    """
+
+    turnDir = (
+        targetDir.value - mapInstance.frontDirection.value + 360
+    ) % 360  # 回転する角度
+
+    cnt = 1
+    if turnDir == 180:
+        cnt = 2
+        turnDir = 90
+    for _c in range(cnt):
+        if turnDir == 90 or turnDir == 270:
+            # 前と右に壁があるなら、途中で止まる
+
+            watchVictimFlag = {  # 45度回転後に見るか
+                deviceEnums.Side.LEFT: False,
+                deviceEnums.Side.RIGHT: False,
+            }
+            for s in deviceEnums.Side:
+                if (
+                    mapInstance.getWallType()[  # 回転する前
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + turnDir * _c
+                                + (90 if s == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ]
+                    != mazeEnums.wallType.NO_WALL
+                    and mapInstance.getWallType()[  # 回転した後
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + turnDir * (_c + 1)
+                                + (90 if s == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ]
+                    != mazeEnums.wallType.NO_WALL
+                ):
+                    watchVictimFlag[s] = True
+
+            # まず45度周る
+            turnToCertainDirection(
+                (mapInstance.frontDirection.value + turnDir * _c + turnDir // 2) % 360,
+                stmInstance,
+                rescueVictim=True,
+                mapInstance=mapInstance,
+            )
+
+            # 被災者を確認する
+            startTime = time.time()
+            stmInstance.unitv.set45Mode(True)
+            while (
+                time.time() - startTime
+                < mazeConstraints.DETECT_VICTIM_45_CHECK_TIME_SEC
+            ):
+                stmInstance.update()
+                victimInfo = getVictimInfo(stmInstance)
+                for s in deviceEnums.Side:
+                    #  見るべき方向に被災者がいて、かつ見たことのない被災者ならば救助キットを落とす
+                    if (
+                        watchVictimFlag[s]
+                        and victimInfo[s] != deviceEnums.UnitVStatus.NOTHING
+                        and not mapInstance.isSeenVictimType(
+                            [mazeEnums.absDirection(
+                            mapInstance.frontDirection.value
+                            ),mazeEnums.absDirection(
+                                (mapInstance.frontDirection.value + turnDir) % 360)],
+                            victimInfo[s],
+                        )
+                    ):
+                        logger.info(
+                            f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during 45-degree turn check: {victimInfo[s]}"
+                        )
+                        mapInstance.addSeenVictimType(
+                            [mazeEnums.absDirection(
+                            mapInstance.frontDirection.value
+                            ),mazeEnums.absDirection(
+                                (mapInstance.frontDirection.value + turnDir) % 360)],
+                            victimInfo[s],
+                        )
+                        dropRescueKit(stmInstance, mapInstance, victimInfo, s)
+                        logger.info(
+                            f"Dropped rescue kit, detected victim info: {victimInfo}"
+                        )
+
+                if stmInstance.switch.getToggleSwitch1():
+                    stmInstance.sts3032.stop()
+                    return
+
+            stmInstance.unitv.set45Mode(False)
+
+            # もう45度回る
+            turnToCertainDirection(
+                (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
+                stmInstance,
+                rescueVictim=True,
+                mapInstance=mapInstance,
+            )
+
+
 def moveTile(
     direction: mazeEnums.absDirection,
     mapInstance: mazeMap.mazeMap,
@@ -861,9 +960,13 @@ def moveTile(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
     if direction != mapInstance.frontDirection:
-        turnToCertainDirection(
-            direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
-        )
+        if mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK:
+            turnWith45VictimCheck(direction, stmInstance, mapInstance)
+        else:
+            turnToCertainDirection(
+                direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
+            )
+        
     mapInstance.updateFrontDirection(direction)
     point = LiDAR.getLiDARScan(lidar)
     """
@@ -873,16 +976,20 @@ def moveTile(
         return False, False
     """
     stmInstance.sts3032.stop()
-    
+
     ###### 移動前、真後ろが壁であれば位置調整 ######
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
     target_behind_dist = 20
     if 0 < behind_wall_dist < 30:
-        stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED if behind_wall_dist < target_behind_dist else {
-    deviceEnums.Side.LEFT: -30,
-    deviceEnums.Side.RIGHT: -30,
-})
+        stmInstance.sts3032.setMotorSpeed(
+            mazeConstraints.GO_STRAIGHT_LOW_SPEED
+            if behind_wall_dist < target_behind_dist
+            else {
+                deviceEnums.Side.LEFT: -30,
+                deviceEnums.Side.RIGHT: -30,
+            }
+        )
         debugPrint("Little backward to adjust position")
         while True:
             stmInstance.update()
@@ -891,10 +998,10 @@ def moveTile(
                 return False, True
             scanPoints = LiDAR.getLiDARScan(lidar)
             heading = stmInstance.gyro.getValue().heading
-            currentDist = LiDAR.getCertainAngleDist(
-                180, scanPoints
-            )
-            if (currentDist > target_behind_dist) == (behind_wall_dist < target_behind_dist):
+            currentDist = LiDAR.getCertainAngleDist(180, scanPoints)
+            if (currentDist > target_behind_dist) == (
+                behind_wall_dist < target_behind_dist
+            ):
                 break
     stmInstance.sts3032.stop()
 
@@ -1084,7 +1191,11 @@ def moveTile(
                 * np.cos(np.radians(abs(roll)))
                 * (1 if roll > 180 else 0.85)
             )
-            practicalVerticalMoveTime += pratical_loop_time * math.sin(math.radians(roll))* (1 if roll > 180 else 0.85)
+            practicalVerticalMoveTime += (
+                pratical_loop_time
+                * math.sin(math.radians(roll))
+                * (1 if roll > 180 else 0.85)
+            )
 
         debugPrint(
             f"roll: {stmInstance.gyro.getValue().roll} deg, practicalMoveTime: {practicalMoveTime} sec"
@@ -1198,7 +1309,7 @@ def moveTile(
         for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
     for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-        if (
+        if (  # 壁ですか？？
             mapInstance.getWallType()[
                 mazeEnums.absDirection(
                     (
@@ -1211,7 +1322,9 @@ def moveTile(
             == mazeEnums.wallType.NO_WALL
         ):
             continue
-        if not (consequentSearchRes[side] is None):
+        if not (
+            consequentSearchRes[side] is None
+        ):  # 連続壁被災者検出をしていたら、addSeenVictimだけする
             mapInstance.addSeenVictimType(
                 [
                     mazeEnums.absDirection(
@@ -1224,7 +1337,7 @@ def moveTile(
                 ],
                 consequentSearchRes[side],
             )
-        elif (
+        elif (  # 見たことがない、被災者を発見した、壁がある　ならばレスキューキットを落とす
             mapInstance.isSeenVictimType(
                 [
                     mazeEnums.absDirection(
@@ -1250,7 +1363,7 @@ def moveTile(
             ]
             == mazeEnums.wallType.WALL
         ):
-
+            # SeenVictimTypeに追加。
             mapInstance.addSeenVictimType(
                 [
                     mazeEnums.absDirection(
@@ -1265,6 +1378,7 @@ def moveTile(
             )
 
             logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+
             dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
 
     ###### 銀・青タイル判別処理 ######

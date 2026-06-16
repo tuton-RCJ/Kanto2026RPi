@@ -99,8 +99,13 @@ RAMP_TOF_THRESHOLD = 4
 JUDGE_RAMP_LIDAR_THRESHOLD = 50
 
 DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {
-    deviceEnums.Side.LEFT: 6,
-    deviceEnums.Side.RIGHT: 6,
+    deviceEnums.Side.LEFT: 4,
+    deviceEnums.Side.RIGHT: 4,
 }  # 各サイドの初期レスキューキットの数
 
 DEBUG_MODE: bool = True  # デバッグモードの有効化
+
+
+# 45度回転の時の被災者検出のパラメータ
+USE_45_TURN_WITH_VICTIM_CHECK: bool = True  # 45度回転の時に被災者検出をするかどうか
+DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
