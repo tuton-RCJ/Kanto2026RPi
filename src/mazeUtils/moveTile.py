@@ -946,7 +946,6 @@ def moveTile(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     lidar: ydlidar.CYdLidar,
-    firstTime: float,
 ) -> tuple[bool, bool]:
     """
     @brief direction の方向へ一マス移動する
@@ -963,7 +962,8 @@ def moveTile(
         return False, True
 
     isRedTile = detectTileColor() == mazeEnums.tileType.RED
-
+    isUnknownTileAhead = mapInstance.getTileType(direction) == mazeEnums.tileType.UNKNOWN
+    
     debugPrint(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
@@ -1034,6 +1034,12 @@ def moveTile(
     targetSteps = (
         1  # 現在のマスから何マス先の位置まで移動するか。基本は1。坂道では伸ばす。
     )
+    if not isUnknownTileAhead:
+        _dist_to_next_tile = mapInstance.getDistanceToNextTile(direction)
+        if _dist_to_next_tile is not None:
+            targetSteps = round(_dist_to_next_tile / mazeConstraints.TILE_SIZE_CM)  # 目標とするステップ数を計算
+            logger.debug(f"Calculated target steps to next tile: {targetSteps} based on distance {_dist_to_next_tile} cm")
+
     RollonRamp = []
     RampFinishTime = 0
     practicalVerticalMoveTime = 0.0  # practicalMoveTimeにtanθをかけた値。鉛直方向の移動距離を見積もるために使用。
@@ -1157,7 +1163,7 @@ def moveTile(
 
         ###### 1マス移動完了判定（時間制御） ######
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
-            if isBigRamp:
+            if isUnknownTileAhead and isBigRamp:
                 targetSteps += 1
                 RollonRamp.append(stmInstance.gyro.getValue().roll)
                 continue
@@ -1262,7 +1268,7 @@ def moveTile(
     #     turnToCertainDirection(direction.value, stmInstance)
 
     ##### 坂を上ったのであればマップに登録 #####
-    if targetSteps > 1:
+    if targetSteps > 1 and isUnknownTileAhead:
         if targetSteps == 2:
 
             # 登り坂では坂検知をしなかったが、下り坂で坂検知をした時の例外処理
@@ -1366,7 +1372,7 @@ def moveTile(
                     mapInstance.setMovedVerticalDistance(0,False)
 
     #### movedVerticalDistanceを更新、上り坂検出下り坂未検出の階段検知
-    if targetSteps == 1:
+    if targetSteps == 1 and isUnknownTileAhead:
         pastMovedVerticalDistance = mapInstance.getMovedVerticalDistance()
         thisMovedVerticalDistance = (
             practicalVerticalMoveTime
@@ -1538,8 +1544,7 @@ def moveNextTile(
     @param lidar: 使用する LiDAR インスタンス
     @return: isBlackTile, stoppedByToggleSwitch
     """
-    firstTime = time.time()
-    isBlack, stopped = moveTile(direction, mapInstance, stmInstance, lidar, firstTime)
+    isBlack, stopped = moveTile(direction, mapInstance, stmInstance, lidar)
 
     if not isBlack:
         stmInstance.sts3032.stop()
