@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 class RearSTM:
     def __init__(
         self,
-        port: str = "/dev/ttyUSB0",  # ttyACM0 : Arduino nano every, ttyUSB0 : 06-Display Board(CH340E)
+        port: str = "/dev/ttyAMA3",  # ttyACM0 : Arduino nano every, ttyUSB0 : 06-Display Board(CH340E)
         baudrate: int = 115200,
         timeout: float = 0.5,
     ):

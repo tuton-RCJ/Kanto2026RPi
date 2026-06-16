@@ -1,7 +1,6 @@
 from . import mazeEnums
 from . import mazeConstraints
 from .device import deviceEnums
-from .device.arduinoNanoEvery import ArduinoNanoEveryUART, _NullArduinoNanoEveryUART
 from config import get_logger
 import heapq
 import itertools
@@ -142,9 +141,7 @@ class mazeMap:
             for _ in range(maxLayer)
         ]
         self.frontDirection = mazeEnums.absDirection.NORTH
-        self.arduinoNanoEvery: ArduinoNanoEveryUART | _NullArduinoNanoEveryUART = (
-            _NullArduinoNanoEveryUART()
-        )
+        
         self.seenVictimType = [
             [
                 [{d: set() for d in mazeEnums.absDirection} for _ in range(maxSize)]
@@ -841,4 +838,4 @@ class mazeMap:
     def updateArduinoStatus(self) -> None:
         x, y, z = self.currentPosition
         direction = self._direction_to_display(self.frontDirection)
-        self.arduinoNanoEvery.update_oled(x, y, direction)
+        # self.arduinoNanoEvery.update_oled(x, y, direction)
