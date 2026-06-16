@@ -1285,11 +1285,9 @@ def moveTile(
     ##### 坂を上ったのであればマップに登録 #####
     if targetSteps > 1 and isUnknownTileAhead:
         if targetSteps == 2:
-
+            pastMovedVerticalDistance = mapInstance.getMovedVerticalDistance()
             # 登り坂では坂検知をしなかったが、下り坂で坂検知をした時の例外処理
-            if RollonRamp[0] > 180:
-                pastMovedVerticalDistance = mapInstance.getMovedVerticalDistance()
-                if (
+            if (RollonRamp[0] > 180 and
                     abs(
                         sum(d for d, _ in pastMovedVerticalDistance)
                         + practicalVerticalMoveTime
@@ -1325,8 +1323,9 @@ def moveTile(
                             ),
                             mazeEnums.wallType.NO_WALL,
                         )
-                for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0, False)
+                    for _ in range(3):
+                        mapInstance.setMovedVerticalDistance(0, False)
+                    
             else:
                 mapInstance.setSlope(
                     direction,

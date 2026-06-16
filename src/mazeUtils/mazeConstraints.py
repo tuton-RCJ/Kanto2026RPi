@@ -80,7 +80,7 @@ RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THRESHOLD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 0.72  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 0.85  # 1マス直進にかかる時間
 MIN_MOVE_STRAIGHT_SEC: float = 0.8  # 最短で1マス直進にかかると考えられる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 
