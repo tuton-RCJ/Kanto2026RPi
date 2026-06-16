@@ -161,15 +161,17 @@ class mazeMap:
         )
         self.knownLayerCount = 1  # すでに登録済みのレイヤー数
 
-        # try:
-        #     self.arduinoNanoEvery = ArduinoNanoEveryUART(port="/dev/ttyUSB0")
-        # except Exception as exc:
-        #     logger.warning(f"ArduinoNanoEveryUART init failed: {exc}")
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
         self.saveCache()
         self.updateArduinoStatus()
+
+        # 直前に上った坂の鉛直距離を3マス分保持
+        self.movedVerticalDistanceNUM = 3
+        self.movedVerticalDistance: list[tuple[float, bool]] = [
+            (0, False) for _ in range(self.movedVerticalDistanceNUM)
+        ]  # 1個前、2個前、3個前の坂の鉛直距離(cm)と坂検知をしたかのフラグ
 
     def setWallType(
         self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType
@@ -350,18 +352,18 @@ class mazeMap:
         @param verticalDistance: 垂直距離 (cm)
         """
         x, y, z = self.currentPosition
-
-        # horizontalDistanceが30cmの倍数になるように調整
-        new_horizontalDistance = (
-            round(horizontalDistance / mazeConstraints.TILE_SIZE_CM)
-            * mazeConstraints.TILE_SIZE_CM
-        )
-        verticalDistance = (
-            verticalDistance * (new_horizontalDistance / horizontalDistance)
-            if horizontalDistance != 0
-            else verticalDistance
-        )
-        horizontalDistance = new_horizontalDistance
+        if horizontalDistance != 0:
+            # horizontalDistanceが30cmの倍数になるように調整
+            new_horizontalDistance = (
+                round(horizontalDistance / mazeConstraints.TILE_SIZE_CM)
+                * mazeConstraints.TILE_SIZE_CM
+            )
+            verticalDistance = (
+                verticalDistance * (new_horizontalDistance / horizontalDistance)
+                if horizontalDistance != 0
+                else verticalDistance
+            )
+            horizontalDistance = new_horizontalDistance
 
         nextLayerAltitude = self.layerInfo[z].altitude + verticalDistance
         existingLayer = self.existsLayerWithinAltitude(nextLayerAltitude)
@@ -406,7 +408,9 @@ class mazeMap:
                 y,
                 z,
             )
-            self.wallTypes[nextLayer][next_y][next_x][direction.opposite()] = mazeEnums.wallType.NO_WALL
+            self.wallTypes[nextLayer][next_y][next_x][
+                direction.opposite()
+            ] = mazeEnums.wallType.NO_WALL
 
         else:
             nextLayer = self.knownLayerCount
@@ -443,10 +447,28 @@ class mazeMap:
             ## 新しいレイヤーのグラフを追加
             self.mazeAsGraph[z][y][x][direction] = (x, y, nextLayer)
             self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (x, y, z)
-            
+
             # WallTypeも更新
-            self.wallTypes[nextLayer][y][x][direction.opposite()] = mazeEnums.wallType.NO_WALL
-            
+            self.wallTypes[nextLayer][y][x][
+                direction.opposite()
+            ] = mazeEnums.wallType.NO_WALL
+
+    def setMovedVerticalDistance(self, distance: float, isSlopeDetected: bool) -> None:
+        """
+        @brief 直前に移動した坂の鉛直距離を更新する
+        @param distance: 直前に移動した坂の鉛直距離（cm）
+        @param isSlopeDetected: 坂検知をしたかのフラグ
+        """
+        for i in range(self.movedVerticalDistanceNUM - 1, 0, -1):
+            self.movedVerticalDistance[i] = self.movedVerticalDistance[i - 1]
+        self.movedVerticalDistance[0] = (distance, isSlopeDetected)
+
+    def getMovedVerticalDistance(self) -> list[tuple[float, bool]]:
+        """
+        @brief 直前に移動した坂の鉛直距離を取得する
+        @return: 直前に移動した坂の鉛直距離のリスト（cm）と坂検知をしたかのフラグ
+        """
+        return self.movedVerticalDistance[:]
 
     # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
     #     """

@@ -896,10 +896,14 @@ def turnWith45VictimCheck(
                         watchVictimFlag[s]
                         and victimInfo[s] != deviceEnums.UnitVStatus.NOTHING
                         and not mapInstance.isSeenVictimType(
-                            [mazeEnums.absDirection(
-                            mapInstance.frontDirection.value
-                            ),mazeEnums.absDirection(
-                                (mapInstance.frontDirection.value + turnDir) % 360)],
+                            [
+                                mazeEnums.absDirection(
+                                    mapInstance.frontDirection.value
+                                ),
+                                mazeEnums.absDirection(
+                                    (mapInstance.frontDirection.value + turnDir) % 360
+                                ),
+                            ],
                             victimInfo[s],
                         )
                     ):
@@ -907,10 +911,14 @@ def turnWith45VictimCheck(
                             f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during 45-degree turn check: {victimInfo[s]}"
                         )
                         mapInstance.addSeenVictimType(
-                            [mazeEnums.absDirection(
-                            mapInstance.frontDirection.value
-                            ),mazeEnums.absDirection(
-                                (mapInstance.frontDirection.value + turnDir) % 360)],
+                            [
+                                mazeEnums.absDirection(
+                                    mapInstance.frontDirection.value
+                                ),
+                                mazeEnums.absDirection(
+                                    (mapInstance.frontDirection.value + turnDir) % 360
+                                ),
+                            ],
                             victimInfo[s],
                         )
                         dropRescueKit(stmInstance, mapInstance, victimInfo, s)
@@ -966,7 +974,7 @@ def moveTile(
             turnToCertainDirection(
                 direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
             )
-        
+
     mapInstance.updateFrontDirection(direction)
     point = LiDAR.getLiDARScan(lidar)
     """
@@ -1146,6 +1154,7 @@ def moveTile(
                 escapeFlag = True
                 time.sleep(0.1)
                 stmInstance.update()
+
         ###### 1マス移動完了判定（時間制御） ######
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
             if isBigRamp:
@@ -1255,11 +1264,67 @@ def moveTile(
     ##### 坂を上ったのであればマップに登録 #####
     if targetSteps > 1:
         if targetSteps == 2:
-            mapInstance.setSlope(
-                direction,
-                (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
-                (targetSteps - 1) * 15 * (1 if RollonRamp[-1] < 180 else -1),
-            )
+
+            # 登り坂では坂検知をしなかったが、下り坂で坂検知をした時の例外処理
+            if RollonRamp[0] > 180:
+                pastMovedVerticalDistance = mapInstance.getMovedVerticalDistance()
+                if (
+                    abs(
+                        sum(d for d, _ in pastMovedVerticalDistance)
+                        + practicalVerticalMoveTime
+                        * mazeConstraints.TILE_SIZE_CM
+                        / mazeConstraints.MOVE_STRAIGHT_SEC
+                    )
+                    < mazeConstraints.STAIR_THRESHOLD_CM
+                ):
+                    logger.info(
+                        "Detected ramp but regarded it as down stairs, treating as normal tile"
+                    )
+                    mapInstance.moveTo(direction)
+                    # 左右に壁を設定
+                    for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                        mapInstance.setWallType(
+                            mazeEnums.absDirection(
+                                (
+                                    direction.value
+                                    + (90 if s == deviceEnums.Side.LEFT else 270)
+                                )
+                                % 360
+                            ),
+                            mazeEnums.wallType.WALL,
+                        )
+                        # 前後にはNO_WALLを設定
+                        mapInstance.setWallType(
+                            mazeEnums.absDirection(
+                                (
+                                    direction.value
+                                    + (0 if s == deviceEnums.Side.LEFT else 180)
+                                )
+                                % 360
+                            ),
+                            mazeEnums.wallType.NO_WALL,
+                        )
+                for _ in range(3):
+                    mapInstance.setMovedVerticalDistance(0, False)
+            else:
+                mapInstance.setSlope(
+                    direction,
+                    (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
+                    (targetSteps - 1)
+                    * 15
+                    * (
+                        1 if RollonRamp[-1] < 180 else -1
+                    ),  # 1マスなら15cmの高さ差があると仮定する。
+                )
+                if RollonRamp[-1] < 180:
+                    mapInstance.setMovedVerticalDistance(
+                        practicalVerticalMoveTime
+                        * mazeConstraints.TILE_SIZE_CM
+                        / mazeConstraints.MOVE_STRAIGHT_SEC,
+                        True,
+                    )
+                else:
+                    mapInstance.setMovedVerticalDistance(0,False)
         else:
             if RollonRamp[0] < 180 and RollonRamp[-1] > 180:  # 階段だった
                 for i in range(targetSteps - 1):
@@ -1287,6 +1352,8 @@ def moveTile(
                             ),
                             mazeEnums.wallType.NO_WALL,
                         )
+                for _ in range(3):
+                    mapInstance.setMovedVerticalDistance(0,False)
             else:
                 mapInstance.setSlope(
                     direction,
@@ -1295,6 +1362,43 @@ def moveTile(
                     * mazeConstraints.TILE_SIZE_CM
                     * math.tan(math.radians(RollonRamp[-1])),
                 )
+                for _ in range(3):
+                    mapInstance.setMovedVerticalDistance(0,False)
+
+    #### movedVerticalDistanceを更新、上り坂検出下り坂未検出の階段検知
+    if targetSteps == 1:
+        pastMovedVerticalDistance = mapInstance.getMovedVerticalDistance()
+        thisMovedVerticalDistance = (
+            practicalVerticalMoveTime
+            * mazeConstraints.TILE_SIZE_CM
+            / mazeConstraints.MOVE_STRAIGHT_SEC
+        )
+        if (
+            sum(d for d, _ in pastMovedVerticalDistance) + thisMovedVerticalDistance
+            < mazeConstraints.STAIR_THRESHOLD_CM
+            and thisMovedVerticalDistance < 0
+        ):
+
+            # 上りのときの坂検出していたか確認
+            if any(d > 0 and isSlope for d, isSlope in pastMovedVerticalDistance):
+                logger.info(
+                    "Detected stair after up ramp, set 0cm slope on stair tile."
+                )
+
+                mapInstance.setSlope(
+                    direction, 0, -15
+                )  # 1マスで移動した時しかこのように判断しないはずなので、高さ差15cmの坂。
+
+                for _ in range(3):
+                    mapInstance.setMovedVerticalDistance(0, False)
+            # 階段と判定
+            pass
+        if True:
+            logger.info(
+                f"Set moved vertical distance: {thisMovedVerticalDistance} cm, past distances: {[(d, isSlope) for d, isSlope in pastMovedVerticalDistance]}"
+            )
+        mapInstance.setMovedVerticalDistance(thisMovedVerticalDistance, False)
+
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)
 

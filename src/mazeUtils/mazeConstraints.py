@@ -109,3 +109,7 @@ DEBUG_MODE: bool = True  # デバッグモードの有効化
 # 45度回転の時の被災者検出のパラメータ
 USE_45_TURN_WITH_VICTIM_CHECK: bool = True  # 45度回転の時に被災者検出をするかどうか
 DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
+
+
+
+STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の合計がこの値を下回っていたら、坂判定をしていても階段とみなす。
