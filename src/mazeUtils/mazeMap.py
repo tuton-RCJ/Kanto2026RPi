@@ -175,7 +175,6 @@ class mazeMap:
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
         self.saveCache()
-        self.updateArduinoStatus()
 
         # 直前に上った坂の鉛直距離を3マス分保持
         self.movedVerticalDistanceNUM = 3
