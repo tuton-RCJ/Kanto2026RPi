@@ -567,7 +567,7 @@ class mazeMap:
         """
         x, y, z = self.currentPosition
         path = dijkstra(
-            self.mazeAsGraph, (x, y, z), self.frontDirection, lambda pos: pos == target
+            self.mazeAsGraph, (x, y, z), self.frontDirection, lambda pos: pos == target, lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]]
         )
 
         if path is None:
@@ -613,11 +613,10 @@ class mazeMap:
 
     def updateFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         """
-        @brief 前方方向を設定し、Arduino Nano Every の表示を更新する
+        @brief 前方方向を設定
         @param direction: 設定する方向
         """
         self.frontDirection = direction
-        self.updateArduinoStatus()
 
     def dropRescueKit(self, side: deviceEnums.Side, count: int) -> None:
         """
@@ -684,7 +683,6 @@ class mazeMap:
             self.currentPosition = self.lastCheckpoint
             self.layerInfo = copy.deepcopy(self.savedCache["layerInfo"])
             self.knownLayerCount = self.savedCache["knownLayerCount"]
-            self.updateArduinoStatus()
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
         if self.tileTypes[z][y][x] != mazeEnums.tileType.UNKNOWN:
@@ -842,17 +840,3 @@ class mazeMap:
         #                     + "}"
         #                 )
         return "\n".join(lines)
-
-    def _direction_to_display(self, direction: mazeEnums.absDirection) -> int:
-        mapping = {
-            mazeEnums.absDirection.NORTH: 0,
-            mazeEnums.absDirection.EAST: 1,
-            mazeEnums.absDirection.SOUTH: 2,
-            mazeEnums.absDirection.WEST: 3,
-        }
-        return mapping[direction]
-
-    def updateArduinoStatus(self) -> None:
-        x, y, z = self.currentPosition
-        direction = self._direction_to_display(self.frontDirection)
-        # self.arduinoNanoEvery.update_oled(x, y, direction)

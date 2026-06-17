@@ -22,23 +22,23 @@ lastDist = {
 
 
 def turnOnLED(
-    stmInstance: stm.STM, mapInstance: mazeMap.mazeMap, color: tuple[int, int, int]
+    stmInstance: stm.STM,  color: tuple[int, int, int]
 ) -> None:
     """
     @brief LEDを点灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(*color)
-    # mapInstance.arduinoNanoEvery.victimled(color)
+    stmInstance.rearSTM.victimled(color)
 
 
-def turnOffLED(stmInstance: stm.STM, mapInstance: mazeMap.mazeMap) -> None:
+def turnOffLED(stmInstance: stm.STM) -> None:
     """
     @brief LEDを消灯する
     @param stmInstance: 通信に使用する STM インスタンス
     """
     stmInstance.led.setColor(0, 0, 0)
-    # mapInstance.arduinoNanoEvery.victimled((0, 0, 0))
+    stmInstance.rearSTM.victimled((0, 0, 0))
 
 
 def flashLED(
@@ -57,21 +57,21 @@ def flashLED(
     """
     for _ in range(loopCount):
         if stmInstance.switch.getToggleSwitch1():
-            turnOffLED(stmInstance, mapInstance)
+            turnOffLED(stmInstance)
             return
-        turnOnLED(stmInstance, mapInstance, color)
+        turnOnLED(stmInstance, color)
         t = time.time()
         while time.time() - t < intervalSec:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
-                turnOffLED(stmInstance, mapInstance)
+                turnOffLED(stmInstance)
                 return
-        turnOffLED(stmInstance, mapInstance)
+        turnOffLED(stmInstance)
         t = time.time()
         while time.time() - t < intervalSec:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
-                turnOffLED(stmInstance, mapInstance)
+                turnOffLED(stmInstance)
                 return
 
 
@@ -874,7 +874,9 @@ def turnWith45VictimCheck(
                     != mazeEnums.wallType.NO_WALL
                 ):
                     watchVictimFlag[s] = True
-            if (not watchVictimFlag[deviceEnums.Side.LEFT]) and (not watchVictimFlag[deviceEnums.Side.RIGHT]):
+            if (not watchVictimFlag[deviceEnums.Side.LEFT]) and (
+                not watchVictimFlag[deviceEnums.Side.RIGHT]
+            ):
                 turnToCertainDirection(
                     (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
                     stmInstance,
@@ -1287,45 +1289,46 @@ def moveTile(
         if targetSteps == 2:
             pastMovedVerticalDistance = mapInstance.getMovedVerticalDistance()
             # 登り坂では坂検知をしなかったが、下り坂で坂検知をした時の例外処理
-            if (RollonRamp[0] > 180 and
-                    abs(
-                        sum(d for d, _ in pastMovedVerticalDistance)
-                        + practicalVerticalMoveTime
-                        * mazeConstraints.TILE_SIZE_CM
-                        / mazeConstraints.MOVE_STRAIGHT_SEC
+            if (
+                RollonRamp[0] > 180
+                and abs(
+                    sum(d for d, _ in pastMovedVerticalDistance)
+                    + practicalVerticalMoveTime
+                    * mazeConstraints.TILE_SIZE_CM
+                    / mazeConstraints.MOVE_STRAIGHT_SEC
+                )
+                < mazeConstraints.STAIR_THRESHOLD_CM
+            ):
+                logger.info(
+                    "Detected ramp but regarded it as down stairs, treating as normal tile"
+                )
+                mapInstance.moveTo(direction)
+                # 左右に壁を設定
+                for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                    mapInstance.setWallType(
+                        mazeEnums.absDirection(
+                            (
+                                direction.value
+                                + (90 if s == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        ),
+                        mazeEnums.wallType.WALL,
                     )
-                    < mazeConstraints.STAIR_THRESHOLD_CM
-                ):
-                    logger.info(
-                        "Detected ramp but regarded it as down stairs, treating as normal tile"
+                    # 前後にはNO_WALLを設定
+                    mapInstance.setWallType(
+                        mazeEnums.absDirection(
+                            (
+                                direction.value
+                                + (0 if s == deviceEnums.Side.LEFT else 180)
+                            )
+                            % 360
+                        ),
+                        mazeEnums.wallType.NO_WALL,
                     )
-                    mapInstance.moveTo(direction)
-                    # 左右に壁を設定
-                    for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-                        mapInstance.setWallType(
-                            mazeEnums.absDirection(
-                                (
-                                    direction.value
-                                    + (90 if s == deviceEnums.Side.LEFT else 270)
-                                )
-                                % 360
-                            ),
-                            mazeEnums.wallType.WALL,
-                        )
-                        # 前後にはNO_WALLを設定
-                        mapInstance.setWallType(
-                            mazeEnums.absDirection(
-                                (
-                                    direction.value
-                                    + (0 if s == deviceEnums.Side.LEFT else 180)
-                                )
-                                % 360
-                            ),
-                            mazeEnums.wallType.NO_WALL,
-                        )
-                    for _ in range(3):
-                        mapInstance.setMovedVerticalDistance(0, False)
-                    
+                for _ in range(3):
+                    mapInstance.setMovedVerticalDistance(0, False)
+
             else:
                 mapInstance.setSlope(
                     direction,

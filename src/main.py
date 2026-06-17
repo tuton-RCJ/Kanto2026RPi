@@ -45,7 +45,7 @@ def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
     mapInstance.loadCache(nowDirection=nowDirection)
     time.sleep(1)
     stmInstance.update()
-    moveTile.turnOffLED(stmInstance, mapInstance)
+    moveTile.turnOffLED(stmInstance)
 
 GAME_TIME_SEC = 480 # 競技走行時間
 
@@ -53,8 +53,7 @@ def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
-
-    # mapInstance.arduinoNanoEvery.camled((0, 0, 0))
+    stmInstance.rearSTM.camled((255, 255, 255))
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)
     stmInstance.update()
@@ -93,7 +92,7 @@ def main():
                         _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         isLoP = True
                         break
-                    moveTile.turnOffLED(stmInstance, mapInstance)
+                    moveTile.turnOffLED(stmInstance)
                 nextDirection = mapInstance.getNearestUnexploredTile()
             if isLoP:
                 isLoP = False
@@ -152,7 +151,7 @@ def main():
     finally:
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()
-        moveTile.turnOffLED(stmInstance, mapInstance)
+        moveTile.turnOffLED(stmInstance)
 
 
 if __name__ == "__main__":
