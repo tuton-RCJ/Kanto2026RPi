@@ -87,6 +87,10 @@ def dijkstra(
             if getTileType((nx, ny, nz)) == mazeEnums.tileType.BLUE:
                 step_cost += mazeConstraints.BLUE_TILE_WAIT_SEC
 
+            # 赤タイル -> Unknownの移動はコストを大きくする（先にDangerous以外を全部探索する）
+            if getTileType((nx, ny, nz)) == mazeEnums.tileType.UNKNOWN and getTileType(pos) == mazeEnums.tileType.RED:
+                step_cost += 10000
+            
             new_cost = cost + step_cost
            
             new_state = (nx, ny, nz, move_dir)
