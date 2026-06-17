@@ -27,7 +27,7 @@ class ColorSensor:
         self._timeout = 0.05
 
     def update(self) -> bool:
-        return True
+        # return True
         data = self._requestSensorValues()
         if data is not None:
             self._colorRGB = (data[0], data[1], data[2])

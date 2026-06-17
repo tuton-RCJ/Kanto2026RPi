@@ -233,14 +233,15 @@ def escapeFromBlackTile(
         stmInstance.sts3032.stop()
         mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
         logger.info("Black tile detected! Stopping movement. Starting escape maneuver.")
-        startEscapeTime = time.time()
         stmInstance.sts3032.setMotorSpeed(
-            {deviceEnums.Side.LEFT: -50, deviceEnums.Side.RIGHT: -50}
+            {deviceEnums.Side.LEFT: -100, deviceEnums.Side.RIGHT: -100}
         )
-        while time.time() - startEscapeTime < practicalMoveTime:
+        startEscapeTime = time.time()
+        while time.time() - startEscapeTime < practicalMoveTime*2:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
+                return True
         stmInstance.sts3032.stop()
         debugPrint(f"Escape maneuver complete.")
         return True
@@ -993,7 +994,8 @@ def moveTile(
     isRedTile = detectTileColor() == mazeEnums.tileType.RED
     isUnknownTileAhead = (
         mapInstance.getTileType(direction) == mazeEnums.tileType.UNKNOWN
-    )
+    ) # 移動先のタイルがUNKNOWNかどうか。
+    
     timing_start = debugTimingPrint(
         f"moveTile after tile checks isRedTile={isRedTile} isUnknownTileAhead={isUnknownTileAhead}",
         timing_start,
@@ -1610,6 +1612,7 @@ def moveTile(
             ):
                 tileType = t
                 nowMaxCount = getTileColorDict[t]
+        tileType = detectTileColor()
         mapInstance.setTileType(
             tileType
             if tileType != mazeEnums.tileType.BLACK

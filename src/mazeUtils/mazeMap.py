@@ -469,8 +469,8 @@ class mazeMap:
                 self.mazeAsGraph[_z][_y][_x][direction.opposite()] = None
 
             ## 新しいレイヤーのグラフを追加
-            self.mazeAsGraph[z][y][x][direction] = (x, y, nextLayer, mazeConstraints.TILE_SIZE_CM)
-            self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (x, y, z, mazeConstraints.TILE_SIZE_CM)
+            self.mazeAsGraph[z][y][x][direction] = (x, y, nextLayer, horizontalDistance + mazeConstraints.TILE_SIZE_CM)
+            self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (x, y, z, horizontalDistance + mazeConstraints.TILE_SIZE_CM)
 
             # WallTypeも更新
             self.wallTypes[nextLayer][y][x][
@@ -826,16 +826,16 @@ class mazeMap:
                     sep.append("+")
                 lines.append("".join(sep))
         # 既知のすべてのマスについてmazeAsGraphの値を出力
-        # for z in range(self.knownLayerCount):
-        #     for y in range(self.maxSize):
-        #         for x in range(self.maxSize):
-        #             if self._is_known_cell(x, y, z):
-        #                 neighbors = self.mazeAsGraph[z][y][x]
-        #                 lines.append(
-        #                     f"mazeAsGraph[{z}][{y}][{x}] = {{"
-        #                     + ", ".join(
-        #                         f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
-        #                     )
-        #                     + "}"
-        #                 )
+        for z in range(self.knownLayerCount):
+            for y in range(self.maxSize):
+                for x in range(self.maxSize):
+                    if self._is_known_cell(x, y, z):
+                        neighbors = self.mazeAsGraph[z][y][x]
+                        lines.append(
+                            f"mazeAsGraph[{z}][{y}][{x}] = {{"
+                            + ", ".join(
+                                f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
+                            )
+                            + "}"
+                        )
         return "\n".join(lines)

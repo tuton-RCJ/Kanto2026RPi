@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 current_frame = None
 save_requested = False
-CAMERA_DISABLED = True
+CAMERA_DISABLED = False  # カメラを無効化する場合はTrueに設定
 
 
 class CameraColorDetector:

@@ -12,7 +12,7 @@ USE_TURN_METHOD: mazeEnums.turnMethod = (
 USE_MOVE_METHOD: mazeEnums.moveMethod = (
     mazeEnums.moveMethod.SEE_FRONT
 )  # 直進時の制御方法
-TURN_THRESHOLD_DEG_FIX: float = 0.2  # 回転時の誤差許容角度(調整時)
+TURN_THRESHOLD_DEG_FIX: float = 0.5  # 回転時の誤差許容角度(調整時)
 TURN_THRESHOLD_DEG: float = 10  # 回転時の誤差許容角度
 GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.LEFT: 100,
@@ -44,10 +44,10 @@ WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM: int = 15  # 坂検出をする、LiDAR�
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
 WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
-WALL_FOLLOW_TARGET_DIST_CM: float = 16.5  # 片側のみ近い場合の目標距離
+WALL_FOLLOW_TARGET_DIST_CM: float = 14  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
-WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 10.0  # この角度誤差以内なら壁距離制御も併用
+WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
 
 RAMP_END_THRESHOLD_CM: int = 28
 TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
@@ -65,12 +65,12 @@ BLACKTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (0, 0, 0),
 )  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 BLUETILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
-    (10, 30, 120),
-    (0, 0, 30),
+    (10, 10, 120),
+    (0, 0, 18),
 )  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (120, 20, 20),
-    (30, 0, 0),
+    (15, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 # RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
