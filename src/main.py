@@ -54,7 +54,7 @@ def main():
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
 
-    mapInstance.arduinoNanoEvery.camled((0, 0, 0))
+    # mapInstance.arduinoNanoEvery.camled((0, 0, 0))
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.buzzer.playMusic(buzzerSongs.start)
     stmInstance.update()
@@ -75,9 +75,9 @@ def main():
             logger.info("Exploration started.")
             isLoP = False
             while nextDirection is not None and not isLoP:
-                if time.time() - gameStartTime > GAME_TIME_SEC:
-                    logger.info("Time's up! Starting return to the starting point.")
-                    break
+                # if time.time() - gameStartTime > GAME_TIME_SEC:
+                #     logger.info("Time's up! Starting return to the starting point.")
+                #     break
                 nextDirection = mapInstance.getNearestUnexploredTile()
                 if nextDirection is None:
                     continue

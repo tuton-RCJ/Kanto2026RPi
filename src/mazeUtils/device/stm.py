@@ -387,9 +387,10 @@ class UnitV:
                 1 if enable else 0,
             ]
         )
-        return stmUART.requestActuatorControl(
-            deviceEnums.ActuatorControlType.UNITV_45_MODE, data
-        )
+        # return stmUART.requestActuatorControl(
+        #     deviceEnums.ActuatorControlType.UNITV_45_MODE, data
+        # )
+        return True
 
 
 class Loadcell:
@@ -698,7 +699,7 @@ class STM:
         self.buzzer: Buzzer = Buzzer()
         self.frontTSD10: tsd10.TSD10 = tsd10.TSD10(port="/dev/ttyUSB0")
         self.frontTSD10.start()
-        self.rearSTM: rearSTM.RearSTM = rearSTM.RearSTM(port="/dev/ttyUSB1")
+        self.rearSTM: rearSTM.RearSTM = rearSTM.RearSTM(port="/dev/ttyAMA3")
 
     def update(self) -> bool:
         global stmUART
