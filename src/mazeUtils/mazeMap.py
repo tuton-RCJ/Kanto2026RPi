@@ -28,6 +28,7 @@ def dijkstra(
     start: tuple[int, int, int],
     startDirection: mazeEnums.absDirection,
     goalCondition: Callable[[tuple[int, int, int]], bool],
+    getTileType: Callable[[tuple[int, int, int]], mazeEnums.tileType],
 ) -> list[tuple[int, int, int]] | None:
     """Rotation-aware Dijkstra.
 
@@ -82,6 +83,11 @@ def dijkstra(
             step_cost = (turn_q * float(mazeConstraints.TURN_90_SEC)) + float(
                 mazeConstraints.MOVE_STRAIGHT_SEC * d / mazeConstraints.TILE_SIZE_CM
             )
+
+            # 青タイルならコストを追加
+            if getTileType((nx, ny, nz)) == mazeEnums.tileType.BLUE:
+                step_cost += mazeConstraints.BLUE_TILE_WAIT_SEC
+
             new_cost = cost + step_cost
            
             new_state = (nx, ny, nz, move_dir)
@@ -527,6 +533,7 @@ class mazeMap:
             self.frontDirection,
             lambda pos: pos != (x, y, z)
             and self.tileTypes[pos[2]][pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
+            lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]]
         )
 
         if path is None:
