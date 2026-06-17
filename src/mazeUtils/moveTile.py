@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 
 colorSensor = None
 pr = None
+DEBUG_TIMING_LOG = True
 
 lastDist = {
     mazeEnums.absDirection.NORTH: 0,
@@ -21,9 +22,7 @@ lastDist = {
 }
 
 
-def turnOnLED(
-    stmInstance: stm.STM,  color: tuple[int, int, int]
-) -> None:
+def turnOnLED(stmInstance: stm.STM, color: tuple[int, int, int]) -> None:
     """
     @brief LEDを点灯する
     @param stmInstance: 通信に使用する STM インスタンス
@@ -78,6 +77,20 @@ def flashLED(
 def debugPrint(*message: object) -> None:
     if mazeConstraints.DEBUG_MODE:
         logger.debug(" ".join(str(m) for m in message))
+
+
+def debugTimingPrint(label: str, start_time: float | None = None) -> float:
+    if not (mazeConstraints.DEBUG_MODE and DEBUG_TIMING_LOG):
+        return time.perf_counter()
+
+    current_time = time.perf_counter()
+    if start_time is None:
+        logger.debug(f"[{current_time:.6f}] {label}")
+    else:
+        logger.debug(
+            f"[{current_time:.6f}] {label} (+{(current_time - start_time) * 1000:.1f} ms)"
+        )
+    return current_time
 
 
 class LiDARScanCache:
@@ -967,29 +980,48 @@ def moveTile(
     @return: (isBlackTile, stoppedByToggleSwitch)
     """
 
+    timing_start = debugTimingPrint(
+        f"moveTile start direction={direction} position={mapInstance.currentPosition} front={mapInstance.frontDirection}"
+    )
+
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
         return False, True
+    timing_start = debugTimingPrint("moveTile after initial toggle check", timing_start)
 
     isRedTile = detectTileColor() == mazeEnums.tileType.RED
     isUnknownTileAhead = (
         mapInstance.getTileType(direction) == mazeEnums.tileType.UNKNOWN
+    )
+    timing_start = debugTimingPrint(
+        f"moveTile after tile checks isRedTile={isRedTile} isUnknownTileAhead={isUnknownTileAhead}",
+        timing_start,
     )
 
     debugPrint(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
     if direction != mapInstance.frontDirection:
+        timing_start = debugTimingPrint(
+            f"moveTile start heading change target={direction.value}", timing_start
+        )
         if mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK:
             turnWith45VictimCheck(direction, stmInstance, mapInstance)
         else:
             turnToCertainDirection(
                 direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
             )
+        timing_start = debugTimingPrint(
+            "moveTile finished heading change", timing_start
+        )
 
     mapInstance.updateFrontDirection(direction)
+    timing_start = debugTimingPrint("moveTile updated front direction", timing_start)
     point = LiDAR.getLiDARScan(lidar)
+    timing_start = debugTimingPrint(
+        "moveTile acquired initial LiDAR scan", timing_start
+    )
     """
     # 坂道を壁とする処理。登れないときに使った。
     if ((LiDAR.getCertainAngleDist(0,point) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,point) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
@@ -997,12 +1029,19 @@ def moveTile(
         return False, False
     """
     stmInstance.sts3032.stop()
+    timing_start = debugTimingPrint(
+        "moveTile stopped motors before alignment", timing_start
+    )
 
     ###### 移動前、真後ろが壁であれば位置調整 ######
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
     target_behind_dist = 20
     if 0 < behind_wall_dist < 30:
+        timing_start = debugTimingPrint(
+            f"moveTile start backward adjustment behind_wall_dist={behind_wall_dist}",
+            timing_start,
+        )
         stmInstance.sts3032.setMotorSpeed(
             mazeConstraints.GO_STRAIGHT_LOW_SPEED
             if behind_wall_dist < target_behind_dist
@@ -1024,7 +1063,11 @@ def moveTile(
                 behind_wall_dist < target_behind_dist
             ):
                 break
+        timing_start = debugTimingPrint(
+            "moveTile finished backward adjustment", timing_start
+        )
     stmInstance.sts3032.stop()
+    timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
 
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
@@ -1056,6 +1099,9 @@ def moveTile(
             logger.debug(
                 f"Calculated target steps to next tile: {targetSteps} based on distance {_dist_to_next_tile} cm"
             )
+    timing_start = debugTimingPrint(
+        f"moveTile initialized movement targetSteps={targetSteps}", timing_start
+    )
 
     RollonRamp = []
     RampFinishTime = 0
@@ -1080,6 +1126,7 @@ def moveTile(
     beforeDist = oldDist
     while True:
         loop_start_time = time.time()
+        timing_start = debugTimingPrint("moveTile loop start", timing_start)
         stmInstance.update()
         isBlackTileByCam = camera.detectTileColor() == "BLACK"
         cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
@@ -1124,8 +1171,16 @@ def moveTile(
         steer = gyroSteer + wallSteer
         leftSpeed = int(max(min(100, baseLeft + steer), -100))
         rightSpeed = int(max(min(100, baseRight - steer), -100))
+        timing_start = debugTimingPrint(
+            f"moveTile calculated motor speeds left={leftSpeed} right={rightSpeed} gyroSteer={gyroSteer} wallSteer={wallSteer}",
+            timing_start,
+        )
         stmInstance.sts3032.setMotorSpeed(
             {deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed}
+        )
+        timing_start = debugTimingPrint(
+            f"moveTile applied motor speed left={leftSpeed} right={rightSpeed}",
+            timing_start,
         )
 
         ##### 坂道判定 #####
@@ -1133,6 +1188,9 @@ def moveTile(
             isBigRamp = True
         else:
             isBigRamp = False
+        timing_start = debugTimingPrint(
+            f"moveTile ramp check isBigRamp={isBigRamp}", timing_start
+        )
 
         if targetSteps > 1 and min(roll, 360 - roll) < 10 and RampFinishTime == 0:
             RampFinishTime = time.time()
@@ -1147,6 +1205,7 @@ def moveTile(
             cameraBlackTileDetected,
         )
         if escapeFromBlackTileRes:
+            debugTimingPrint("moveTile escaped from black tile", timing_start)
             return True, False
         else:
             tempTileColor = detectTileColor()
@@ -1154,6 +1213,9 @@ def moveTile(
                 getTileColorDict[tempTileColor] += 1
             if tempTileColor == mazeEnums.tileType.RED:
                 isRedTile = True
+        timing_start = debugTimingPrint(
+            f"moveTile tile color check tempTileColor={tempTileColor}", timing_start
+        )
 
         ###### 障害物回避処理 ######
         escapeFlag = False
@@ -1177,6 +1239,9 @@ def moveTile(
                 escapeFlag = True
                 time.sleep(0.1)
                 stmInstance.update()
+        timing_start = debugTimingPrint(
+            f"moveTile obstacle check escapeFlag={escapeFlag}", timing_start
+        )
 
         ###### 1マス移動完了判定（時間制御） ######
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
@@ -1191,6 +1256,7 @@ def moveTile(
             # if targetSteps > 1 and ((time.time() - RampFinishTime) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.5):
             #     time.sleep(mazeConstraints.MOVE_STRAIGHT_SEC * 0.5 - (time.time() - RampFinishTime))
             stmInstance.sts3032.stop()
+            debugTimingPrint("moveTile finished by time control", timing_start)
             break
         if (
             stmInstance.tof.getDistance()[0]
@@ -1199,6 +1265,9 @@ def moveTile(
         ):
             # 坂でなく、前方の壁までの距離が小さくなったときは止める。
             stmInstance.sts3032.stop()
+            debugTimingPrint(
+                "moveTile finished by front distance control", timing_start
+            )
             break
 
         ####### 被災者発見処理 ######
@@ -1221,12 +1290,12 @@ def moveTile(
             practicalMoveTime += (
                 pratical_loop_time
                 * np.cos(np.radians(abs(roll)))
-                * (1 if roll > 180 else 0.85)
+                * (0.70 if (roll > 10 and roll < 180) else 1)
             )
             practicalVerticalMoveTime += (
                 pratical_loop_time
                 * math.sin(math.radians(roll))
-                * (1 if roll > 180 else 0.85)
+                * (0.70 if (roll > 10 and roll < 180) else 1)
             )
 
         debugPrint(
@@ -1236,8 +1305,14 @@ def moveTile(
         logger.debug(
             f"moveTile loop time: {(time.time() - loop_start_time) * 1000:.1f} ms"
         )
+        timing_start = debugTimingPrint(
+            f"moveTile loop end practicalMoveTime={practicalMoveTime:.3f}", timing_start
+        )
 
     ###### 移動後、目の前が壁であれば位置調整のため少し前進 ######
+    timing_start = debugTimingPrint(
+        "moveTile start final forward adjustment", timing_start
+    )
     pts = LiDAR.getLiDARScan(lidar)
     if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
@@ -1256,6 +1331,9 @@ def moveTile(
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
     stmInstance.sts3032.stop()
+    timing_start = debugTimingPrint(
+        "moveTile finished final forward adjustment", timing_start
+    )
 
     ##### 上り坂をのぼった後の被災者検知 #####
     oldTime = time.time()
@@ -1421,9 +1499,14 @@ def moveTile(
                 f"Set moved vertical distance: {thisMovedVerticalDistance} cm, past distances: {[(d, isSlope) for d, isSlope in pastMovedVerticalDistance]}"
             )
         mapInstance.setMovedVerticalDistance(thisMovedVerticalDistance, False)
+        timing_start = debugTimingPrint(
+            f"moveTile updated moved vertical distance {thisMovedVerticalDistance:.3f}",
+            timing_start,
+        )
 
     mapInstance.moveTo(direction)
     detectWall(lidar, mapInstance, stmInstance)
+    debugTimingPrint("moveTile updated map and detected walls", timing_start)
 
     ##### 移動終了時の被災者検出処理 #####
     ##### 移動終了直前、移動終了時に見たもの、上り坂をのぼったあとの特殊処理で見たものについて、ここで救助動作を行う。
@@ -1543,6 +1626,7 @@ def moveTile(
         logger.info(
             f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}"
         )
+    debugTimingPrint("moveTile finished", timing_start)
     stmInstance.sts3032.stop()
     return False, False
 
