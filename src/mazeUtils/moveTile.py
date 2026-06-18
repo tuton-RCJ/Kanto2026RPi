@@ -591,6 +591,7 @@ def dropRescueKit(
     stmInstance: stm.STM,
     mapInstance: mazeMap.mazeMap,
     victimInfo: dict[deviceEnums.Side, deviceEnums.UnitVStatus],
+    avoidVictimInfo: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]],
     side: deviceEnums.Side,
 ) -> None:
     """
@@ -599,13 +600,22 @@ def dropRescueKit(
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1) % 3
-    flashLED(
-        stmInstance,
-        mapInstance,
-        5,
-        0.5,
-        color=[(0, 255, 0), (255, 255, 0), (255, 0, 0)][needRescueKitCount],
-    )
+    
+    flashLED_flag = True
+    # キット2つ必要な被災者を救助するとき、もしもキット1つの被災者を先に検出していた場合は、LEDを光らせず、キットを1つだけ落とす。
+    if needRescueKitCount ==2:
+        if deviceEnums.UnitVStatus(victimInfo[side].value - 1) in avoidVictimInfo[side]:
+            needRescueKitCount = 1
+            flashLED_flag = False
+
+    if flashLED_flag:
+        flashLED(
+            stmInstance,
+            mapInstance,
+            5,
+            0.5,
+            color=[(0, 255, 0), (255, 255, 0), (255, 0, 0)][needRescueKitCount],
+        )
     oppositeFlag = False
     tileColor = detectTileColor()
     firstHeading = stmInstance.gyro.getValue().heading
@@ -705,7 +715,7 @@ def findVictimDuringMove(
     dy = mazeEnums.directionToDelta[direction][1]
     currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
 
-    avoidVictim = {
+    avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
         s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
             mazeEnums.absDirection(
                 (
