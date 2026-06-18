@@ -591,7 +591,6 @@ def dropRescueKit(
     stmInstance: stm.STM,
     mapInstance: mazeMap.mazeMap,
     victimInfo: dict[deviceEnums.Side, deviceEnums.UnitVStatus],
-    avoidVictimInfo: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]],
     side: deviceEnums.Side,
 ) -> None:
     """
@@ -604,7 +603,36 @@ def dropRescueKit(
     flashLED_flag = True
     # キット2つ必要な被災者を救助するとき、もしもキット1つの被災者を先に検出していた場合は、LEDを光らせず、キットを1つだけ落とす。
     if needRescueKitCount ==2:
-        if deviceEnums.UnitVStatus(victimInfo[side].value - 1) in avoidVictimInfo[side]:
+        direction = mapInstance.frontDirection
+        dx = mazeEnums.directionToDelta[direction][0]
+        dy = mazeEnums.directionToDelta[direction][1]
+        currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
+        
+        avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
+            s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
+                mazeEnums.absDirection(
+                    (
+                        mapInstance.frontDirection.value
+                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                    )
+                    % 360
+                )
+            ]
+            | mapInstance.getSeenVictimType(
+                currentPosX + dx, currentPosY + dy, currentPosZ
+            )[
+                mazeEnums.absDirection(
+                    (
+                        mapInstance.frontDirection.value
+                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                    )
+                    % 360
+                )
+            ]
+            for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
+        }
+        
+        if deviceEnums.UnitVStatus(victimInfo[side].value - 1) in avoidVictim[side]:
             needRescueKitCount = 1
             flashLED_flag = False
 
@@ -1468,6 +1496,10 @@ def moveTile(
                         ),
                         mazeEnums.wallType.NO_WALL,
                     )
+                    # TileTypeを設定
+                    mapInstance.setTileType(
+                        mazeEnums.tileType.EMPTY
+                    )
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
 
@@ -1516,6 +1548,10 @@ def moveTile(
                                 % 360
                             ),
                             mazeEnums.wallType.NO_WALL,
+                        )
+                        # TileTypeを設定
+                        mapInstance.setTileType(
+                            mazeEnums.tileType.EMPTY
                         )
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
