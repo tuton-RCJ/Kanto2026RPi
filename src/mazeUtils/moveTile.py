@@ -599,13 +599,51 @@ def dropRescueKit(
     @param side: 救助キットを投下する側
     """
     needRescueKitCount = (victimInfo[side].value - 1) % 3
-    flashLED(
-        stmInstance,
-        mapInstance,
-        5,
-        0.5,
-        color=[(0, 255, 0), (255, 255, 0), (255, 0, 0)][needRescueKitCount],
-    )
+    
+    flashLED_flag = True
+    # キット2つ必要な被災者を救助するとき、もしもキット1つの被災者を先に検出していた場合は、LEDを光らせず、キットを1つだけ落とす。
+    if needRescueKitCount ==2:
+        direction = mapInstance.frontDirection
+        dx = mazeEnums.directionToDelta[direction][0]
+        dy = mazeEnums.directionToDelta[direction][1]
+        currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
+        
+        avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
+            s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
+                mazeEnums.absDirection(
+                    (
+                        mapInstance.frontDirection.value
+                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                    )
+                    % 360
+                )
+            ]
+            | mapInstance.getSeenVictimType(
+                currentPosX + dx, currentPosY + dy, currentPosZ
+            )[
+                mazeEnums.absDirection(
+                    (
+                        mapInstance.frontDirection.value
+                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                    )
+                    % 360
+                )
+            ]
+            for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
+        }
+        
+        if deviceEnums.UnitVStatus(victimInfo[side].value - 1) in avoidVictim[side]:
+            needRescueKitCount = 1
+            flashLED_flag = False
+
+    if flashLED_flag:
+        flashLED(
+            stmInstance,
+            mapInstance,
+            5,
+            0.5,
+            color=[(0, 255, 0), (255, 255, 0), (255, 0, 0)][needRescueKitCount],
+        )
     oppositeFlag = False
     tileColor = detectTileColor()
     firstHeading = stmInstance.gyro.getValue().heading
@@ -705,7 +743,7 @@ def findVictimDuringMove(
     dy = mazeEnums.directionToDelta[direction][1]
     currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
 
-    avoidVictim = {
+    avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
         s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
             mazeEnums.absDirection(
                 (
@@ -852,6 +890,7 @@ def turnWith45VictimCheck(
     if turnDir == 180:
         cnt = 2
         turnDir = 90
+    cnt2_45_skip = False
     for _c in range(cnt):
         if turnDir == 90 or turnDir == 270:
             if turnDir == 270:
@@ -888,23 +927,74 @@ def turnWith45VictimCheck(
                     != mazeEnums.wallType.NO_WALL
                 ):
                     watchVictimFlag[s] = True
+                    
             if (not watchVictimFlag[deviceEnums.Side.LEFT]) and (
                 not watchVictimFlag[deviceEnums.Side.RIGHT]
             ):
+                if cnt == 2:
+                    for s in deviceEnums.Side: # 次の回転で壁を見るひつようがあるかも見る
+                        if (
+                            mapInstance.getWallType()[  # 回転する前
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + turnDir * (_c + 1)
+                                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ]
+                            != mazeEnums.wallType.NO_WALL
+                            and mapInstance.getWallType()[  # 回転した後
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + turnDir * (_c + 2)
+                                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ]
+                            == mazeEnums.wallType.NO_WALL
+                        ):
+                            watchVictimFlag[s] = True
+                    if watchVictimFlag[deviceEnums.Side.LEFT] or watchVictimFlag[deviceEnums.Side.RIGHT]:
+                        turnToCertainDirection( # 135度で止まる
+                            (mapInstance.frontDirection.value + turnDir * (_c + 1) + turnDir // 2) % 360,
+                            stmInstance,
+                            rescueVictim=False,
+                            mapInstance=mapInstance,
+                        )
+                        cnt2_45_skip = True
+                        continue
+                    else:
+                        # 180度で止まる
+                        turnToCertainDirection(
+                            (mapInstance.frontDirection.value + turnDir * (_c + 2)) % 360,
+                            stmInstance,
+                            rescueVictim=False,
+                            mapInstance=mapInstance,
+                        )
+                        return
+                else:
+                    turnToCertainDirection(
+                        (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
+                        stmInstance,
+                        rescueVictim=False,
+                        mapInstance=mapInstance,
+                    )
+                continue
+            
+            
+            
+            # まず45度周る
+            if not cnt2_45_skip:
                 turnToCertainDirection(
-                    (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
+                    (mapInstance.frontDirection.value + turnDir * _c + turnDir // 2) % 360,
                     stmInstance,
-                    rescueVictim=False,
+                    rescueVictim=True,
                     mapInstance=mapInstance,
                 )
-                continue
-            # まず45度周る
-            turnToCertainDirection(
-                (mapInstance.frontDirection.value + turnDir * _c + turnDir // 2) % 360,
-                stmInstance,
-                rescueVictim=True,
-                mapInstance=mapInstance,
-            )
 
             # 被災者を確認する
             startTime = time.time()
@@ -923,10 +1013,10 @@ def turnWith45VictimCheck(
                         and not mapInstance.isSeenVictimType(
                             [
                                 mazeEnums.absDirection(
-                                    mapInstance.frontDirection.value
+                                    (mapInstance.frontDirection.value + turnDir * _c + (90 if s == deviceEnums.Side.LEFT else 270) )% 360
                                 ),
                                 mazeEnums.absDirection(
-                                    (mapInstance.frontDirection.value + turnDir) % 360
+                                    (mapInstance.frontDirection.value + turnDir * (_c+1) + (90 if s == deviceEnums.Side.LEFT else 270)) % 360
                                 ),
                             ],
                             victimInfo[s],
@@ -938,10 +1028,10 @@ def turnWith45VictimCheck(
                         mapInstance.addSeenVictimType(
                             [
                                 mazeEnums.absDirection(
-                                    mapInstance.frontDirection.value
+                                    (mapInstance.frontDirection.value + turnDir * _c + (90 if s == deviceEnums.Side.LEFT else 270) )% 360
                                 ),
                                 mazeEnums.absDirection(
-                                    (mapInstance.frontDirection.value + turnDir) % 360
+                                    (mapInstance.frontDirection.value + turnDir * (_c+1) + (90 if s == deviceEnums.Side.LEFT else 270)) % 360
                                 ),
                             ],
                             victimInfo[s],
@@ -1406,6 +1496,10 @@ def moveTile(
                         ),
                         mazeEnums.wallType.NO_WALL,
                     )
+                    # TileTypeを設定
+                    mapInstance.setTileType(
+                        mazeEnums.tileType.EMPTY
+                    )
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
 
@@ -1454,6 +1548,10 @@ def moveTile(
                                 % 360
                             ),
                             mazeEnums.wallType.NO_WALL,
+                        )
+                        # TileTypeを設定
+                        mapInstance.setTileType(
+                            mazeEnums.tileType.EMPTY
                         )
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
