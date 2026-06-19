@@ -84,7 +84,7 @@ def main():
                     isBlack, stopped = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
-                    # logger.info(mapInstance.renderKnownTileAndWall())
+                    logger.info(mapInstance.renderKnownTileAndWall())
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
                         logger.info("Exploration resumed.")
