@@ -1132,7 +1132,8 @@ def moveTile(
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
     target_behind_dist = 20
-    if 0 < behind_wall_dist < 30:
+    # if 0 < behind_wall_dist < 30:
+    if mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] != mazeEnums.wallType.NO_WALL:
         timing_start = debugTimingPrint(
             f"moveTile start backward adjustment behind_wall_dist={behind_wall_dist}",
             timing_start,

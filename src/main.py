@@ -47,7 +47,7 @@ def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
     stmInstance.update()
     moveTile.turnOffLED(stmInstance)
 
-GAME_TIME_SEC = 360 # 競技走行時間
+GAME_TIME_SEC = 360 # 帰還開始までの制限時間(秒)
 
 def main():
     stmInstance = stm.STM()
@@ -74,10 +74,14 @@ def main():
             logger.info("Exploration started.")
             isLoP = False
             while nextDirection is not None and not isLoP:
+                
                 if time.time() - gameStartTime > GAME_TIME_SEC:
                     logger.info("Time's up! Starting return to the starting point.")
                     break
+                
+                
                 # nextDirection = mapInstance.getNearestUnexploredTile()
+                
                 if nextDirection is None:
                     continue
                 for direction in nextDirection:
