@@ -122,3 +122,7 @@ STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の
 AVOID_DANGEROUS_ZONE: bool = True  # Dangerous Zoneを避けるかどうか
 AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = True  # Dangerous Zone内の坂を避けるかどうか
 
+
+###### レスキューキット投下ルール
+
+DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE : bool = True  # 2点のCognitive Targetに1つのキットしか投下しない

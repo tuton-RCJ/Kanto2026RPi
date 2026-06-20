@@ -601,41 +601,45 @@ def dropRescueKit(
     """
     needRescueKitCount = (victimInfo[side].value - 1) % 3
     
+
+    
     flashLED_flag = True
+
+
+    # Cognitive Targetの被災者に対しては、2点でもキット1つしか投下しないルールを適用（誤検知による過剰投下が怖いので）
+    if mazeConstraints.DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE and victimInfo[side] == deviceEnums.UnitVStatus.R_VICTIM:
+        needRescueKitCount = 1
+        logger.info("Detected 2-point Cognitive Target victim, dropping only one rescue kit.")
+        
     # キット2つ必要な被災者を救助するとき、もしもキット1つの被災者を先に検出していた場合は、LEDを光らせず、キットを1つだけ落とす。
-    if needRescueKitCount ==2:
-        direction = mapInstance.frontDirection
-        dx = mazeEnums.directionToDelta[direction][0]
-        dy = mazeEnums.directionToDelta[direction][1]
-        currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
-        
-        avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
-            s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
-                mazeEnums.absDirection(
-                    (
-                        mapInstance.frontDirection.value
-                        + (90 if s == deviceEnums.Side.LEFT else 270)
-                    )
-                    % 360
+    currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
+    
+    avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
+        s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
+            mazeEnums.absDirection(
+                (
+                    mapInstance.frontDirection.value
+                    + (90 if s == deviceEnums.Side.LEFT else 270)
                 )
-            ]
-            | mapInstance.getSeenVictimType(
-                currentPosX + dx, currentPosY + dy, currentPosZ
-            )[
-                mazeEnums.absDirection(
-                    (
-                        mapInstance.frontDirection.value
-                        + (90 if s == deviceEnums.Side.LEFT else 270)
-                    )
-                    % 360
-                )
-            ]
-            for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
-        }
+                % 360
+            )
+        ]
+        for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
+    }
+    if len(avoidVictim[side])>0:
+        maxDroppedKit = max(
+            [
+                (v.value - 1) % 3
+                for v in avoidVictim[side]
+                if v != deviceEnums.UnitVStatus.NOTHING
+            ],
+            default=0,
+        )
+        logger.info(f"Detected previously seen victims on {side} side: {avoidVictim[side]}, max dropped kits: {maxDroppedKit}. Adjusting needRescueKitCount accordingly.")
+        needRescueKitCount = max(needRescueKitCount - maxDroppedKit, 0)
+        flashLED_flag = False
         
-        if deviceEnums.UnitVStatus(victimInfo[side].value - 1) in avoidVictim[side]:
-            needRescueKitCount = 1
-            flashLED_flag = False
+    ############################
 
     if flashLED_flag:
         flashLED(
