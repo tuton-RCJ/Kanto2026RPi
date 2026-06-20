@@ -371,6 +371,8 @@ def turnToCertainDirection(
                             logger.info(
                                 f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during turn: {victimInfo[s]}"
                             )
+
+                            dropRescueKit(stmInstance, mapInstance, victimInfo, s)
                             mapInstance.addSeenVictimType(
                                 getQuantizedDir(
                                     stmInstance.gyro.getValue().heading
@@ -378,7 +380,6 @@ def turnToCertainDirection(
                                 ),
                                 victimInfo[s],
                             )
-                            dropRescueKit(stmInstance, mapInstance, victimInfo, s)
                             logger.info(
                                 f"Dropped rescue kit, detected victim info: {victimInfo}"
                             )
@@ -792,6 +793,9 @@ def findVictimDuringMove(
                     stmInstance.sts3032.stop()
                 
                 t = time.time()
+                
+                logger.info(f"Detected victim info ahead: {victimInfo}")
+                dropRescueKit(stmInstance, mapInstance, victimInfo, side)
                 consequentSearchRes[side] = victimInfo[side]
                 mapInstance.setWallType(
                     mazeEnums.absDirection(
@@ -815,8 +819,7 @@ def findVictimDuringMove(
                     ],
                     consequentSearchRes[side],
                 )
-                logger.info(f"Detected victim info ahead: {victimInfo}")
-                dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+
                 
                 # 下がった分前進して元の位置に戻る
                 if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
@@ -1044,6 +1047,7 @@ def turnWith45VictimCheck(
                         logger.info(
                             f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during 45-degree turn check: {victimInfo[s]}"
                         )
+                        dropRescueKit(stmInstance, mapInstance, victimInfo, s)
                         mapInstance.addSeenVictimType(
                             [
                                 mazeEnums.absDirection(
@@ -1055,7 +1059,6 @@ def turnWith45VictimCheck(
                             ],
                             victimInfo[s],
                         )
-                        dropRescueKit(stmInstance, mapInstance, victimInfo, s)
                         logger.info(
                             f"Dropped rescue kit, detected victim info: {victimInfo}"
                         )
@@ -1720,6 +1723,9 @@ def moveTile(
             ]
             == mazeEnums.wallType.WALL
         ):
+
+            logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
             # SeenVictimTypeに追加。
             mapInstance.addSeenVictimType(
                 [
@@ -1733,10 +1739,6 @@ def moveTile(
                 ],
                 maxVictimInfo[side],
             )
-
-            logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
-
-            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
 
     ###### 銀・青タイル判別処理 ######
     tileType = mazeEnums.tileType.EMPTY

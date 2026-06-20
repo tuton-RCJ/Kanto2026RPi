@@ -135,7 +135,7 @@ AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = True  # Dangerous Zone内の坂を避け�
 
 ###### レスキューキット投下ルール
 
-DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE : bool = True  # 2点のCognitive Targetに1つのキットしか投下しない
+DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE : bool = False  # 2点のCognitive Targetに1つのキットしか投下しない
 
 BACKWARD_AFTER_DROP_KIT : bool = True  # 救助キット投下後に少し後退するかどうか
 BACKWARD_AFTER_DROP_KIT_TIME_SEC : float = 0.5  # 救助キット投下後に後退する時間 (スピードは GO_BACKWARD_LOW_SPEED を使用)
