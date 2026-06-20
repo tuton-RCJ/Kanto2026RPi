@@ -181,6 +181,10 @@ class mazeMap:
         self.movedVerticalDistance: list[tuple[float, bool]] = [
             (0, False) for _ in range(self.movedVerticalDistanceNUM)
         ]  # 1個前、2個前、3個前の坂の鉛直距離(cm)と坂検知をしたかのフラグ
+        
+        
+        # 坂道検出をしたかどうかのフラグ
+        self.isSlopeDetected = False
 
     def setWallType(
         self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType

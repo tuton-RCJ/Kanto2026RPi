@@ -539,6 +539,7 @@ def detectWall(
                 logger.debug(
                     f"Detected no wall at {direction} due to high roll angle: {stmInstance.gyro.getValue().roll} deg"
                 )
+                mapInstance.isSlopeDetected = True
                 continue
             if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
                 mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
@@ -1611,7 +1612,16 @@ def moveTile(
             timing_start,
         )
 
-    mapInstance.moveTo(direction)
+    # もし坂判定をして進んだのに坂ではなかったら、壁を置いて、進まなかったことにする。
+    if mapInstance.isSlopeDetected and targetSteps == 1:
+        logger.info(
+            f"Ramp was detected but there was no ramp, treating as wall. "
+        )
+        mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+    else:
+        mapInstance.moveTo(direction)
+    mapInstance.isSlopeDetected = False
+    
     detectWall(lidar, mapInstance, stmInstance)
     debugTimingPrint("moveTile updated map and detected walls", timing_start)
 
