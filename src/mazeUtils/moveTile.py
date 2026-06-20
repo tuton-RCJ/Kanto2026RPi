@@ -956,7 +956,7 @@ def turnWith45VictimCheck(
                                     % 360
                                 )
                             ]
-                            == mazeEnums.wallType.NO_WALL
+                            != mazeEnums.wallType.NO_WALL
                         ):
                             watchVictimFlag[s] = True
                     if watchVictimFlag[deviceEnums.Side.LEFT] or watchVictimFlag[deviceEnums.Side.RIGHT]:
@@ -1383,7 +1383,7 @@ def moveTile(
             else:
                 pratical_loop_time = time.time() - oldTime
 
-            correction_factor = (0.70 if (roll > 10 and roll < 180) else 1) if not (roll > 180 and roll < 350) else 1.1
+            correction_factor = (0.80 if (roll > 6 and roll < 180) else 1) if not (roll > 180 and roll < 350) else 1.1
             practicalMoveTime += (
                 pratical_loop_time
                 * np.cos(np.radians(abs(roll)))
@@ -1572,7 +1572,7 @@ def moveTile(
                     * math.tan(math.radians(RollonRamp[-1])),
                 )
                 logger.info(
-                    f"Set slope for tile at {direction} with height {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM * math.tan(math.radians(RollonRamp[-1]))} cm based on roll {RollonRamp[-1]} deg")
+                    f"Set slope for tile at {direction}, horizontal: {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM}, height {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM * math.tan(math.radians(RollonRamp[-1]))} cm based on roll {RollonRamp[-1]} deg")
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
 
