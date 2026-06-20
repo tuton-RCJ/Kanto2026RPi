@@ -784,6 +784,13 @@ def findVictimDuringMove(
                 and consequentSearchRes[side] is None
             ):  # 被災者を発見した
                 stmInstance.sts3032.stop()
+                
+                # 行き過ぎてしまうことが多いので、少し下がる
+                if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
+                    time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                    stmInstance.sts3032.stop()
+                
                 t = time.time()
                 consequentSearchRes[side] = victimInfo[side]
                 mapInstance.setWallType(
@@ -810,6 +817,13 @@ def findVictimDuringMove(
                 )
                 logger.info(f"Detected victim info ahead: {victimInfo}")
                 dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                
+                # 下がった分前進して元の位置に戻る
+                if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                    time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                    stmInstance.sts3032.stop()
+                
                 victimRescueFlag = True
         else:
             lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]

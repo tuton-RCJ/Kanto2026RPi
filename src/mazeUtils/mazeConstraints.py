@@ -19,10 +19,20 @@ GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.RIGHT: 100,
 }  # 直進時のスピード
 
+GO_BACKWARD_MAX_SPEED: dict[deviceEnums.Side, int] = {
+    deviceEnums.Side.LEFT: -100,
+    deviceEnums.Side.RIGHT: -100,
+}  # 後退時のスピード
+
 GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.LEFT: 30,
     deviceEnums.Side.RIGHT: 30,
 }  # ゆっくり直進時のスピード
+
+GO_BACKWARD_LOW_SPEED: dict[deviceEnums.Side, int] = {
+    deviceEnums.Side.LEFT: -30,
+    deviceEnums.Side.RIGHT: -30,
+}  # ゆっくり後退時のスピード
 
 NEWS_DIRECTION = [
     mazeEnums.absDirection.NORTH.value,
@@ -126,3 +136,6 @@ AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = True  # Dangerous Zone内の坂を避け�
 ###### レスキューキット投下ルール
 
 DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE : bool = True  # 2点のCognitive Targetに1つのキットしか投下しない
+
+BACKWARD_AFTER_DROP_KIT : bool = True  # 救助キット投下後に少し後退するかどうか
+BACKWARD_AFTER_DROP_KIT_TIME_SEC : float = 0.5  # 救助キット投下後に後退する時間 (スピードは GO_BACKWARD_LOW_SPEED を使用)
