@@ -1411,6 +1411,7 @@ def moveTile(
     timing_start = debugTimingPrint(
         "moveTile start final forward adjustment", timing_start
     )
+    _startTime = time.time()
     pts = LiDAR.getLiDARScan(lidar)
     if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
@@ -1427,6 +1428,14 @@ def moveTile(
                 -heading + direction.value, scanPoints
             )
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
+                break
+            if time.time() - _startTime > 3.0:  # 3秒以上経っても距離が縮まらない場合は坂か階段か何かだったと判断し、引き返す
+                backwardTime = time.time() - _startTime
+                logger.warning("Final forward adjustment timeout, stopping adjustment")
+                stmInstance.sts3032.stop()
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                time.sleep(backwardTime)
+                stmInstance.sts3032.stop()
                 break
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint(
