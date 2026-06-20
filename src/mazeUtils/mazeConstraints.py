@@ -114,3 +114,11 @@ DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者
 
 
 STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の合計がこの値を下回っていたら、坂判定をしていても階段とみなす。
+
+
+
+####### Dangerous Zone関連のモード
+
+AVOID_DANGEROUS_ZONE: bool = True  # Dangerous Zoneを避けるかどうか
+AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = True  # Dangerous Zone内の坂を避けるかどうか
+

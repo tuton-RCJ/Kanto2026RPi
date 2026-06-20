@@ -1115,12 +1115,14 @@ def moveTile(
     timing_start = debugTimingPrint(
         "moveTile acquired initial LiDAR scan", timing_start
     )
-    """
-    # 坂道を壁とする処理。登れないときに使った。
-    if ((LiDAR.getCertainAngleDist(0,point) - (mapInstance.arduinoNanoEvery.request_tof_distance_mm()/10 + 10)) > mazeConstraints.RAMP_TOF_THRESHOLD and LiDAR.getCertainAngleDist(0,point) < mazeConstraints.JUDGE_RAMP_LIDAR_THRESHOLD):
+    
+    
+    
+    # DangerousZone内、未探索タイルへの移動で、坂道を検出したら壁と判断。
+    if isUnknownTileAhead and mapInstance.isStartedDangerousZone and mapInstance.isSlopeDetected and mazeConstraints.AVOID_SLOPE_IN_DANGEROUS_ZONE:
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
         return False, False
-    """
+
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint(
         "moveTile stopped motors before alignment", timing_start

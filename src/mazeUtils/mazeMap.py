@@ -88,11 +88,14 @@ def dijkstra(
                 step_cost += mazeConstraints.BLUE_TILE_WAIT_SEC
 
             # 赤タイル -> Unknownの移動はコストを大きくする（先にDangerous以外を全部探索する）
-            if getTileType((nx, ny, nz)) == mazeEnums.tileType.UNKNOWN and getTileType(pos) == mazeEnums.tileType.RED:
+            if (
+                getTileType((nx, ny, nz)) == mazeEnums.tileType.UNKNOWN
+                and getTileType(pos) == mazeEnums.tileType.RED
+            ):
                 step_cost += 10000
-            
+
             new_cost = cost + step_cost
-           
+
             new_state = (nx, ny, nz, move_dir)
 
             if new_cost < dist.get(new_state, float("inf")):
@@ -139,8 +142,8 @@ class mazeMap:
         ]
 
         self.tileTypes[0][maxSize // 2][maxSize // 2] = mazeEnums.tileType.START
-        
-        # mazeAsGraph[z][y][x][d] : (z,y,x)から方向dに移動した時(nx,ny,nz, dist) distは移動先までの距離(cm), 壁がある場合はNone 
+
+        # mazeAsGraph[z][y][x][d] : (z,y,x)から方向dに移動した時(nx,ny,nz, dist) distは移動先までの距離(cm), 壁がある場合はNone
         self.mazeAsGraph: list[
             list[list[dict[mazeEnums.absDirection, tuple[int, int, int, float] | None]]]
         ] = [
@@ -151,7 +154,7 @@ class mazeMap:
             for _ in range(maxLayer)
         ]
         self.frontDirection = mazeEnums.absDirection.NORTH
-        
+
         self.seenVictimType = [
             [
                 [{d: set() for d in mazeEnums.absDirection} for _ in range(maxSize)]
@@ -174,17 +177,21 @@ class mazeMap:
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
-        self.saveCache()
+
 
         # 直前に上った坂の鉛直距離を3マス分保持
         self.movedVerticalDistanceNUM = 3
         self.movedVerticalDistance: list[tuple[float, bool]] = [
             (0, False) for _ in range(self.movedVerticalDistanceNUM)
         ]  # 1個前、2個前、3個前の坂の鉛直距離(cm)と坂検知をしたかのフラグ
-        
-        
+
         # 坂道検出をしたかどうかのフラグ
         self.isSlopeDetected = False
+
+        # DangerousZone探索を始めたかどうかのフラグ
+        self.isStartedDangerousZone = False
+        
+        self.saveCache()
 
     def setWallType(
         self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType
@@ -195,20 +202,60 @@ class mazeMap:
         if wallType == mazeEnums.wallType.NO_WALL:
             if direction == mazeEnums.absDirection.NORTH and y > 0:
                 if self.tileTypes[z][y - 1][x] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x][direction] = (x, y - 1, z, mazeConstraints.TILE_SIZE_CM)
-                    self.mazeAsGraph[z][y - 1][x][direction.opposite()] = (x, y, z, mazeConstraints.TILE_SIZE_CM)
+                    self.mazeAsGraph[z][y][x][direction] = (
+                        x,
+                        y - 1,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
+                    self.mazeAsGraph[z][y - 1][x][direction.opposite()] = (
+                        x,
+                        y,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
             elif direction == mazeEnums.absDirection.EAST and x < self.maxSize - 1:
                 if self.tileTypes[z][y][x + 1] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x][direction] = (x + 1, y, z, mazeConstraints.TILE_SIZE_CM)
-                    self.mazeAsGraph[z][y][x + 1][direction.opposite()] = (x, y, z, mazeConstraints.TILE_SIZE_CM)
+                    self.mazeAsGraph[z][y][x][direction] = (
+                        x + 1,
+                        y,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
+                    self.mazeAsGraph[z][y][x + 1][direction.opposite()] = (
+                        x,
+                        y,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
             elif direction == mazeEnums.absDirection.SOUTH and y < self.maxSize - 1:
                 if self.tileTypes[z][y + 1][x] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x][direction] = (x, y + 1, z, mazeConstraints.TILE_SIZE_CM)
-                    self.mazeAsGraph[z][y + 1][x][direction.opposite()] = (x, y, z, mazeConstraints.TILE_SIZE_CM)
+                    self.mazeAsGraph[z][y][x][direction] = (
+                        x,
+                        y + 1,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
+                    self.mazeAsGraph[z][y + 1][x][direction.opposite()] = (
+                        x,
+                        y,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
             elif direction == mazeEnums.absDirection.WEST and x > 0:
                 if self.tileTypes[z][y][x - 1] != mazeEnums.tileType.BLACK:
-                    self.mazeAsGraph[z][y][x][direction] = (x - 1, y, z, mazeConstraints.TILE_SIZE_CM)
-                    self.mazeAsGraph[z][y][x - 1][direction.opposite()] = (x, y, z, mazeConstraints.TILE_SIZE_CM)
+                    self.mazeAsGraph[z][y][x][direction] = (
+                        x - 1,
+                        y,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
+                    self.mazeAsGraph[z][y][x - 1][direction.opposite()] = (
+                        x,
+                        y,
+                        z,
+                        mazeConstraints.TILE_SIZE_CM,
+                    )
         elif wallType == mazeEnums.wallType.WALL:
             if direction == mazeEnums.absDirection.NORTH and y > 0:
                 self.mazeAsGraph[z][y][x][direction] = None
@@ -245,7 +292,9 @@ class mazeMap:
                 return self.wallTypes[z][y][x - 1]
         return self.wallTypes[z][y][x]
 
-    def getTileType(self,direction: mazeEnums.absDirection|None = None) -> mazeEnums.tileType:
+    def getTileType(
+        self, direction: mazeEnums.absDirection | None = None
+    ) -> mazeEnums.tileType:
         """
         @brief 現在位置のタイルタイプを取得する
         @return: 現在位置のタイルタイプ
@@ -256,7 +305,7 @@ class mazeMap:
             if neighbor is None:
                 return mazeEnums.tileType.UNKNOWN
             nx, ny, nz, _ = neighbor
-            return self.tileTypes[nz][ny][nx]                        
+            return self.tileTypes[nz][ny][nx]
         return self.tileTypes[z][y][x]
 
     def isSeenVictimType(
@@ -429,12 +478,17 @@ class mazeMap:
             self.mazeAsGraph[nextLayer][next_y][next_x][direction.opposite()] = None
 
             ## 新しいレイヤーのグラフを追加
-            self.mazeAsGraph[z][y][x][direction] = (next_x, next_y, nextLayer,horizontalDistance+mazeConstraints.TILE_SIZE_CM)
+            self.mazeAsGraph[z][y][x][direction] = (
+                next_x,
+                next_y,
+                nextLayer,
+                horizontalDistance + mazeConstraints.TILE_SIZE_CM,
+            )
             self.mazeAsGraph[nextLayer][next_y][next_x][direction.opposite()] = (
                 x,
                 y,
                 z,
-                horizontalDistance + mazeConstraints.TILE_SIZE_CM
+                horizontalDistance + mazeConstraints.TILE_SIZE_CM,
             )
             self.wallTypes[nextLayer][next_y][next_x][
                 direction.opposite()
@@ -473,8 +527,18 @@ class mazeMap:
                 self.mazeAsGraph[_z][_y][_x][direction.opposite()] = None
 
             ## 新しいレイヤーのグラフを追加
-            self.mazeAsGraph[z][y][x][direction] = (x, y, nextLayer, horizontalDistance + mazeConstraints.TILE_SIZE_CM)
-            self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (x, y, z, horizontalDistance + mazeConstraints.TILE_SIZE_CM)
+            self.mazeAsGraph[z][y][x][direction] = (
+                x,
+                y,
+                nextLayer,
+                horizontalDistance + mazeConstraints.TILE_SIZE_CM,
+            )
+            self.mazeAsGraph[nextLayer][y][x][direction.opposite()] = (
+                x,
+                y,
+                z,
+                horizontalDistance + mazeConstraints.TILE_SIZE_CM,
+            )
 
             # WallTypeも更新
             self.wallTypes[nextLayer][y][x][
@@ -537,7 +601,7 @@ class mazeMap:
             self.frontDirection,
             lambda pos: pos != (x, y, z)
             and self.tileTypes[pos[2]][pos[1]][pos[0]] == mazeEnums.tileType.UNKNOWN,
-            lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]]
+            lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]],
         )
 
         if path is None:
@@ -570,7 +634,11 @@ class mazeMap:
         """
         x, y, z = self.currentPosition
         path = dijkstra(
-            self.mazeAsGraph, (x, y, z), self.frontDirection, lambda pos: pos == target, lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]]
+            self.mazeAsGraph,
+            (x, y, z),
+            self.frontDirection,
+            lambda pos: pos == target,
+            lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]],
         )
 
         if path is None:
@@ -604,6 +672,17 @@ class mazeMap:
                 f"Moving to wall direction: {direction}\n{self.renderKnownTileAndWall()}"
             )
         self.currentPosition = self.mazeAsGraph[z][y][x][direction][0:3]  # type: ignore
+
+        # 赤タイルからUnknownタイルへ移動した時、isStartedDangerousZoneをTrueにする
+        if (
+            self.tileTypes[z][y][x] == mazeEnums.tileType.RED
+            and self.tileTypes[self.currentPosition[2]][self.currentPosition[1]][
+                self.currentPosition[0]
+            ]
+            == mazeEnums.tileType.UNKNOWN
+        ):
+            self.isStartedDangerousZone = True
+
         # if direction == mazeEnums.absDirection.NORTH:
         #     self.currentPosition = (x, y - 1, z)
         # elif direction == mazeEnums.absDirection.EAST:
@@ -656,6 +735,15 @@ class mazeMap:
         self.savedCache["layerInfo"] = copy.deepcopy(self.layerInfo)
         self.savedCache["knownLayerCount"] = self.knownLayerCount
         self.lastCheckpoint = self.currentPosition
+        self.savedCache["isSlopeDetected"] = self.isSlopeDetected
+        self.savedCache["isStartedDangerousZone"] = self.isStartedDangerousZone
+        self.savedCache["seenVictimType"] = [
+            [
+                [{d: set(vt) for d, vt in cell.items()} for cell in row]
+                for row in self.seenVictimType[z]
+            ]
+            for z in range(self.maxLayer)
+        ]
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
         """
@@ -686,6 +774,16 @@ class mazeMap:
             self.currentPosition = self.lastCheckpoint
             self.layerInfo = copy.deepcopy(self.savedCache["layerInfo"])
             self.knownLayerCount = self.savedCache["knownLayerCount"]
+            self.isSlopeDetected = self.savedCache["isSlopeDetected"]
+            self.isStartedDangerousZone = self.savedCache["isStartedDangerousZone"]
+            self.seenVictimType = [
+                [
+                    [{d: set(vt) for d, vt in cell.items()} for cell in row]
+                    for row in self.savedCache["seenVictimType"][z]
+                ]
+                for z in range(self.maxLayer)
+            ]
+            self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
         if self.tileTypes[z][y][x] != mazeEnums.tileType.UNKNOWN:
