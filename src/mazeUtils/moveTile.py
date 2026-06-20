@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 colorSensor = None
 pr = None
-DEBUG_TIMING_LOG = True
+DEBUG_TIMING_LOG = False
 
 lastDist = {
     mazeEnums.absDirection.NORTH: 0,
@@ -142,7 +142,7 @@ def detectTileColor() -> mazeEnums.tileType:
         colorSensor = colorsensor.ColorSensor()
     try:
         if not colorSensor.update():
-            return mazeEnums.tileType.UNKNOWN
+            return mazeEnums.tileType.EMPTY
         r, g, b = colorSensor._colorRGB
         if (
             (
@@ -237,7 +237,7 @@ def escapeFromBlackTile(
             {deviceEnums.Side.LEFT: -100, deviceEnums.Side.RIGHT: -100}
         )
         startEscapeTime = time.time()
-        while time.time() - startEscapeTime < practicalMoveTime*2:
+        while time.time() - startEscapeTime < practicalMoveTime*1:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
@@ -931,7 +931,7 @@ def turnWith45VictimCheck(
             if (not watchVictimFlag[deviceEnums.Side.LEFT]) and (
                 not watchVictimFlag[deviceEnums.Side.RIGHT]
             ):
-                if cnt == 2:
+                if cnt == 2 and _c == 0:
                     for s in deviceEnums.Side: # 次の回転で壁を見るひつようがあるかも見る
                         if (
                             mapInstance.getWallType()[  # 回転する前
@@ -1094,19 +1094,19 @@ def moveTile(
     debugPrint(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
-    if direction != mapInstance.frontDirection:
-        timing_start = debugTimingPrint(
-            f"moveTile start heading change target={direction.value}", timing_start
+
+    timing_start = debugTimingPrint(
+        f"moveTile start heading change target={direction.value}", timing_start
+    )
+    if mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK and direction != mapInstance.frontDirection:
+        turnWith45VictimCheck(direction, stmInstance, mapInstance)
+    else:
+        turnToCertainDirection(
+            direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
         )
-        if mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK:
-            turnWith45VictimCheck(direction, stmInstance, mapInstance)
-        else:
-            turnToCertainDirection(
-                direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
-            )
-        timing_start = debugTimingPrint(
-            "moveTile finished heading change", timing_start
-        )
+    timing_start = debugTimingPrint(
+        "moveTile finished heading change", timing_start
+    )
 
     mapInstance.updateFrontDirection(direction)
     timing_start = debugTimingPrint("moveTile updated front direction", timing_start)
@@ -1363,14 +1363,15 @@ def moveTile(
             break
 
         ####### 被災者発見処理 ######
-        victimRescueFlag = findVictimDuringMove(
-            mapInstance,
-            stmInstance,
-            isWallAhead,
-            consequentSearchRes,
-            getVictimDict,
-            practicalMoveTime,
-        )
+        if min(roll, 360 - roll) < mazeConstraints.RAMP_DEG_THRESHOLD:
+            victimRescueFlag = findVictimDuringMove(
+                mapInstance,
+                stmInstance,
+                isWallAhead,
+                consequentSearchRes,
+                getVictimDict,
+                practicalMoveTime,
+            )
 
         if not victimRescueFlag:
             pratical_loop_time = 0
@@ -1379,15 +1380,16 @@ def moveTile(
             else:
                 pratical_loop_time = time.time() - oldTime
 
+            correction_factor = (0.70 if (roll > 10 and roll < 180) else 1) if not (roll > 180 and roll < 350) else 1.1
             practicalMoveTime += (
                 pratical_loop_time
                 * np.cos(np.radians(abs(roll)))
-                * (0.70 if (roll > 10 and roll < 180) else 1)
+                * correction_factor
             )
             practicalVerticalMoveTime += (
                 pratical_loop_time
                 * math.sin(math.radians(roll))
-                * (0.70 if (roll > 10 and roll < 180) else 1)
+                * correction_factor
             )
 
         debugPrint(
@@ -1468,6 +1470,7 @@ def moveTile(
                     / mazeConstraints.MOVE_STRAIGHT_SEC
                 )
                 < mazeConstraints.STAIR_THRESHOLD_CM
+                and (not any(f for _, f in pastMovedVerticalDistance))
             ):
                 logger.info(
                     "Detected ramp but regarded it as down stairs, treating as normal tile"
@@ -1513,6 +1516,8 @@ def moveTile(
                         1 if RollonRamp[-1] < 180 else -1
                     ),  # 1マスなら15cmの高さ差があると仮定する。
                 )
+                logger.info(
+                    f"Set slope for tile at {direction}, horizontal: {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM} cm, vertical: {(targetSteps - 1) * 15 * (1 if RollonRamp[-1] < 180 else -1)} cm based on roll {RollonRamp[-1]} deg")
                 if RollonRamp[-1] < 180:
                     mapInstance.setMovedVerticalDistance(
                         practicalVerticalMoveTime
@@ -1563,6 +1568,8 @@ def moveTile(
                     * mazeConstraints.TILE_SIZE_CM
                     * math.tan(math.radians(RollonRamp[-1])),
                 )
+                logger.info(
+                    f"Set slope for tile at {direction} with height {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM * math.tan(math.radians(RollonRamp[-1]))} cm based on roll {RollonRamp[-1]} deg")
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
 

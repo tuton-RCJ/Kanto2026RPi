@@ -47,7 +47,7 @@ def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
     stmInstance.update()
     moveTile.turnOffLED(stmInstance)
 
-GAME_TIME_SEC = 80 # 競技走行時間
+GAME_TIME_SEC = 360 # 競技走行時間
 
 def main():
     stmInstance = stm.STM()

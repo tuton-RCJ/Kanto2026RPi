@@ -12,8 +12,8 @@ USE_TURN_METHOD: mazeEnums.turnMethod = (
 USE_MOVE_METHOD: mazeEnums.moveMethod = (
     mazeEnums.moveMethod.SEE_FRONT
 )  # 直進時の制御方法
-TURN_THRESHOLD_DEG_FIX: float = 0.5  # 回転時の誤差許容角度(調整時)
-TURN_THRESHOLD_DEG: float = 10  # 回転時の誤差許容角度
+TURN_THRESHOLD_DEG_FIX: float = 0.8  # 回転時の誤差許容角度(調整時)
+TURN_THRESHOLD_DEG: float = 6  # 回転時の誤差許容角度
 GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.LEFT: 100,
     deviceEnums.Side.RIGHT: 100,
@@ -80,7 +80,7 @@ RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THRESHOLD_FOR_DIFF: float = 15
 
 TURN_90_SEC: float = 0.35  # 90度回転にかかる時間
-MOVE_STRAIGHT_SEC: float = 0.76  # 1マス直進にかかる時間
+MOVE_STRAIGHT_SEC: float = 0.80  # 1マス直進にかかる時間
 MIN_MOVE_STRAIGHT_SEC: float = 0.6  # 最短で1マス直進にかかると考えられる時間
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 BLUE_TILE_WAIT_SEC: float = 5 # 青タイルの待機時間
