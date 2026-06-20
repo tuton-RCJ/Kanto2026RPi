@@ -785,6 +785,60 @@ class mazeMap:
             ]
             self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
 
+    def resetMapData(self) -> None:
+        """
+        @brief マップデータを初期状態にリセットする。キャッシュは保持する。
+        """
+        self.frontDirection = mazeEnums.absDirection.NORTH
+        self.tileTypes = [
+            [
+                [mazeEnums.tileType.UNKNOWN for _ in range(self.maxSize)]
+                for _ in range(self.maxSize)
+            ]
+            for _ in range(self.maxLayer)
+        ]
+        self.tileTypes[0][self.maxSize // 2][self.maxSize // 2] = mazeEnums.tileType.START
+
+        self.wallTypes = [
+            [
+                [
+                    {d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection}
+                    for _ in range(self.maxSize)
+                ]
+                for _ in range(self.maxSize)
+            ]
+            for _ in range(self.maxLayer)
+        ]
+
+        self.mazeAsGraph = [
+            [
+                [{d: None for d in mazeEnums.absDirection} for _ in range(self.maxSize)]
+                for _ in range(self.maxSize)
+            ]
+            for _ in range(self.maxLayer)
+        ]
+
+        self.seenVictimType = [
+            [
+                [{d: set() for d in mazeEnums.absDirection} for _ in range(self.maxSize)]
+                for _ in range(self.maxSize)
+            ]
+            for _ in range(self.maxLayer)
+        ]
+
+        self.layerInfo = [
+            layerInfoData(
+                isKnown=False, layerNumber=i, altitude=0.0, x_offset=0.0, y_offset=0.0
+            )
+            for i in range(self.maxLayer)
+        ]
+        self.layerInfo[0] = layerInfoData(
+            isKnown=True, layerNumber=0, altitude=0.0, x_offset=0.0, y_offset=0.0
+        )
+        self.knownLayerCount = 1
+
+        self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
+
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
         if self.tileTypes[z][y][x] != mazeEnums.tileType.UNKNOWN:
             return True
