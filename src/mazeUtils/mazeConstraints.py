@@ -3,15 +3,15 @@ from .device import deviceEnums
 
 TILE_SIZE_CM: int = 30  # タイル1枚のサイズ
 
-STRAIGHT_GYRO_P_GAIN: float = 0.5
-STRAIGHT_TOF_P_GAIN: float = 0.3
+STRAIGHT_GYRO_P_GAIN: float = 4
+STRAIGHT_TOF_P_GAIN: float = 4
 
-USE_TURN_METHOD: mazeEnums.turnMethod = (
-    mazeEnums.turnMethod.ONLY_GYRO
-)  # 回転時の制御方法
-USE_MOVE_METHOD: mazeEnums.moveMethod = (
-    mazeEnums.moveMethod.SEE_FRONT
-)  # 直進時の制御方法
+# USE_TURN_METHOD: mazeEnums.turnMethod = (
+#     mazeEnums.turnMethod.ONLY_GYRO
+# )  # 回転時の制御方法
+# USE_MOVE_METHOD: mazeEnums.moveMethod = (
+#     mazeEnums.moveMethod.SEE_FRONT
+# )  # 直進時の制御方法
 TURN_THRESHOLD_DEG_FIX: float = 0.8  # 回転時の誤差許容角度(調整時)
 TURN_THRESHOLD_DEG: float = 6  # 回転時の誤差許容角度
 GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {
