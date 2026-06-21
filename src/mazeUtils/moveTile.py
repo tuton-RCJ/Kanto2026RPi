@@ -504,7 +504,7 @@ def detectWall(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     points: list[LiDAR.Point] | None = None,
-) -> None:
+) -> bool:
     """
     @brief LiDARのデータから壁を検出して、mapInstanceの壁情報を更新する
     @param lidar: 使用する LiDAR インスタンス
@@ -573,6 +573,10 @@ def detectWall(
                 logger.warning(
                     f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
                 )
+                return False
+    return True
+            
+            
 
 
 def getVictimInfo(
@@ -1652,7 +1656,13 @@ def moveTile(
         mapInstance.moveTo(direction)
     mapInstance.isSlopeDetected = False
     
-    detectWall(lidar, mapInstance, stmInstance)
+    detectWallRes = detectWall(lidar, mapInstance, stmInstance)
+    if mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR and detectWallRes==False:
+        mapInstance.resetMapData()
+        logger.warning("Wall detection error, resetting internal map data")
+        
+        
+        
     debugTimingPrint("moveTile updated map and detected walls", timing_start)
 
     ##### 移動終了時の被災者検出処理 #####

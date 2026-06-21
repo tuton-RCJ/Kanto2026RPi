@@ -178,7 +178,6 @@ class mazeMap:
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
 
-
         # 直前に上った坂の鉛直距離を3マス分保持
         self.movedVerticalDistanceNUM = 3
         self.movedVerticalDistance: list[tuple[float, bool]] = [
@@ -190,7 +189,17 @@ class mazeMap:
 
         # DangerousZone探索を始めたかどうかのフラグ
         self.isStartedDangerousZone = False
+
+        self.isBrokenMapData = (
+            False  # 壁検出エラーが発生して内部マップを破棄したかどうかのフラグ
+        )
+        self.startPosAfterBreakingMapData = (
+            20,
+            20,
+        )  # マップデータを破壊後、スタート推定に使用。破壊場所と同じレイヤ（レイヤ0）にあったとしたときのX座標とY座標
         
+        self.WallsAroundStartTile: dict[mazeEnums.absDirection, mazeEnums.wallType] = {d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} # スタートタイル周辺の壁の情報。スタート位置推定に使用。
+
         self.saveCache()
 
     def setWallType(
@@ -744,6 +753,7 @@ class mazeMap:
             ]
             for z in range(self.maxLayer)
         ]
+        self.savedCache["isBrokenMapData"] = self.isBrokenMapData
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
         """
@@ -783,12 +793,20 @@ class mazeMap:
                 ]
                 for z in range(self.maxLayer)
             ]
-            self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
+            self.movedVerticalDistance = [
+                (0, False) for _ in range(self.movedVerticalDistanceNUM)
+            ]
+            self.isBrokenMapData = self.savedCache["isBrokenMapData"]
+            
 
     def resetMapData(self) -> None:
         """
         @brief マップデータを初期状態にリセットする。キャッシュは保持する。
         """
+        if self.WallsAroundStartTile == {d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection}: # スタートタイル周辺の壁の情報が未取得の場合、情報を保存
+            for d in mazeEnums.absDirection:
+                self.WallsAroundStartTile[d] = self.wallTypes[0][self.maxSize // 2][self.maxSize // 2][d]
+                
         self.frontDirection = mazeEnums.absDirection.NORTH
         self.tileTypes = [
             [
@@ -797,7 +815,7 @@ class mazeMap:
             ]
             for _ in range(self.maxLayer)
         ]
-        self.tileTypes[0][self.maxSize // 2][self.maxSize // 2] = mazeEnums.tileType.START
+
 
         self.wallTypes = [
             [
@@ -820,7 +838,10 @@ class mazeMap:
 
         self.seenVictimType = [
             [
-                [{d: set() for d in mazeEnums.absDirection} for _ in range(self.maxSize)]
+                [
+                    {d: set() for d in mazeEnums.absDirection}
+                    for _ in range(self.maxSize)
+                ]
                 for _ in range(self.maxSize)
             ]
             for _ in range(self.maxLayer)
@@ -837,7 +858,45 @@ class mazeMap:
         )
         self.knownLayerCount = 1
 
-        self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
+        self.movedVerticalDistance = [
+            (0, False) for _ in range(self.movedVerticalDistanceNUM)
+        ]
+
+        self.isSlopeDetected = False
+        self.isStartedDangerousZone = False
+        self.isBrokenMapData = True
+        
+        # スタート位置の推定に使用する値を、マップデータを破壊したときの位置に合わせて更新する
+        old_start_x, old_start_y = self.startPosAfterBreakingMapData
+        _,_,current_z = self.currentPosition
+        offset_x, offset_y = self.layerInfo[current_z].x_offset, self.layerInfo[current_z].y_offset
+        self.startPosAfterBreakingMapData = (old_start_x - offset_x, old_start_y - offset_y)
+
+
+    def estimateStartTile(self) -> tuple[int, int, int]:
+        """Startタイルの位置を推定する。マップが壊れていなければ初期位置（20,20,0）を返す。
+        マップが壊れている場合は、初期位置との相対位置をもとに、壁情報が一致する位置を探索する。見つからない場合は現在位置を返す。
+        """
+        if not self.isBrokenMapData:
+            return (self.maxSize // 2, self.maxSize // 2, 0)
+
+        cx, cy, cz = self.currentPosition
+        for z in range(self.knownLayerCount):
+            for y in range(self.maxSize):
+                for x in range(self.maxSize):
+                    if self.tileTypes[z][y][x] == mazeEnums.tileType.START:
+                        # STARTタイルが見つかった場合はその位置を返す
+                        return (x, y, z)
+                    if self._is_known_cell(x, y, z):
+                        # 壁情報が一致するか確認
+                        if all(
+                            self.wallTypes[z][y][x][d] == self.wallTypes[cz][cy][cx][d]
+                            for d in mazeEnums.absDirection
+                        ):
+                            return (x, y, z)
+
+        # 見つからない場合は現在位置を返す
+        return self.currentPosition
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
         if self.tileTypes[z][y][x] != mazeEnums.tileType.UNKNOWN:
