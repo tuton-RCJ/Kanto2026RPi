@@ -100,7 +100,7 @@ USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどう�
 USE_SPEED_CONTROL_FOR_STRAIGHT: bool = True  # 直進時に速度制御するかどうか
 
 
-TURN_SPD: int = 50  # 回転時のモーター速度
+TURN_SPD: int = 80  # 回転時のモーター速度
 
 TURN_SPD_SLOW: int = 10  # 回転時のモーター速度(角度補正時、低速)
 
@@ -123,9 +123,10 @@ DEBUG_MODE: bool = True  # デバッグモードの有効化
 USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転の時に被災者検出をするかどうか
 DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
 
+USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING: bool = True  # 回転中に被災者検出をする際に、回転速度を落とすかどうか, USE_45_TURN_WITH_VICTIM_CHECK が False の場合のみ有効
+SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED: int = 30  # 回転中に被災者検出をする際の回転速度, USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING が True の場合のみ有効
 
-
-STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の合計がこの値を下回っていたら、坂判定をしていても階段とみなす。
+STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の合計がこの値を下回っていたら、坂判定をしていても階段とみなす
 
 
 

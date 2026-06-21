@@ -293,6 +293,7 @@ def turnToCertainDirection(
     stmInstance: stm.STM,
     rescueVictim: bool = False,
     mapInstance: mazeMap.mazeMap | None = None,
+    normalTurnSpeed: int = mazeConstraints.TURN_SPD,
 ) -> None:
     """
     @brief 指定した絶対方向に向く
@@ -313,9 +314,9 @@ def turnToCertainDirection(
         turnDirection = getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
 
         (
-            stmInstance.sts3032.turnRight(mazeConstraints.TURN_SPD)
+            stmInstance.sts3032.turnRight(normalTurnSpeed)
             if turnDirection == mazeEnums.turnDirection.RIGHT
-            else stmInstance.sts3032.turnLeft(mazeConstraints.TURN_SPD)
+            else stmInstance.sts3032.turnLeft(normalTurnSpeed)
         )
         debugPrint(
             "current heading:",
@@ -388,9 +389,9 @@ def turnToCertainDirection(
             )
             if rescueStopped or turnDirection != oldTurnDir:
                 (
-                    stmInstance.sts3032.turnRight(mazeConstraints.TURN_SPD)
+                    stmInstance.sts3032.turnRight(normalTurnSpeed)
                     if turnDirection == mazeEnums.turnDirection.RIGHT
-                    else stmInstance.sts3032.turnLeft(mazeConstraints.TURN_SPD)
+                    else stmInstance.sts3032.turnLeft(normalTurnSpeed)
                 )
                 oldTurnDir = turnDirection
                 rescueStopped = False
@@ -1081,6 +1082,127 @@ def turnWith45VictimCheck(
                 mapInstance=mapInstance,
             )
 
+def turnWithSlowVictimCheck(
+    targetDir: mazeEnums.absDirection,
+    stmInstance: stm.STM,
+    mapInstance: mazeMap.mazeMap,
+):
+    """
+    @brief 回転する際にゆっくり回って被災者を確認する関数
+    @param targetDir: 目標の絶対方向 (0-359)
+    """
+    turnDir = (
+        targetDir.value - mapInstance.frontDirection.value + 360
+    ) % 360  # 回転する角度
+
+    cnt = 1
+    if turnDir == 180:
+        cnt = 2
+        turnDir = 90
+    for _c in range(cnt):
+        if turnDir == 90 or turnDir == 270:
+            if turnDir == 270:
+                turnDir = -90
+            # 前と右に壁があるなら、途中で止まる
+
+            watchVictimFlag = {  # 45度回転後に見るか
+                deviceEnums.Side.LEFT: False,
+                deviceEnums.Side.RIGHT: False,
+            }
+            for s in deviceEnums.Side:
+                if (
+                    mapInstance.getWallType()[  # 回転する前
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + turnDir * _c
+                                + (90 if s == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ]
+                    != mazeEnums.wallType.NO_WALL
+                    and mapInstance.getWallType()[  # 回転した後
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + turnDir * (_c + 1)
+                                + (90 if s == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ]
+                    != mazeEnums.wallType.NO_WALL
+                ):
+                    watchVictimFlag[s] = True
+                    
+            if (not watchVictimFlag[deviceEnums.Side.LEFT]) and (
+                not watchVictimFlag[deviceEnums.Side.RIGHT]
+            ): # 45度で止まる必要がない場合
+                if cnt == 2 and _c == 0:
+                    for s in deviceEnums.Side: # 次の回転で壁を見るひつようがあるかも見る
+                        if (
+                            mapInstance.getWallType()[  # 回転する前
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + turnDir * (_c + 1)
+                                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ]
+                            != mazeEnums.wallType.NO_WALL
+                            and mapInstance.getWallType()[  # 回転した後
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + turnDir * (_c + 2)
+                                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ]
+                            != mazeEnums.wallType.NO_WALL
+                        ):
+                            watchVictimFlag[s] = True
+                    if watchVictimFlag[deviceEnums.Side.LEFT] or watchVictimFlag[deviceEnums.Side.RIGHT]: # 見る必要がある
+                        turnToCertainDirection( # 90度で止まる
+                            (mapInstance.frontDirection.value + turnDir * (_c + 1) + turnDir // 2) % 360,
+                            stmInstance,
+                            rescueVictim=False,
+                            mapInstance=mapInstance,
+                        )
+                        continue
+                    else:
+                        # 180度で止まる
+                        turnToCertainDirection(
+                            (mapInstance.frontDirection.value + turnDir * (_c + 2)) % 360,
+                            stmInstance,
+                            rescueVictim=False,
+                            mapInstance=mapInstance,
+                        )
+                        return
+                else:
+                    turnToCertainDirection(
+                        (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
+                        stmInstance,
+                        rescueVictim=False,
+                        mapInstance=mapInstance,
+                    )
+                continue
+            
+
+            # ゆっくり90度回る
+            turnToCertainDirection(
+                (mapInstance.frontDirection.value + turnDir * (_c + 1)) % 360,
+                stmInstance,
+                rescueVictim=True,
+                mapInstance=mapInstance,
+                normalTurnSpeed=mazeConstraints.SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED
+            )
+
+
 
 def moveTile(
     direction: mazeEnums.absDirection,
@@ -1126,10 +1248,13 @@ def moveTile(
     )
     if mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK and direction != mapInstance.frontDirection:
         turnWith45VictimCheck(direction, stmInstance, mapInstance)
+    elif mazeConstraints.USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING and direction != mapInstance.frontDirection:
+        turnWithSlowVictimCheck(direction, stmInstance, mapInstance)
     else:
         turnToCertainDirection(
             direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
         )
+
     timing_start = debugTimingPrint(
         "moveTile finished heading change", timing_start
     )
