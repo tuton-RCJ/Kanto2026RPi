@@ -1253,6 +1253,12 @@ def moveTile(
         f"Moving to {direction} from {mapInstance.currentPosition} facing {mapInstance.frontDirection}"
     )
 
+    ###### もし旋回するならmapInstance.movedVerticalDistanceをリセット（直進時しか階段判定を行う必要はない） ######
+    if direction != mapInstance.frontDirection:
+        for _ in range(3):
+            mapInstance.setMovedVerticalDistance(0, False)
+
+    ###### 移動方向へ旋回 ######
     timing_start = debugTimingPrint(
         f"moveTile start heading change target={direction.value}", timing_start
     )
@@ -1271,11 +1277,6 @@ def moveTile(
 
     mapInstance.updateFrontDirection(direction)
     timing_start = debugTimingPrint("moveTile updated front direction", timing_start)
-    point = LiDAR.getLiDARScan(lidar)
-    timing_start = debugTimingPrint(
-        "moveTile acquired initial LiDAR scan", timing_start
-    )
-    
     
 
 
@@ -1284,6 +1285,7 @@ def moveTile(
         "moveTile stopped motors before alignment", timing_start
     )
 
+    ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
     target_behind_dist = 20
