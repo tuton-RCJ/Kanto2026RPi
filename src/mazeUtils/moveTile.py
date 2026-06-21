@@ -648,13 +648,23 @@ def dropRescueKit(
     ############################
 
     if flashLED_flag:
-        flashLED(
-            stmInstance,
-            mapInstance,
-            5,
-            0.5,
-            color=[(0, 255, 0), (255, 255, 0), (255, 0, 0)][needRescueKitCount],
-        )
+        if mazeConstraints.USE_SAME_COLOR_FOR_VICTIM_DETECTION_LED_BLINK:
+            flashLED(
+                stmInstance,
+                mapInstance,
+                5,
+                0.5,
+                color=(255,255,255),
+            )
+        else:
+            flashLED(
+                stmInstance,
+                mapInstance,
+                5,
+                0.5,
+                color=[(0, 255, 0), (255, 255, 0), (255, 0, 0)][needRescueKitCount],
+            )
+
     oppositeFlag = False
     tileColor = detectTileColor()
     firstHeading = stmInstance.gyro.getValue().heading
