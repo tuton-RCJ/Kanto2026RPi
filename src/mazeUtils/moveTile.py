@@ -411,9 +411,9 @@ def turnToCertainDirection(
             return
         oldTurnDir = getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
         (
-            stmInstance.sts3032.turnRight(5)
+            stmInstance.sts3032.turnRight(mazeConstraints.TURN_SPD_SLOW)
             if oldTurnDir == mazeEnums.turnDirection.RIGHT
-            else stmInstance.sts3032.turnLeft(5)
+            else stmInstance.sts3032.turnLeft(mazeConstraints.TURN_SPD_SLOW)
         )
         while (
             abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))
@@ -423,10 +423,10 @@ def turnToCertainDirection(
                 stmInstance.gyro.getValue().heading, targetDir
             ):
                 (
-                    stmInstance.sts3032.turnRight(5)
+                    stmInstance.sts3032.turnRight(mazeConstraints.TURN_SPD_SLOW)
                     if getTurnDirection(stmInstance.gyro.getValue().heading, targetDir)
                     == mazeEnums.turnDirection.RIGHT
-                    else stmInstance.sts3032.turnLeft(5)
+                    else stmInstance.sts3032.turnLeft(mazeConstraints.TURN_SPD_SLOW)
                 )
                 oldTurnDir = getTurnDirection(
                     stmInstance.gyro.getValue().heading, targetDir
@@ -1138,23 +1138,29 @@ def moveTile(
     )
     
     
-    
-    # DangerousZone内、未探索タイルへの移動で、坂道を検出したら壁と判断。
-    if isUnknownTileAhead and mapInstance.isStartedDangerousZone and mapInstance.isSlopeDetected and mazeConstraints.AVOID_SLOPE_IN_DANGEROUS_ZONE:
-        mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
-        return False, False
+
 
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint(
         "moveTile stopped motors before alignment", timing_start
     )
 
-    ###### 移動前、真後ろが壁であれば位置調整 ######
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
     target_behind_dist = 20
-    # if 0 < behind_wall_dist < 30:
-    if mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] != mazeEnums.wallType.NO_WALL:
+    
+    
+    
+    # DangerousZone内、未探索タイルへの移動で、坂道を検出したら壁と判断。
+    if isUnknownTileAhead and mapInstance.isStartedDangerousZone and mazeConstraints.AVOID_SLOPE_IN_DANGEROUS_ZONE:
+        # 坂道判定
+        stmInstance.frontTSD10.update()
+        if stmInstance.frontTSD10.get_distance() < 300 and (LiDAR.getCertainAngleDist(direction.value, pts) - stmInstance.frontTSD10.get_distance() / 10)> mazeConstraints.WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM:
+            mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+            return False, False
+
+    ###### 移動前、真後ろが壁であれば位置調整 ######
+    if 0 < behind_wall_dist < 30 and mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] != mazeEnums.wallType.NO_WALL:
         timing_start = debugTimingPrint(
             f"moveTile start backward adjustment behind_wall_dist={behind_wall_dist}",
             timing_start,
@@ -1352,7 +1358,7 @@ def moveTile(
                 logger.debug(
                     f"Obstacle escape adjustment: {(time.time() - oldTime) * np.cos(np.radians(abs(stmInstance.gyro.getValue().roll))) * 0.1}"
                 )
-                practicalMoveTime -= 0.16
+                practicalMoveTime -= 0.12
                 escapeFlag = True
                 time.sleep(0.1)
                 stmInstance.update()
@@ -1386,7 +1392,7 @@ def moveTile(
                 "moveTile finished by front distance control", timing_start
             )
             break
-
+        victimRescueFlag = False
         ####### 被災者発見処理 ######
         if min(roll, 360 - roll) < mazeConstraints.RAMP_DEG_THRESHOLD:
             victimRescueFlag = findVictimDuringMove(

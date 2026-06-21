@@ -12,7 +12,7 @@ STRAIGHT_TOF_P_GAIN: float = 4
 # USE_MOVE_METHOD: mazeEnums.moveMethod = (
 #     mazeEnums.moveMethod.SEE_FRONT
 # )  # 直進時の制御方法
-TURN_THRESHOLD_DEG_FIX: float = 0.8  # 回転時の誤差許容角度(調整時)
+TURN_THRESHOLD_DEG_FIX: float = 2  # 回転時の誤差許容角度(調整時)
 TURN_THRESHOLD_DEG: float = 6  # 回転時の誤差許容角度
 GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.LEFT: 100,
@@ -100,7 +100,9 @@ USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどう�
 USE_SPEED_CONTROL_FOR_STRAIGHT: bool = True  # 直進時に速度制御するかどうか
 
 
-TURN_SPD: int = 80  # 回転時のモーター速度
+TURN_SPD: int = 50  # 回転時のモーター速度
+
+TURN_SPD_SLOW: int = 10  # 回転時のモーター速度(角度補正時、低速)
 
 TURN_P = 2  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン
@@ -118,7 +120,7 @@ DEBUG_MODE: bool = True  # デバッグモードの有効化
 
 
 # 45度回転の時の被災者検出のパラメータ
-USE_45_TURN_WITH_VICTIM_CHECK: bool = True  # 45度回転の時に被災者検出をするかどうか
+USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転の時に被災者検出をするかどうか
 DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
 
 
@@ -130,7 +132,7 @@ STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の
 ####### Dangerous Zone関連のモード
 
 AVOID_DANGEROUS_ZONE: bool = True  # Dangerous Zoneを避けるかどうか
-AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = True  # Dangerous Zone内の坂を避けるかどうか
+AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = False  # Dangerous Zone内の坂を避けるかどうか
 
 
 ###### レスキューキット投下ルール
