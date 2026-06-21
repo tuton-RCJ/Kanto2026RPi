@@ -62,6 +62,7 @@ def main():
     stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     gameStartTime = time.time()
     time.sleep(1)
+
     try:
         while True:
             stmInstance.update()
@@ -98,6 +99,7 @@ def main():
                         break
                     # moveTile.turnOffLED(stmInstance)
                 nextDirection = mapInstance.getNearestUnexploredTile()
+                # nextDirection = [mazeEnums.absDirection.NORTH]  # 常に北を目指す戦略に変更
             if isLoP:
                 isLoP = False
                 continue

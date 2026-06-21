@@ -677,7 +677,7 @@ class mazeMap:
         """
         x, y, z = self.currentPosition
         if self.wallTypes[z][y][x][direction] != mazeEnums.wallType.NO_WALL:
-            logger.debug(
+            logger.warning(
                 f"Moving to wall direction: {direction}\n{self.renderKnownTileAndWall()}"
             )
         self.currentPosition = self.mazeAsGraph[z][y][x][direction][0:3]  # type: ignore
