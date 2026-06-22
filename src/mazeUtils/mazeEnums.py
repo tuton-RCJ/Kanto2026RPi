@@ -85,6 +85,11 @@ class moveMethod(Enum):
     SEE_CORNER = 0
     SEE_FRONT = 1
 
+class returnJudgeMode(Enum):
+    ONLY_TIME_BASED = 0 # 制限時間のみで帰還開始を判断する
+    ALL_TILES_EXPLORED = 1 # 全てのタイルが探索されたら帰還開始
+    TIME_BASED_WITH_DISTANCE = 2 # スタートタイルに帰還するのにかかる時間が制限時間を超えると判断したら帰還開始
+
 directionToDelta = {
     absDirection.NORTH: (0, -1),
     absDirection.EAST: (1, 0),

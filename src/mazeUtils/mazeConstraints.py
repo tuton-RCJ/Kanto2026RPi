@@ -148,3 +148,22 @@ USE_SAME_COLOR_FOR_VICTIM_DETECTION_LED_BLINK : bool = False  # 被災者検出�
 ###### エラーハンドリング
 
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = True  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
+
+
+
+###### Dijkstraのコスト計算の定数値。実測値を代入する。
+DIJKSTRA_COST_STRAIGHT_ONE_TILE: float = 1.0  # 直進のコスト
+DIJKSTRA_COST_TURN_90_DEG: float = 1.0  # 回転のコスト
+DIJKSTRA_COST_BLUE_TILE: float = 5.0  # 青タイルの追加コスト
+
+
+
+##### 帰還開始判定
+
+RETURN_JUDGE_MODE: mazeEnums.returnJudgeMode = mazeEnums.returnJudgeMode.ONLY_TIME_BASED  # 帰還開始判定のモード
+
+GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
+
+RETURN_TIME_THRESHOLD_SEC: float = 360.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
+
+RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 400.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)

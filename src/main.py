@@ -47,7 +47,9 @@ def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
     stmInstance.update()
     moveTile.turnOffLED(stmInstance)
 
-GAME_TIME_SEC = 360 # 帰還開始までの制限時間(秒)
+
+GAME_TIME_SEC = 360  # 帰還開始までの制限時間(秒)
+
 
 def main():
     stmInstance = stm.STM()
@@ -75,14 +77,23 @@ def main():
             logger.info("Exploration started.")
             isLoP = False
             while nextDirection is not None and not isLoP:
-                
-                if time.time() - gameStartTime > GAME_TIME_SEC:
-                    logger.info("Time's up! Starting return to the starting point.")
-                    break
-                
-                
+
+                if (
+                    mazeConstraints.RETURN_JUDGE_MODE
+                    == mazeEnums.returnJudgeMode.ONLY_TIME_BASED
+                ):
+                    if time.time() - gameStartTime > GAME_TIME_SEC:
+                        logger.info("Time's up! Starting return to the starting point.")
+                        break
+                if (mazeConstraints.RETURN_JUDGE_MODE
+                    == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
+                    estReturnTime = time.time() + mapInstance.getCostToStartTile()
+                    if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
+                        logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
+                        break
+
                 # nextDirection = mapInstance.getNearestUnexploredTile()
-                
+
                 if nextDirection is None:
                     continue
                 for direction in nextDirection:

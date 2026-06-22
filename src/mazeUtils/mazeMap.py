@@ -79,13 +79,13 @@ def dijkstra(
                 continue
             nx, ny, nz, d = neighbor
             turn_q = _turn_quarters(heading, move_dir)
-            step_cost = (turn_q * float(mazeConstraints.TURN_90_SEC)) + float(
-                mazeConstraints.MOVE_STRAIGHT_SEC * d / mazeConstraints.TILE_SIZE_CM
+            step_cost = (turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)) + float(
+                mazeConstraints.DIJKSTRA_COST_STRAIGHT_ONE_TILE * d / mazeConstraints.TILE_SIZE_CM
             )
 
             # 青タイルならコストを追加
             if getTileType((nx, ny, nz)) == mazeEnums.tileType.BLUE:
-                step_cost += mazeConstraints.BLUE_TILE_WAIT_SEC
+                step_cost += mazeConstraints.DIJKSTRA_COST_BLUE_TILE
 
             # 赤タイル -> Unknownの移動はコストを大きくする（先にDangerous以外を全部探索する）
             if (
@@ -603,6 +603,42 @@ class mazeMap:
     #     """
     #     x, y = self.currentPosition
     #     return self.tileTypes[y][x]
+    
+    def getCostToStartTile(self) -> float:
+        """
+        @brief スタートタイルまでのコストを取得する
+        @return: スタートタイルまでのコスト(SEC)。到達不可能な場合は 0 を返す
+        """
+        x, y, z = self.currentPosition
+        path = dijkstra(
+            self.mazeAsGraph,
+            (x, y, z),
+            self.frontDirection,
+            lambda pos: pos == (self.maxSize // 2, self.maxSize // 2, 0), # TODO: スタートタイル考える
+            lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]],
+        )
+
+        if path is None:
+            return 0.0
+
+        cost = 0.0
+        for i in range(1, len(path)):
+            currX, currY, currZ = path[i - 1]
+            nextX, nextY, nextZ = path[i]
+            for direction in mazeEnums.absDirection:
+                neighbor = self.mazeAsGraph[currZ][currY][currX][direction]
+                if neighbor is None:
+                    continue
+                nx, ny, nz, d = neighbor
+                if (nx, ny, nz) == (nextX, nextY, nextZ):
+                    turn_q = _turn_quarters(self.frontDirection, direction)
+                    step_cost = (turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)) + float(
+                        mazeConstraints.DIJKSTRA_COST_STRAIGHT_ONE_TILE * d / mazeConstraints.TILE_SIZE_CM
+                    )
+                    cost += step_cost
+                    self.frontDirection = direction
+                    break
+        return cost
 
     def getNearestUnexploredTile(self) -> list[mazeEnums.absDirection] | None:
         """
