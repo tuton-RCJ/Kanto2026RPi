@@ -23,6 +23,7 @@ class ColorSensor:
         self._serial = serial.Serial(port=self.port, baudrate=115200)
 
         self._colorRGB = (0, 0, 0)
+        self._reflectance = (0, 0)
         self._seq: int = 0
         self._timeout = 0.05
 
@@ -31,6 +32,7 @@ class ColorSensor:
         data = self._requestSensorValues()
         if data is not None:
             self._colorRGB = (data[0], data[1], data[2])
+            self._reflectance = (data[3], data[4])
             return True
         else:
             return False
@@ -45,22 +47,22 @@ class ColorSensor:
 
         # レスポンス待機
         start_time = time.time()
-        while self._serial.in_waiting < 6:
+        while self._serial.in_waiting < 8:
             if time.time() - start_time > self._timeout:
                 logger.warning("STM UART timeout")
                 return None
 
-        data: bytes = self._serial.read(6)
-        for i in range(6):
+        data: bytes = self._serial.read(8)
+        for i in range(8):
             # print(f"data[{i}]: {data[i]}")
             pass
         # データのチェック
         if data[0] == 0x00 and data[1] == self._seq:
             checkDigit = 0
-            for b in data[0:5]:
+            for b in data[0:7]:
                 checkDigit ^= b
-            if checkDigit == data[5]:
-                return data[2:5]
+            if checkDigit == data[7]:
+                return data[2:7]
         logger.warning("STM UART data error")
         return None
 
