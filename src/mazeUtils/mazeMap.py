@@ -115,7 +115,7 @@ class layerInfoData:
     altitude: float  # レイヤー0からの高度差（cm）
     x_offset: float  # レイヤー0からのx方向のオフセット（cm）
     y_offset: float  # レイヤー0からのy方向のオフセット（cm）
-
+    # offsetは、レイヤーxの座標にoffsetを足すと、レイヤー0に投影した座標になるような値
 
 class mazeMap:
     def __init__(self, maxSize: int = 40, maxLayer: int = 10) -> None:
@@ -610,11 +610,13 @@ class mazeMap:
         @return: スタートタイルまでのコスト(SEC)。到達不可能な場合は 0 を返す
         """
         x, y, z = self.currentPosition
+        
+        start_tile_position = self.estimateStartTile()
         path = dijkstra(
             self.mazeAsGraph,
             (x, y, z),
             self.frontDirection,
-            lambda pos: pos == (self.maxSize // 2, self.maxSize // 2, 0), # TODO: スタートタイル考える
+            lambda pos: pos == start_tile_position, 
             lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]],
         )
 
@@ -922,20 +924,55 @@ class mazeMap:
         if not self.isBrokenMapData:
             return (self.maxSize // 2, self.maxSize // 2, 0)
 
-        cx, cy, cz = self.currentPosition
+
+        # 全てのレイヤー、スタート位置＋周囲4方向のタイルを探索
         for z in range(self.knownLayerCount):
-            for y in range(self.maxSize):
-                for x in range(self.maxSize):
-                    if self.tileTypes[z][y][x] == mazeEnums.tileType.START:
-                        # STARTタイルが見つかった場合はその位置を返す
+            nx,ny = self.startPosAfterBreakingMapData
+            nx -= self.layerInfo[z].x_offset
+            ny -= self.layerInfo[z].y_offset
+            for dx in range(-1, 2):
+                for dy in range(-1, 2):
+                    if dx != 0 and dy != 0:
+                        continue
+                    x = int(nx + dx)
+                    y = int(ny + dy)
+                    if not (0 <= x < self.maxSize and 0 <= y < self.maxSize):
+                        continue
+                    if self.tileTypes[z][y][x] == mazeEnums.tileType.UNKNOWN:
+                        continue
+
+                    # 壁情報が一致するか確認
+                    match = True
+                    for d in mazeEnums.absDirection:
+                        if self.wallTypes[z][y][x][d] != self.WallsAroundStartTile[d]:
+                            match = False
+                            break
+                        
+                    # 周囲4つのマスの壁情報も一致するか確認
+                    for d in mazeEnums.absDirection:
+                        nx, ny = x, y
+                        if d == mazeEnums.absDirection.NORTH:
+                            ny -= 1
+                        elif d == mazeEnums.absDirection.EAST:
+                            nx += 1
+                        elif d == mazeEnums.absDirection.SOUTH:
+                            ny += 1
+                        elif d == mazeEnums.absDirection.WEST:
+                            nx -= 1
+                        if not (0 <= nx < self.maxSize and 0 <= ny < self.maxSize):
+                            continue
+                        if self.tileTypes[z][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                            continue
+                        for nd in mazeEnums.absDirection:
+                            if self.wallTypes[z][ny][nx][nd] != self.WallsAroundStartTile[nd]:
+                                match = False
+                                break
+                        if not match:
+                            break
+                    if match:
+                        logger.debug(f"Estimated start tile at ({x}, {y}, {z}) based on wall information.")
                         return (x, y, z)
-                    if self._is_known_cell(x, y, z):
-                        # 壁情報が一致するか確認
-                        if all(
-                            self.wallTypes[z][y][x][d] == self.wallTypes[cz][cy][cx][d]
-                            for d in mazeEnums.absDirection
-                        ):
-                            return (x, y, z)
+
 
         # 見つからない場合は現在位置を返す
         return self.currentPosition
