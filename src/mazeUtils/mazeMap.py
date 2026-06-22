@@ -571,6 +571,12 @@ class mazeMap:
         """
         return self.movedVerticalDistance[:]
 
+    def resetMovedVerticalDistance(self) -> None:
+        """
+        @brief 直前に移動した坂の鉛直距離をリセットする
+        """
+        self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
+
     # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
     #     """
     #     @brief 現在位置の周囲のタイルタイプを取得する

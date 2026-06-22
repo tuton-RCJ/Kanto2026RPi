@@ -1255,8 +1255,7 @@ def moveTile(
 
     ###### もし旋回するならmapInstance.movedVerticalDistanceをリセット（直進時しか階段判定を行う必要はない） ######
     if direction != mapInstance.frontDirection:
-        for _ in range(3):
-            mapInstance.setMovedVerticalDistance(0, False)
+        mapInstance.resetMovedVerticalDistance()
 
     ###### 移動方向へ旋回 ######
     timing_start = debugTimingPrint(
@@ -1686,8 +1685,7 @@ def moveTile(
                     mapInstance.setTileType(
                         mazeEnums.tileType.EMPTY
                     )
-                for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0, False)
+                mapInstance.resetMovedVerticalDistance()
 
             else:
                 mapInstance.setSlope(
@@ -1749,8 +1747,7 @@ def moveTile(
                 #         mapInstance.setTileType(
                 #             mazeEnums.tileType.EMPTY
                 #         )
-                for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0, False)
+                mapInstance.resetMovedVerticalDistance()
             else:
                 mapInstance.setSlope(
                     direction,
@@ -1761,8 +1758,7 @@ def moveTile(
                 )
                 logger.info(
                     f"Set slope for tile at {direction}, horizontal: {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM}, height {(targetSteps - 1) * mazeConstraints.TILE_SIZE_CM * math.tan(math.radians(RollonRamp[-1]))} cm based on roll {RollonRamp[-1]} deg")
-                for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0, False)
+                mapInstance.resetMovedVerticalDistance()
 
     #### movedVerticalDistanceを更新、上り坂検出下り坂未検出の階段検知
     if targetSteps == 1 and isUnknownTileAhead:
@@ -1787,9 +1783,7 @@ def moveTile(
                 mapInstance.setSlope(
                     direction, 0, -15
                 )  # 1マスで移動した時しかこのように判断しないはずなので、高さ差15cmの坂。
-
-                for _ in range(3):
-                    mapInstance.setMovedVerticalDistance(0, False)
+                mapInstance.resetMovedVerticalDistance()
             # 階段と判定
             pass
         if True:
