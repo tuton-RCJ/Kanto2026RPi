@@ -113,6 +113,14 @@ STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の
 
 
 
+##### 坂道例外処理
+
+
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = True # 坂道の途中で前に壁を検出した時に引き返すか
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 20.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 20.0 # 下り坂道の途中で前に壁を検出した時に引き返すかのしきい値
+
+
 ###### Dangerous Zone関連
 
 AVOID_DANGEROUS_ZONE: bool = True  # Dangerous Zoneを避けるかどうか
