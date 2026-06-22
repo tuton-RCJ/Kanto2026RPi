@@ -1533,9 +1533,11 @@ def moveTile(
                 "moveTile finished by front distance control", timing_start
             )
             break
-        victimRescueFlag = False
+        
+       
         ####### 被災者発見処理 ######
-        if min(roll, 360 - roll) < mazeConstraints.RAMP_DEG_THRESHOLD:
+        victimRescueFlag = False
+        if min(roll, 360 - roll) < mazeConstraints.RAMP_DEG_THRESHOLD: # 坂道でない場合のみ被災者検知を行う
             victimRescueFlag = findVictimDuringMove(
                 mapInstance,
                 stmInstance,
@@ -1710,35 +1712,43 @@ def moveTile(
                     mapInstance.setMovedVerticalDistance(0, False)
         else:
             if RollonRamp[0] < 180 and RollonRamp[-1] > 180:  # 階段だった
-                for i in range(targetSteps - 1):
-                    mapInstance.moveTo(direction)
-                    # 左右に壁を設定
-                    for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
-                        mapInstance.setWallType(
-                            mazeEnums.absDirection(
-                                (
-                                    direction.value
-                                    + (90 if s == deviceEnums.Side.LEFT else 270)
-                                )
-                                % 360
-                            ),
-                            mazeEnums.wallType.WALL,
-                        )
-                        # 前後にはNO_WALLを設定
-                        mapInstance.setWallType(
-                            mazeEnums.absDirection(
-                                (
-                                    direction.value
-                                    + (0 if s == deviceEnums.Side.LEFT else 180)
-                                )
-                                % 360
-                            ),
-                            mazeEnums.wallType.NO_WALL,
-                        )
-                        # TileTypeを設定
-                        mapInstance.setTileType(
-                            mazeEnums.tileType.EMPTY
-                        )
+                # 高さ0のスロープを設置
+                mapInstance.setSlope(
+                    direction,
+                    (targetSteps - 1) * mazeConstraints.TILE_SIZE_CM,
+                    0,
+                )
+                logger.info("Detected stairs, set slope with 0cm height difference")
+                
+                # for i in range(targetSteps - 1):
+                #     mapInstance.moveTo(direction)
+                #     # 左右に壁を設定
+                #     for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                #         mapInstance.setWallType(
+                #             mazeEnums.absDirection(
+                #                 (
+                #                     direction.value
+                #                     + (90 if s == deviceEnums.Side.LEFT else 270)
+                #                 )
+                #                 % 360
+                #             ),
+                #             mazeEnums.wallType.WALL,
+                #         )
+                #         # 前後にはNO_WALLを設定
+                #         mapInstance.setWallType(
+                #             mazeEnums.absDirection(
+                #                 (
+                #                     direction.value
+                #                     + (0 if s == deviceEnums.Side.LEFT else 180)
+                #                 )
+                #                 % 360
+                #             ),
+                #             mazeEnums.wallType.NO_WALL,
+                #         )
+                #         # TileTypeを設定
+                #         mapInstance.setTileType(
+                #             mazeEnums.tileType.EMPTY
+                #         )
                 for _ in range(3):
                     mapInstance.setMovedVerticalDistance(0, False)
             else:
