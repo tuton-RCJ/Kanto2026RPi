@@ -1284,6 +1284,9 @@ def moveTile(
         "moveTile stopped motors before alignment", timing_start
     )
 
+    # ディスプレイを更新
+    stmInstance.rearSTM.update_oled(*mapInstance.currentPosition, mapInstance.frontDirection.value)
+    
     ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
@@ -1805,6 +1808,9 @@ def moveTile(
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
     else:
         mapInstance.moveTo(direction)
+        
+    stmInstance.rearSTM.update_oled(*mapInstance.currentPosition, mapInstance.frontDirection.value)
+    
     mapInstance.isSlopeDetected = False
     
     detectWallRes = detectWall(lidar, mapInstance, stmInstance)

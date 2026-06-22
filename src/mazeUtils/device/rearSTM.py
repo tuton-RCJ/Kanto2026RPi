@@ -117,15 +117,15 @@ class RearSTM:
 
         return True
 
-    def update_oled(self, x_coord: int, y_coord: int, direction: int) -> bool:
-        if not (0 <= x_coord <= 255 and 0 <= y_coord <= 255):
+    def update_oled(self, x_coord: int, y_coord: int,z_coord: int, direction: int) -> bool:
+        if not (0 <= x_coord <= 255 and 0 <= y_coord <= 255 and 0 <= z_coord <= 255):
             return False
         if not (0 <= direction <= 3):
             return False
 
         msg_type = 1
         self._update_seq()
-        payload = [msg_type, self._seq, x_coord, y_coord, direction]
+        payload = [msg_type, self._seq, x_coord, y_coord, z_coord, direction]
         check_digit = self._xor_check_digit(payload)
         self._serial.write(bytes(payload + [check_digit]))
 
@@ -183,7 +183,7 @@ class _NullRearSTM:
     def victimled(self, color: tuple[int, int, int]) -> bool:
         return False
 
-    def update_oled(self, x_coord: int, y_coord: int, direction: int) -> bool:
+    def update_oled(self, x_coord: int, y_coord: int, z_coord: int, direction: int) -> bool:
         return False
 
     def send_message(self, message: str) -> bool:
