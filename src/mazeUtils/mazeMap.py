@@ -79,8 +79,12 @@ def dijkstra(
                 continue
             nx, ny, nz, d = neighbor
             turn_q = _turn_quarters(heading, move_dir)
-            step_cost = (turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)) + float(
-                mazeConstraints.DIJKSTRA_COST_STRAIGHT_ONE_TILE * d / mazeConstraints.TILE_SIZE_CM
+            step_cost = (
+                turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)
+            ) + float(
+                mazeConstraints.DIJKSTRA_COST_STRAIGHT_ONE_TILE
+                * d
+                / mazeConstraints.TILE_SIZE_CM
             )
 
             # 青タイルならコストを追加
@@ -116,6 +120,7 @@ class layerInfoData:
     x_offset: float  # レイヤー0からのx方向のオフセット（cm）
     y_offset: float  # レイヤー0からのy方向のオフセット（cm）
     # offsetは、レイヤーxの座標にoffsetを足すと、レイヤー0に投影した座標になるような値
+
 
 class mazeMap:
     def __init__(self, maxSize: int = 40, maxLayer: int = 10) -> None:
@@ -197,8 +202,10 @@ class mazeMap:
             20,
             20,
         )  # マップデータを破壊後、スタート推定に使用。破壊場所と同じレイヤ（レイヤ0）にあったとしたときのX座標とY座標
-        
-        self.WallsAroundStartTile: dict[mazeEnums.absDirection, mazeEnums.wallType] = {d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection} # スタートタイル周辺の壁の情報。スタート位置推定に使用。
+
+        self.WallsAroundStartTile: dict[mazeEnums.absDirection, mazeEnums.wallType] = {
+            d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection
+        }  # スタートタイル周辺の壁の情報。スタート位置推定に使用。
 
         self.saveCache()
 
@@ -575,7 +582,9 @@ class mazeMap:
         """
         @brief 直前に移動した坂の鉛直距離をリセットする
         """
-        self.movedVerticalDistance = [(0, False) for _ in range(self.movedVerticalDistanceNUM)]
+        self.movedVerticalDistance = [
+            (0, False) for _ in range(self.movedVerticalDistanceNUM)
+        ]
 
     # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
     #     """
@@ -603,20 +612,20 @@ class mazeMap:
     #     """
     #     x, y = self.currentPosition
     #     return self.tileTypes[y][x]
-    
+
     def getCostToStartTile(self) -> float:
         """
         @brief スタートタイルまでのコストを取得する
         @return: スタートタイルまでのコスト(SEC)。到達不可能な場合は 0 を返す
         """
         x, y, z = self.currentPosition
-        
+
         start_tile_position = self.estimateStartTile()
         path = dijkstra(
             self.mazeAsGraph,
             (x, y, z),
             self.frontDirection,
-            lambda pos: pos == start_tile_position, 
+            lambda pos: pos == start_tile_position,
             lambda pos: self.tileTypes[pos[2]][pos[1]][pos[0]],
         )
 
@@ -634,8 +643,12 @@ class mazeMap:
                 nx, ny, nz, d = neighbor
                 if (nx, ny, nz) == (nextX, nextY, nextZ):
                     turn_q = _turn_quarters(self.frontDirection, direction)
-                    step_cost = (turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)) + float(
-                        mazeConstraints.DIJKSTRA_COST_STRAIGHT_ONE_TILE * d / mazeConstraints.TILE_SIZE_CM
+                    step_cost = (
+                        turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)
+                    ) + float(
+                        mazeConstraints.DIJKSTRA_COST_STRAIGHT_ONE_TILE
+                        * d
+                        / mazeConstraints.TILE_SIZE_CM
                     )
                     cost += step_cost
                     self.frontDirection = direction
@@ -841,16 +854,19 @@ class mazeMap:
                 (0, False) for _ in range(self.movedVerticalDistanceNUM)
             ]
             self.isBrokenMapData = self.savedCache["isBrokenMapData"]
-            
 
     def resetMapData(self) -> None:
         """
         @brief マップデータを初期状態にリセットする。キャッシュは保持する。
         """
-        if self.WallsAroundStartTile == {d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection}: # スタートタイル周辺の壁の情報が未取得の場合、情報を保存
+        if self.WallsAroundStartTile == {
+            d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection
+        }:  # スタートタイル周辺の壁の情報が未取得の場合、情報を保存
             for d in mazeEnums.absDirection:
-                self.WallsAroundStartTile[d] = self.wallTypes[0][self.maxSize // 2][self.maxSize // 2][d]
-                
+                self.WallsAroundStartTile[d] = self.wallTypes[0][self.maxSize // 2][
+                    self.maxSize // 2
+                ][d]
+
         self.frontDirection = mazeEnums.absDirection.NORTH
         self.tileTypes = [
             [
@@ -859,7 +875,6 @@ class mazeMap:
             ]
             for _ in range(self.maxLayer)
         ]
-
 
         self.wallTypes = [
             [
@@ -909,13 +924,18 @@ class mazeMap:
         self.isSlopeDetected = False
         self.isStartedDangerousZone = False
         self.isBrokenMapData = True
-        
+
         # スタート位置の推定に使用する値を、マップデータを破壊したときの位置に合わせて更新する
         old_start_x, old_start_y = self.startPosAfterBreakingMapData
-        _,_,current_z = self.currentPosition
-        offset_x, offset_y = self.layerInfo[current_z].x_offset, self.layerInfo[current_z].y_offset
-        self.startPosAfterBreakingMapData = (old_start_x - offset_x, old_start_y - offset_y)
-
+        _, _, current_z = self.currentPosition
+        offset_x, offset_y = (
+            self.layerInfo[current_z].x_offset,
+            self.layerInfo[current_z].y_offset,
+        )
+        self.startPosAfterBreakingMapData = (
+            old_start_x - offset_x,
+            old_start_y - offset_y,
+        )
 
     def estimateStartTile(self) -> tuple[int, int, int]:
         """Startタイルの位置を推定する。マップが壊れていなければ初期位置（20,20,0）を返す。
@@ -924,10 +944,9 @@ class mazeMap:
         if not self.isBrokenMapData:
             return (self.maxSize // 2, self.maxSize // 2, 0)
 
-
         # 全てのレイヤー、スタート位置＋周囲4方向のタイルを探索
         for z in range(self.knownLayerCount):
-            nx,ny = self.startPosAfterBreakingMapData
+            nx, ny = self.startPosAfterBreakingMapData
             nx -= self.layerInfo[z].x_offset
             ny -= self.layerInfo[z].y_offset
             for dx in range(-1, 2):
@@ -947,7 +966,7 @@ class mazeMap:
                         if self.wallTypes[z][y][x][d] != self.WallsAroundStartTile[d]:
                             match = False
                             break
-                        
+
                     # 周囲4つのマスの壁情報も一致するか確認
                     for d in mazeEnums.absDirection:
                         nx, ny = x, y
@@ -964,15 +983,19 @@ class mazeMap:
                         if self.tileTypes[z][ny][nx] == mazeEnums.tileType.UNKNOWN:
                             continue
                         for nd in mazeEnums.absDirection:
-                            if self.wallTypes[z][ny][nx][nd] != self.WallsAroundStartTile[nd]:
+                            if (
+                                self.wallTypes[z][ny][nx][nd]
+                                != self.WallsAroundStartTile[nd]
+                            ):
                                 match = False
                                 break
                         if not match:
                             break
                     if match:
-                        logger.debug(f"Estimated start tile at ({x}, {y}, {z}) based on wall information.")
+                        logger.debug(
+                            f"Estimated start tile at ({x}, {y}, {z}) based on wall information."
+                        )
                         return (x, y, z)
-
 
         # 見つからない場合は現在位置を返す
         return self.currentPosition
