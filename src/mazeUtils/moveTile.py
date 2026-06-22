@@ -803,6 +803,7 @@ def findVictimDuringMove(
                 
                 # 行き過ぎてしまうことが多いので、少し下がる
                 if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                    logger.info("Moving backward before dropping rescue kit")
                     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
                     time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                     stmInstance.sts3032.stop()
@@ -835,7 +836,6 @@ def findVictimDuringMove(
                     consequentSearchRes[side],
                 )
 
-                
                 # 下がった分前進して元の位置に戻る
                 if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
                     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
@@ -1878,7 +1878,20 @@ def moveTile(
         ):
 
             logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+            
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                logger.info("Moving backward before dropping rescue kit")
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
+                time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                stmInstance.sts3032.stop()
+
             dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
+            
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                stmInstance.sts3032.stop()
+
             # SeenVictimTypeに追加。
             mapInstance.addSeenVictimType(
                 [
