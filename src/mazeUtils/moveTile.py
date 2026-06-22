@@ -1509,40 +1509,6 @@ def moveTile(
         ###### 1マス移動完了判定（時間制御） ######
         if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
             if isUnknownTileAhead and isBigRamp:
-                if mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP:
-                    detectFlag = False
-                    if stmInstance.gyro.getValue().roll < 180: # 上り坂
-                        if stmInstance.tof.getDistance()[0] < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM:
-                            stmInstance.sts3032.stop()
-                            logger.info("Front wall detected on up ramp, stopping movement")
-                            detectFlag = True
-                            
-                    else:
-                        if stmInstance.tof.getDistance()[0] < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM:
-                            stmInstance.sts3032.stop()
-                            logger.info("Front wall detected on down ramp, stopping movement")
-                            detectFlag = True
-                    if detectFlag:
-                        # 下がる
-                        _practicalMoveTime = 0
-                        _startTime = time.time()
-                        while _practicalMoveTime < mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
-                            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_MAX_SPEED)
-                            stmInstance.update()
-                            if stmInstance.switch.getToggleSwitch1():
-                                stmInstance.sts3032.stop()
-                                return False, True
-                            roll = stmInstance.gyro.getValue().roll
-                            _correction_factor = (0.80 if (roll > 6 and roll < 180) else 1) if not (roll > 180 and roll < 350) else 1.1
-                            _practicalMoveTime += (
-                                (time.time() - _startTime)
-                                * np.cos(np.radians(abs(roll)))
-                                * _correction_factor
-                            )
-                            _startTime = time.time()
-                        stmInstance.sts3032.stop()
-                        return True,False # 黒タイルとして登録すればOK。
-
                 targetSteps += 1
                 RollonRamp.append(stmInstance.gyro.getValue().roll)
                 continue
@@ -1567,6 +1533,40 @@ def moveTile(
             )
             break
         
+        ### 坂道で前方の壁を検知したら、引き返す処理
+        if mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP:
+            detectFlag = False
+            if stmInstance.gyro.getValue().roll < 180: # 上り坂
+                if stmInstance.tof.getDistance()[0] < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM:
+                    stmInstance.sts3032.stop()
+                    logger.info("Front wall detected on up ramp, stopping movement")
+                    detectFlag = True
+            else:
+                if stmInstance.tof.getDistance()[0] < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM:
+                    stmInstance.sts3032.stop()
+                    logger.info("Front wall detected on down ramp, stopping movement")
+                    detectFlag = True
+            if detectFlag:
+                # 下がる
+                _practicalMoveTime = 0
+                _startTime = time.time()
+                while _practicalMoveTime < practicalMoveTime:  # TODO: 直進に壁の距離とジャイロの補正をかけるようにする？
+                    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_MAX_SPEED)
+                    stmInstance.update()
+                    if stmInstance.switch.getToggleSwitch1():
+                        stmInstance.sts3032.stop()
+                        return False, True
+                    roll = stmInstance.gyro.getValue().roll
+                    _correction_factor = (0.80 if (roll > 6 and roll < 180) else 1) if not (roll > 180 and roll < 350) else 1.1
+                    _practicalMoveTime += (
+                        (time.time() - _startTime)
+                        * np.cos(np.radians(abs(roll)))
+                        * _correction_factor
+                    )
+                    _startTime = time.time()
+                stmInstance.sts3032.stop()
+                return True,False # 黒タイルとして登録すればOK。
+
        
         ####### 被災者発見処理 ######
         victimRescueFlag = False
