@@ -1580,11 +1580,12 @@ def moveTile(
     timing_start = debugTimingPrint(
         "moveTile start final forward adjustment", timing_start
     )
-    _startTime = time.time()
+    
     pts = LiDAR.getLiDARScan(lidar)
     if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
         debugPrint("Little forward to adjust position")
+        _startTime = time.time()
         while True:
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
