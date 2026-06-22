@@ -1534,7 +1534,7 @@ def moveTile(
             break
         
         ### 坂道で前方の壁を検知したら、引き返す処理
-        if mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP:
+        if mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP and isBigRamp:
             detectFlag = False
             if stmInstance.gyro.getValue().roll < 180: # 上り坂
                 if stmInstance.tof.getDistance()[0] < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM:
