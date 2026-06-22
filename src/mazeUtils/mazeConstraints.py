@@ -34,12 +34,6 @@ GO_BACKWARD_LOW_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.RIGHT: -30,
 }  # ゆっくり後退時のスピード
 
-NEWS_DIRECTION = [
-    mazeEnums.absDirection.NORTH.value,
-    mazeEnums.absDirection.EAST.value,
-    mazeEnums.absDirection.SOUTH.value,
-    mazeEnums.absDirection.WEST.value,
-]
 
 MOVE_THRESHOLD_CM: int = (
     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
@@ -62,9 +56,7 @@ WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁�
 RAMP_END_THRESHOLD_CM: int = 28
 TIMEOUT_FOR_TURNING_SEC: float = 5.0  # 回転動作のタイムアウト時間
 
-TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
-    0  # 複数の救助キットを投下する際に回転する角度
-)
+
 
 MIN_TILE_DETECTION_THRESHOLD: int = 10  # タイル検出の最小回数閾値
 
@@ -84,7 +76,7 @@ REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 # RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
-RAMP_DEG_THRESHOLD: float = 15  # 傾斜検出の閾値(度)
+RAMP_DEG_THRESHOLD: float = 12  # 傾斜検出の閾値(度)
 # +1: 正の signed roll を上りとして扱う, -1: 逆に扱う
 RAMP_ROLL_SIGN_FOR_UP: int = 1
 MIN_THRESHOLD_FOR_DIFF: float = 15
@@ -97,9 +89,6 @@ BLUE_TILE_WAIT_SEC: float = 5 # 青タイルの待機時間
 
 USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
 
-USE_SPEED_CONTROL_FOR_STRAIGHT: bool = True  # 直進時に速度制御するかどうか
-
-
 TURN_SPD: int = 80  # 回転時のモーター速度
 
 TURN_SPD_SLOW: int = 10  # 回転時のモーター速度(角度補正時、低速)
@@ -108,13 +97,7 @@ TURN_P = 2  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン
 TURN_D = 0.00  # 回転制御の微分ゲイン
 
-RAMP_TOF_THRESHOLD = 4
-JUDGE_RAMP_LIDAR_THRESHOLD = 50
 
-DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {
-    deviceEnums.Side.LEFT: 4,
-    deviceEnums.Side.RIGHT: 4,
-}  # 各サイドの初期レスキューキットの数
 
 DEBUG_MODE: bool = True  # デバッグモードの有効化
 
@@ -130,13 +113,13 @@ STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の
 
 
 
-####### Dangerous Zone関連のモード
+###### Dangerous Zone関連
 
 AVOID_DANGEROUS_ZONE: bool = True  # Dangerous Zoneを避けるかどうか
 AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = False  # Dangerous Zone内の坂を避けるかどうか
 
 
-###### レスキューキット投下ルール
+###### レスキューキット投下
 
 DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE : bool = False  # 2点のCognitive Targetに1つのキットしか投下しない
 
@@ -145,8 +128,16 @@ BACKWARD_AFTER_DROP_KIT_TIME_SEC : float = 0.5  # 救助キット投下後に後
 
 USE_SAME_COLOR_FOR_VICTIM_DETECTION_LED_BLINK : bool = False  # 被災者検出用LEDを点滅させる際に、同じ色で点滅させるかどうか
 
-###### エラーハンドリング
+DEFAULT_RESCUE_KIT_COUNT: dict[deviceEnums.Side, int] = {
+    deviceEnums.Side.LEFT: 4,
+    deviceEnums.Side.RIGHT: 4,
+}  # 各サイドの初期レスキューキットの数
 
+TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
+    0  # 複数の救助キットを投下する際に回転する角度
+)
+
+###### エラーハンドリング
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = True  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
 
 
@@ -158,7 +149,7 @@ DIJKSTRA_COST_BLUE_TILE: float = 5.0  # 青タイルの追加コスト
 
 
 
-##### 帰還開始判定
+####### 帰還開始判定
 
 RETURN_JUDGE_MODE: mazeEnums.returnJudgeMode = mazeEnums.returnJudgeMode.ONLY_TIME_BASED  # 帰還開始判定のモード
 
