@@ -377,6 +377,8 @@ def turnToCertainDirection(
                             logger.info(
                                 f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during turn: {victimInfo[s]}"
                             )
+
+                            dropRescueKit(stmInstance, mapInstance, victimInfo, s)
                             mapInstance.addSeenVictimType(
                                 getQuantizedDir(
                                     stmInstance.gyro.getValue().heading
@@ -384,8 +386,6 @@ def turnToCertainDirection(
                                 ),
                                 victimInfo[s],
                             )
-                            dropRescueKit(stmInstance, mapInstance, victimInfo, s)
-
                             logger.info(
                                 f"Dropped rescue kit, detected victim info: {victimInfo}"
                             )
@@ -910,6 +910,7 @@ def findVictimDuringMove(
                         )
                         time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                         stmInstance.sts3032.stop()
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
                     mapInstance.addSeenVictimType(
                         [
                             mazeEnums.absDirection(
@@ -922,8 +923,6 @@ def findVictimDuringMove(
                         ],
                         victimInfo[side],
                     )
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
-
                     if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
                         stmInstance.sts3032.setMotorSpeed(
                             mazeConstraints.GO_STRAIGHT_LOW_SPEED
@@ -1109,6 +1108,7 @@ def turnWith45VictimCheck(
                         logger.info(
                             f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during 45-degree turn check: {victimInfo[s]}"
                         )
+                        dropRescueKit(stmInstance, mapInstance, victimInfo, s)
                         mapInstance.addSeenVictimType(
                             [
                                 mazeEnums.absDirection(
@@ -1130,8 +1130,6 @@ def turnWith45VictimCheck(
                             ],
                             victimInfo[s],
                         )
-                        dropRescueKit(stmInstance, mapInstance, victimInfo, s)
-
                         logger.info(
                             f"Dropped rescue kit, detected victim info: {victimInfo}"
                         )
@@ -2049,7 +2047,14 @@ def moveTile(
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                 stmInstance.sts3032.stop()
-                
+
+            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
+
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                stmInstance.sts3032.stop()
+
             # SeenVictimTypeに追加。
             mapInstance.addSeenVictimType(
                 [
@@ -2063,14 +2068,6 @@ def moveTile(
                 ],
                 maxVictimInfo[side],
             )
-            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
-
-            if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
-                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
-                time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
-                stmInstance.sts3032.stop()
-
-
 
     ###### 銀・青タイル判別処理 ######
     tileType = mazeEnums.tileType.EMPTY
