@@ -64,6 +64,7 @@ class ColorSensor:
             if checkDigit == data[7]:
                 return data[2:7]
         logger.warning("STM UART data error")
+        logger.warning(f"data: {[b for b in data]}")
         return None
 
     def setLEDColor(self, r: int, g: int, b: int):
