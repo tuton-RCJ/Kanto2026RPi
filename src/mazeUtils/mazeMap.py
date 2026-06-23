@@ -999,29 +999,30 @@ class mazeMap:
                             break
 
                     # 周囲4つのマスの壁情報も一致するか確認
-                    for d in mazeEnums.absDirection:
-                        nx, ny = x, y
-                        if d == mazeEnums.absDirection.NORTH:
-                            ny -= 1
-                        elif d == mazeEnums.absDirection.EAST:
-                            nx += 1
-                        elif d == mazeEnums.absDirection.SOUTH:
-                            ny += 1
-                        elif d == mazeEnums.absDirection.WEST:
-                            nx -= 1
-                        if not (0 <= nx < self.maxSize and 0 <= ny < self.maxSize):
-                            continue
-                        if self.tileTypes[z][ny][nx] == mazeEnums.tileType.UNKNOWN:
-                            continue
-                        for nd in mazeEnums.absDirection:
-                            if (
-                                self.wallTypes[z][ny][nx][nd]
-                                != self.WallsAroundStartTile[nd]
-                            ):
-                                match = False
-                                break
-                        if not match:
-                            break
+                    # for d in mazeEnums.absDirection:
+                    #     nx, ny = x, y
+                    #     if d == mazeEnums.absDirection.NORTH:
+                    #         ny -= 1
+                    #     elif d == mazeEnums.absDirection.EAST:
+                    #         nx += 1
+                    #     elif d == mazeEnums.absDirection.SOUTH:
+                    #         ny += 1
+                    #     elif d == mazeEnums.absDirection.WEST:
+                    #         nx -= 1
+                    #     if not (0 <= nx < self.maxSize and 0 <= ny < self.maxSize):
+                    #         continue
+                    #     if self.tileTypes[z][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                    #         continue
+                    #     for nd in mazeEnums.absDirection:
+                    #         if (
+                    #             self.wallTypes[z][ny][nx][nd]
+                    #             != self.WallsAroundStartTile[nd]
+                    #         ):
+                    #             match = False
+                    #             break
+                    #     if not match:
+                    #         break
+                    
                     if match:
                         logger.debug(
                             f"Estimated start tile at ({x}, {y}, {z}) based on wall information."

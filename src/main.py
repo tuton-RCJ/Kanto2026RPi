@@ -95,9 +95,12 @@ def main():
                 if nextDirection is None:
                     continue
                 for direction in nextDirection:
-                    isBlack, stopped = moveTile.moveNextTile(
+                    isBlack, stopped, resetMapData = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
+                    if resetMapData:
+                        logger.warning("Map data reset due to wall detection error.")
+                        break
                     logger.info(mapInstance.renderKnownTileAndWall())
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
@@ -122,9 +125,13 @@ def main():
             isLop = False
             if returnPath:
                 for direction in returnPath:
-                    moveTile.moveNextTile(
+                    isBlack, stopped, resetMapData = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
+
+                    if resetMapData:
+                        logger.warning("Map data reset due to wall detection error.")
+                        break
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
                         logger.info("Exploration resumed.")

@@ -1289,7 +1289,7 @@ def moveTile(
     @param mapInstance: 現在の迷路情報
     @param stmInstance: 通信に使用する STM インスタンス
     @param lidar: 使用する LiDAR インスタンス
-    @return: (isBlackTile, stoppedByToggleSwitch)
+    @return: (isBlackTile, stoppedByToggleSwitch, resetMapData)
     """
 
     timing_start = debugTimingPrint(
@@ -1299,7 +1299,7 @@ def moveTile(
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
-        return False, True
+        return False, True, False
     timing_start = debugTimingPrint("moveTile after initial toggle check", timing_start)
 
     isRedTile = detectTileColor() == mazeEnums.tileType.RED
@@ -1376,7 +1376,7 @@ def moveTile(
             > mazeConstraints.WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM
         ):
             mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
-            return False, False
+            return False, False, False
 
     ###### 移動前、真後ろが壁であれば位置調整 ######
     if (
@@ -1403,7 +1403,7 @@ def moveTile(
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
-                return False, True
+                return False, True, False
             scanPoints = LiDAR.getLiDARScan(lidar)
             heading = stmInstance.gyro.getValue().heading
             currentDist = LiDAR.getCertainAngleDist(180, scanPoints)
@@ -1420,7 +1420,7 @@ def moveTile(
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
-        return False, True
+        return False, True, False
     points = LiDAR.getLiDARScan(lidar)
     last_scan_points = points
     dist0, dist180 = LiDAR.getCertainAngleDist([0, 180], points)
@@ -1482,7 +1482,7 @@ def moveTile(
         stmInstance.update()
         if stmInstance.switch.getToggleSwitch1():
             stmInstance.sts3032.stop()
-            return False, True
+            return False, True, False
 
         ############ モーター制御 #############
         heading = stmInstance.gyro.getValue().heading
@@ -1562,7 +1562,7 @@ def moveTile(
         )
         if escapeFromBlackTileRes:
             debugTimingPrint("moveTile escaped from black tile", timing_start)
-            return True, False
+            return True, False, False
         else:
             tempTileColor = detectTileColor()
             if tempTileColor != mazeEnums.tileType.EMPTY:
@@ -1644,6 +1644,7 @@ def moveTile(
                     stmInstance.sts3032.stop()
                     logger.info("Front wall detected on down ramp, stopping movement")
                     detectFlag = True
+                    practicalMoveTime += 0.4
             if detectFlag:
                 # 下がる
                 _practicalMoveTime = 0
@@ -1657,7 +1658,7 @@ def moveTile(
                     stmInstance.update()
                     if stmInstance.switch.getToggleSwitch1():
                         stmInstance.sts3032.stop()
-                        return False, True
+                        return False, True, False
                     roll = stmInstance.gyro.getValue().roll
                     _correction_factor = (
                         (0.80 if (roll > 6 and roll < 180) else 1)
@@ -1671,7 +1672,8 @@ def moveTile(
                     )
                     _startTime = time.time()
                 stmInstance.sts3032.stop()
-                return True, False  # 黒タイルとして登録すればOK。
+                mapInstance.setTileType(mazeEnums.tileType.BLACK,direction)  # 黒タイルとして登録
+                return True, False, False 
 
         ####### 被災者発見処理 ######
         victimRescueFlag = False
@@ -1735,7 +1737,7 @@ def moveTile(
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
-                return False, True
+                return False, True, False
             scanPoints = LiDAR.getLiDARScan(lidar)
             last_scan_points = scanPoints
             heading = stmInstance.gyro.getValue().heading
@@ -1754,6 +1756,7 @@ def moveTile(
                 time.sleep(backwardTime)
                 stmInstance.sts3032.stop()
                 break
+    
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint(
         "moveTile finished final forward adjustment", timing_start
@@ -1965,6 +1968,7 @@ def moveTile(
         mapInstance.resetMapData()
         detectWall(lidar, mapInstance, stmInstance)  # 壁検出をやり直す
         logger.warning("Wall detection error, resetting internal map data")
+        return True, False, True
 
     debugTimingPrint("moveTile updated map and detected walls", timing_start)
 
@@ -2101,7 +2105,7 @@ def moveTile(
         )
     debugTimingPrint("moveTile finished", timing_start)
     stmInstance.sts3032.stop()
-    return False, False
+    return False, False, False
 
 
 def moveNextTile(
@@ -2116,9 +2120,9 @@ def moveNextTile(
     @param mapInstance: 現在の迷路情報
     @param stm: 通信に使用する STM インスタンス
     @param lidar: 使用する LiDAR インスタンス
-    @return: isBlackTile, stoppedByToggleSwitch
+    @return: isBlackTile, stoppedByToggleSwitch, resetMapData
     """
-    isBlack, stopped = moveTile(direction, mapInstance, stmInstance, lidar)
+    isBlack, stopped, resetMapData = moveTile(direction, mapInstance, stmInstance, lidar)
 
     if not isBlack:
         stmInstance.sts3032.stop()
@@ -2126,5 +2130,5 @@ def moveNextTile(
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
-        return isBlack, True
-    return isBlack, stopped
+        return isBlack, True, resetMapData
+    return isBlack, stopped, resetMapData
