@@ -429,7 +429,7 @@ class mazeMap:
 
         if tiletype == mazeEnums.tileType.SILVER:
             logger.debug("Silver tile detected, saving cache")
-            self.saveCache()
+            # self.saveCache()
 
     def existsLayerWithinAltitude(
         self, altitude: float, tolerance: float = 7.0
@@ -898,7 +898,6 @@ class mazeMap:
                     self.maxSize // 2
                 ][d]
 
-        self.frontDirection = mazeEnums.absDirection.NORTH
         self.tileTypes = [
             [
                 [mazeEnums.tileType.UNKNOWN for _ in range(self.maxSize)]
@@ -958,7 +957,7 @@ class mazeMap:
 
         # スタート位置の推定に使用する値を、マップデータを破壊したときの位置に合わせて更新する
         old_start_x, old_start_y = self.startPosAfterBreakingMapData
-        _, _, current_z = self.currentPosition
+        current_x, current_y, current_z = self.currentPosition
         offset_x, offset_y = (
             self.layerInfo[current_z].x_offset,
             self.layerInfo[current_z].y_offset,
@@ -967,6 +966,7 @@ class mazeMap:
             old_start_x - offset_x,
             old_start_y - offset_y,
         )
+        self.currentPosition = (current_x, current_y, 0)
 
     def estimateStartTile(self) -> tuple[int, int, int] | None:
         """Startタイルの位置を推定する。マップが壊れていなければ初期位置（20,20,0）を返す。

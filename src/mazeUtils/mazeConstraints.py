@@ -76,8 +76,8 @@ REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 # 銀タイルと判定する反射率の閾値（この値以下で銀タイルと判定） 片方を無視したかったら255を設定、銀検知を無効化したかったら両方とも0を設定
-SILVERTILE_REFLECTANCE_THRESHOLD_RF1: int = 225  
-SILVERTILE_REFLECTANCE_THRESHOLD_RF2: int = 225  
+SILVERTILE_REFLECTANCE_THRESHOLD_RF1: int = 100 
+SILVERTILE_REFLECTANCE_THRESHOLD_RF2: int = 100  
 
 # RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
 RAMP_DEG_THRESHOLD: float = 12  # 傾斜検出の閾値(度)
@@ -111,7 +111,7 @@ USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転の時に被災者検�
 DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
 
 USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING: bool = True  # 回転中に被災者検出をする際に、回転速度を落とすかどうか, USE_45_TURN_WITH_VICTIM_CHECK が False の場合のみ有効
-SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED: int = 30  # 回転中に被災者検出をする際の回転速度, USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING が True の場合のみ有効
+SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED: int = 60  # 回転中に被災者検出をする際の回転速度, USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING が True の場合のみ有効
 
 STAIR_THRESHOLD_CM: float = 5.0  # 階段判定のしきい値。鉛直距離の合計がこの値を下回っていたら、坂判定をしていても階段とみなす
 

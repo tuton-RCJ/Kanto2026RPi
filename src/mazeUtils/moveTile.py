@@ -900,6 +900,14 @@ def findVictimDuringMove(
                     logger.info(
                         f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
                     )
+                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                        logger.info("Moving backward before dropping rescue kit")
+                        stmInstance.sts3032.setMotorSpeed(
+                            mazeConstraints.GO_BACKWARD_LOW_SPEED
+                        )
+                        time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                        stmInstance.sts3032.stop()
+                        
                     dropRescueKit(stmInstance, mapInstance, victimInfo, side)
                     mapInstance.addSeenVictimType(
                         [
@@ -913,6 +921,13 @@ def findVictimDuringMove(
                         ],
                         victimInfo[side],
                     )
+                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                        stmInstance.sts3032.setMotorSpeed(
+                            mazeConstraints.GO_STRAIGHT_LOW_SPEED
+                        )
+                        time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
+                        stmInstance.sts3032.stop()
+
 
                     victimRescueFlag = True
     return victimRescueFlag
@@ -1226,7 +1241,6 @@ def turnWithSlowVictimCheck(
                             (
                                 mapInstance.frontDirection.value
                                 + turnDir * (_c + 1)
-                                + turnDir // 2
                             )
                             % 360,
                             stmInstance,
@@ -1949,6 +1963,7 @@ def moveTile(
         and detectWallRes == False
     ):
         mapInstance.resetMapData()
+        detectWall(lidar, mapInstance, stmInstance)  # 壁検出をやり直す
         logger.warning("Wall detection error, resetting internal map data")
 
     debugTimingPrint("moveTile updated map and detected walls", timing_start)
@@ -2051,7 +2066,6 @@ def moveTile(
     ###### 銀・青タイル判別処理 ######
     tileType = mazeEnums.tileType.EMPTY
     
-
     ### 過去の検出結果をもとに最大のものを選択する手法
     # nowMaxCount = 0
     # for t in list(getTileColorDict.keys()):
@@ -2073,7 +2087,7 @@ def moveTile(
         else mazeEnums.tileType.EMPTY
     )
     logger.info(
-        f"Tile color detection counts: {dict(getTileColorDict)}, decided tile type: {tileType}"
+        f"Tile color detection, decided tile type: {tileType}"
     )
     if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
         stmInstance.buzzer.playMusic(buzzerSongs.checkpoint)
