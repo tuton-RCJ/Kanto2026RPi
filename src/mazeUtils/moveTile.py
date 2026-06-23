@@ -723,9 +723,9 @@ def dropRescueKit(
                 % 360,
                 stmInstance,
             )
-            mapInstance.updateFrontDirection(
-                mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
-            )
+            # mapInstance.updateFrontDirection(
+            #     mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
+            # )
             mapInstance.dropRescueKit(side.opposite() if not oppositeFlag else side, 1)
             stmInstance.rescuekitservo.dropRescueKit(
                 1, side.opposite() if not oppositeFlag else side
