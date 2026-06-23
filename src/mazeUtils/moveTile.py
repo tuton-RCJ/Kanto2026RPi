@@ -511,6 +511,7 @@ def detectWall(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     points: list[LiDAR.Point] | None = None,
+    enableOverwrite: bool = False
 ) -> bool:
     """
     @brief LiDARのデータから壁を検出して、mapInstanceの壁情報を更新する
@@ -533,7 +534,7 @@ def detectWall(
         angle = (direction.value - currentDirVal + 360) % 360
         dist = LiDAR.getCertainAngleDist(angle, points)
         logger.debug(f"Direction: {direction}, Angle: {angle}, Distance: {dist} cm")
-        if mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN:
+        if mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN or enableOverwrite:
             if (
                 min(
                     stmInstance.gyro.getValue().roll,
