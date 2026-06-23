@@ -194,6 +194,7 @@ class mazeMap:
 
         # DangerousZone探索を始めたかどうかのフラグ
         self.isStartedDangerousZone = False
+        self.dangerousZoneTileSet: set[tuple[int, int, int]] = set()  # 危険地帯と判断したタイルの集合
 
         self.isBrokenMapData = (
             False  # 壁検出エラーが発生して内部マップを破棄したかどうかのフラグ
@@ -206,6 +207,7 @@ class mazeMap:
         self.WallsAroundStartTile: dict[mazeEnums.absDirection, mazeEnums.wallType] = {
             d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection
         }  # スタートタイル周辺の壁の情報。スタート位置推定に使用。
+        
 
         self.saveCache()
 
@@ -324,6 +326,22 @@ class mazeMap:
             return self.tileTypes[nz][ny][nx]
         return self.tileTypes[z][y][x]
 
+    def isDangerousTile(self, direction: mazeEnums.absDirection | None = None) -> bool:
+        """
+        @brief 現在位置のタイルが危険地帯かどうかを取得する
+        @return: 現在位置のタイルが危険地帯の場合はTrue、そうでない場合はFalse
+        """
+        current_tile_pos = self.currentPosition
+        if direction is None:
+            return current_tile_pos in self.dangerousZoneTileSet
+        else:
+            neighbor = self.mazeAsGraph[current_tile_pos[2]][current_tile_pos[1]][current_tile_pos[0]][direction]
+            if neighbor is None:
+                return False
+            nx, ny, nz, _ = neighbor
+            return (nx, ny, nz) in self.dangerousZoneTileSet
+            
+    
     def isSeenVictimType(
         self,
         direction: list[mazeEnums.absDirection],
@@ -386,6 +404,10 @@ class mazeMap:
         assert (
             0 <= x < self.maxSize and 0 <= y < self.maxSize and 0 <= z < self.maxLayer
         ), self.renderKnownTileAndWall()
+        
+        # DangerousZone探索を開始しており、UNKNOWNのタイルを更新する時にはDangerousZoneTileSetを更新する
+        if self.isStartedDangerousZone and self.tileTypes[z][y][x] == mazeEnums.tileType.UNKNOWN:
+            self.dangerousZoneTileSet.add((x, y, z))
 
         self.tileTypes[z][y][x] = tiletype
 
@@ -814,6 +836,9 @@ class mazeMap:
             for z in range(self.maxLayer)
         ]
         self.savedCache["isBrokenMapData"] = self.isBrokenMapData
+        self.savedCache["dangerousZoneTileSet"] = copy.deepcopy(self.dangerousZoneTileSet)
+        self.savedCache["WallsAroundStartTile"] = copy.deepcopy(self.WallsAroundStartTile)
+        self.savedCache["startPosAfterBreakingMapData"] = copy.deepcopy(self.startPosAfterBreakingMapData)
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
         """
@@ -857,7 +882,10 @@ class mazeMap:
                 (0, False) for _ in range(self.movedVerticalDistanceNUM)
             ]
             self.isBrokenMapData = self.savedCache["isBrokenMapData"]
-
+            self.dangerousZoneTileSet = copy.deepcopy(self.savedCache["dangerousZoneTileSet"])
+            self.startPosAfterBreakingMapData = copy.deepcopy(self.savedCache["startPosAfterBreakingMapData"])  
+            self.WallsAroundStartTile = copy.deepcopy(self.savedCache["WallsAroundStartTile"])
+            
     def resetMapData(self) -> None:
         """
         @brief マップデータを初期状態にリセットする。キャッシュは保持する。
