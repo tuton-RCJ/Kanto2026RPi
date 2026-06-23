@@ -75,9 +75,9 @@ REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (15, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
-SILVERTILE_REFLECTANCE_THRESHOLD_RF1: int = 225  # 銀タイルと判定する反射率の閾値（この値以下で銀タイルと判定）, RF1
-SILVERTILE_REFLECTANCE_THRESHOLD_RF2: int = 225  # 銀タイルと判定する反射率の閾値（この値以下で銀タイルと判定）, RF2
-
+# 銀タイルと判定する反射率の閾値（この値以下で銀タイルと判定） 片方を無視したかったら255を設定、銀検知を無効化したかったら両方とも0を設定
+SILVERTILE_REFLECTANCE_THRESHOLD_RF1: int = 225  
+SILVERTILE_REFLECTANCE_THRESHOLD_RF2: int = 225  
 
 # RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
 RAMP_DEG_THRESHOLD: float = 12  # 傾斜検出の閾値(度)
