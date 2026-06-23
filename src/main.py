@@ -67,6 +67,7 @@ def main():
             moveTile.detectWall(lidarInstance, mapInstance, stmInstance)
             logger.info("Initial Map:")
             logger.info(mapInstance.renderKnownTileAndWall())
+            mapInstance.saveCache()
 
             nextDirection = mapInstance.getNearestUnexploredTile()
             logger.info(f"Next Direction: {nextDirection}")
