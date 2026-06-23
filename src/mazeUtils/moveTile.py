@@ -144,6 +144,7 @@ def detectTileColor() -> mazeEnums.tileType:
         if not colorSensor.update():
             return mazeEnums.tileType.EMPTY
         r, g, b = colorSensor._colorRGB
+        rf1, rf2 = colorSensor._reflectance
         if (
             (
                 mazeConstraints.BLACKTILE_RGB[1][0]
@@ -194,6 +195,10 @@ def detectTileColor() -> mazeEnums.tileType:
             )
         ):
             return mazeEnums.tileType.RED
+        elif (rf1 <= mazeConstraints.SILVERTILE_REFLECTANCE_THRESHOLD_RF1) or (
+            rf2 <= mazeConstraints.SILVERTILE_REFLECTANCE_THRESHOLD_RF2
+        ):
+            return mazeEnums.tileType.SILVER
         else:
             return mazeEnums.tileType.EMPTY
     except Exception as e:
@@ -2045,32 +2050,33 @@ def moveTile(
 
     ###### 銀・青タイル判別処理 ######
     tileType = mazeEnums.tileType.EMPTY
-    nowMaxCount = 0
-    if isSilverTile():
-        stmInstance.buzzer.playMusic(buzzerSongs.checkpoint)
-        mapInstance.setTileType(mazeEnums.tileType.SILVER)
-        tileType = mazeEnums.tileType.SILVER
-    else:
-        for t in list(getTileColorDict.keys()):
-            if t.value == "E":
-                continue
-            if (
-                getTileColorDict[t] > getTileColorDict[tileType]
-                and getTileColorDict[t]
-                >= max(mazeConstraints.MIN_TILE_DETECTION_THRESHOLD, nowMaxCount)
-                and t != mazeEnums.tileType.EMPTY
-            ):
-                tileType = t
-                nowMaxCount = getTileColorDict[t]
-        tileType = detectTileColor()
-        mapInstance.setTileType(
-            tileType
-            if tileType != mazeEnums.tileType.BLACK
-            else mazeEnums.tileType.EMPTY
-        )
+    
+
+    ### 過去の検出結果をもとに最大のものを選択する手法
+    # nowMaxCount = 0
+    # for t in list(getTileColorDict.keys()):
+    #     if t.value == "E":
+    #         continue
+    #     if (
+    #         getTileColorDict[t] > getTileColorDict[tileType]
+    #         and getTileColorDict[t]
+    #         >= max(mazeConstraints.MIN_TILE_DETECTION_THRESHOLD, nowMaxCount)
+    #         and t != mazeEnums.tileType.EMPTY
+    #     ):
+    #         tileType = t
+    #         nowMaxCount = getTileColorDict[t]
+    
+    tileType = detectTileColor()
+    mapInstance.setTileType(
+        tileType
+        if tileType != mazeEnums.tileType.BLACK
+        else mazeEnums.tileType.EMPTY
+    )
     logger.info(
         f"Tile color detection counts: {dict(getTileColorDict)}, decided tile type: {tileType}"
     )
+    if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
+        stmInstance.buzzer.playMusic(buzzerSongs.checkpoint)
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
         stmInstance.buzzer.playMusic(buzzerSongs.swamp)
