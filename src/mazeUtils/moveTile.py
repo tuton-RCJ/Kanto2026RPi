@@ -1504,6 +1504,14 @@ def moveTile(
             f"moveTile calculated motor speeds left={leftSpeed} right={rightSpeed} gyroSteer={gyroSteer} wallSteer={wallSteer}",
             timing_start,
         )
+        if mazeConstraints.SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE:
+            if mapInstance.isDangerousTile() and min(roll, 360 - roll) > mazeConstraints.RAMP_DEG_THRESHOLD:
+                leftSpeed = int(leftSpeed * mazeConstraints.SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO)
+                rightSpeed = int(rightSpeed * mazeConstraints.SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO)
+                timing_start = debugTimingPrint(
+                    f"moveTile applied slow down on ramp in dangerous zone left={leftSpeed} right={rightSpeed}",
+                    timing_start,
+                )
         stmInstance.sts3032.setMotorSpeed(
             {deviceEnums.Side.LEFT: leftSpeed, deviceEnums.Side.RIGHT: rightSpeed}
         )
@@ -1672,6 +1680,10 @@ def moveTile(
                 if not (roll > 180 and roll < 350)
                 else 1.1
             )
+            if mazeConstraints.SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE:
+                if mapInstance.isDangerousTile() and min(roll, 360 - roll) > mazeConstraints.RAMP_DEG_THRESHOLD:
+                    correction_factor *= mazeConstraints.SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO
+
             practicalMoveTime += (
                 pratical_loop_time * np.cos(np.radians(abs(roll))) * correction_factor
             )
