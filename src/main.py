@@ -83,10 +83,12 @@ def main():
                         break
                 if (mazeConstraints.RETURN_JUDGE_MODE
                     == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
-                    estReturnTime = time.time() + mapInstance.getCostToStartTile()
-                    if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
-                        logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
-                        break
+                    _costToStart = mapInstance.getCostToStartTile()
+                    if _costToStart >= 0:
+                        estReturnTime = time.time() + _costToStart
+                        if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
+                            logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
+                            break
 
                 # nextDirection = mapInstance.getNearestUnexploredTile()
 

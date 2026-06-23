@@ -616,11 +616,14 @@ class mazeMap:
     def getCostToStartTile(self) -> float:
         """
         @brief スタートタイルまでのコストを取得する
-        @return: スタートタイルまでのコスト(SEC)。到達不可能な場合は 0 を返す
+        @return: スタートタイルまでのコスト(SEC)。スタートタイルの推定に失敗、または到達不可能な場合は -1 を返す
         """
         x, y, z = self.currentPosition
 
         start_tile_position = self.estimateStartTile()
+        if start_tile_position is None:
+            return -1
+        
         path = dijkstra(
             self.mazeAsGraph,
             (x, y, z),
@@ -630,7 +633,7 @@ class mazeMap:
         )
 
         if path is None:
-            return 0.0
+            return -1
 
         cost = 0.0
         for i in range(1, len(path)):
@@ -937,9 +940,9 @@ class mazeMap:
             old_start_y - offset_y,
         )
 
-    def estimateStartTile(self) -> tuple[int, int, int]:
+    def estimateStartTile(self) -> tuple[int, int, int] | None:
         """Startタイルの位置を推定する。マップが壊れていなければ初期位置（20,20,0）を返す。
-        マップが壊れている場合は、初期位置との相対位置をもとに、壁情報が一致する位置を探索する。見つからない場合は現在位置を返す。
+        マップが壊れている場合は、初期位置との相対位置をもとに、壁情報が一致する位置を探索する。見つからない場合はNoneを返す。
         """
         if not self.isBrokenMapData:
             return (self.maxSize // 2, self.maxSize // 2, 0)
@@ -998,7 +1001,7 @@ class mazeMap:
                         return (x, y, z)
 
         # 見つからない場合は現在位置を返す
-        return self.currentPosition
+        return None
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
         if self.tileTypes[z][y][x] != mazeEnums.tileType.UNKNOWN:
