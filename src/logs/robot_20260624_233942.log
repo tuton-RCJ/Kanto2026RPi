@@ -1,0 +1,776 @@
+2026-06-24 23:39:43,062 - root - [logging_config.py:61] - INFO - Logging initialized. Log file: /home/tuton/Kanto2026RPi/src/config/../logs/robot_20260624_233942.log
+2026-06-24 23:39:44,832 - mazeUtils.device.LiDAR - [LiDAR.py:36] - INFO - Available ports: <ydlidar.Str2strMap; proxy of <Swig Object of type 'std::map< std::string,std::string > *' at 0x7fad3e7ea0> >
+2026-06-24 23:39:48,840 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 166.17195780826998 cm
+2026-06-24 23:39:48,841 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 166.17195780826998 cm, TSD10 distance: 75.9 cm
+2026-06-24 23:39:48,845 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 16.841022348993853 cm
+2026-06-24 23:39:48,847 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.96359478655844 cm
+2026-06-24 23:39:48,849 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 17.383693676140155 cm
+2026-06-24 23:39:48,850 - __main__ - [main.py:68] - INFO - Initial Map:
+2026-06-24 23:39:48,879 - __main__ - [main.py:69] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-24 23:39:50,158 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-24 23:39:50,159 - __main__ - [main.py:73] - INFO - Next Direction: [<absDirection.NORTH: 0>]
+2026-06-24 23:39:50,160 - __main__ - [main.py:74] - INFO - Exploration started.
+2026-06-24 23:39:50,166 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-24 23:39:50,190 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.06999999999999318 target: 0
+2026-06-24 23:39:50,208 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 0.06999999999999318, diff: 0.06999999999999318
+2026-06-24 23:39:50,253 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.06999999999999318 deg
+2026-06-24 23:39:50,433 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little backward to adjust position
+2026-06-24 23:39:50,944 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20190>
+2026-06-24 23:39:50,951 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=126.9, S=28.1, V=234.6
+2026-06-24 23:39:50,990 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.18000000000000682 deg, practicalMoveTime: 0.05217115085485445 sec
+2026-06-24 23:39:50,990 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.0 ms
+2026-06-24 23:39:50,996 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cae6410>
+2026-06-24 23:39:51,001 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=127.1, S=27.7, V=234.8
+2026-06-24 23:39:51,037 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.18000000000000682 deg, practicalMoveTime: 0.09846964301538044 sec
+2026-06-24 23:39:51,037 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 46.6 ms
+2026-06-24 23:39:51,050 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a76fd0>
+2026-06-24 23:39:51,054 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.0, S=26.5, V=233.4
+2026-06-24 23:39:51,090 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.20999999999997954 deg, practicalMoveTime: 0.15131169381001866 sec
+2026-06-24 23:39:51,091 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-24 23:39:51,097 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a16e10>
+2026-06-24 23:39:51,100 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=128.1, S=26.4, V=236.1
+2026-06-24 23:39:51,143 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.75 deg, practicalMoveTime: 0.20328009210921025 sec
+2026-06-24 23:39:51,144 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.0 ms
+2026-06-24 23:39:51,156 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c48610>
+2026-06-24 23:39:51,163 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=130.4, S=25.2, V=233.7
+2026-06-24 23:39:51,199 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.6699999999999591 deg, practicalMoveTime: 0.2580861254503753 sec
+2026-06-24 23:39:51,200 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 54.2 ms
+2026-06-24 23:39:51,210 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20190>
+2026-06-24 23:39:51,218 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.9, S=24.0, V=236.5
+2026-06-24 23:39:51,261 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.26 deg, practicalMoveTime: 0.318912317454452 sec
+2026-06-24 23:39:51,262 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 60.3 ms
+2026-06-24 23:39:51,272 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a04ed0>
+2026-06-24 23:39:51,282 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.8, S=24.1, V=237.1
+2026-06-24 23:39:51,319 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.37999999999999545 deg, practicalMoveTime: 0.3757672032323748 sec
+2026-06-24 23:39:51,322 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 58.3 ms
+2026-06-24 23:39:51,331 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a76fd0>
+2026-06-24 23:39:51,344 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=128.8, S=23.9, V=238.0
+2026-06-24 23:39:51,389 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.6399999999999864 deg, practicalMoveTime: 0.4433398464685353 sec
+2026-06-24 23:39:51,392 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 69.4 ms
+2026-06-24 23:39:51,403 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a4b590>
+2026-06-24 23:39:51,409 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.8, S=22.3, V=239.2
+2026-06-24 23:39:51,453 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.59999999999997 deg, practicalMoveTime: 0.5041140472636895 sec
+2026-06-24 23:39:51,454 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 60.9 ms
+2026-06-24 23:39:51,458 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a4b590>
+2026-06-24 23:39:51,465 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=132.7, S=21.4, V=237.1
+2026-06-24 23:39:51,517 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.7199999999999704 deg, practicalMoveTime: 0.5669746941165476 sec
+2026-06-24 23:39:51,518 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 63.3 ms
+2026-06-24 23:39:51,525 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20190>
+2026-06-24 23:39:51,531 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=132.5, S=21.8, V=236.8
+2026-06-24 23:39:51,569 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.45999999999997954 deg, practicalMoveTime: 0.6179792024436833 sec
+2026-06-24 23:39:51,570 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.9 ms
+2026-06-24 23:39:51,579 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a04ed0>
+2026-06-24 23:39:51,584 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=130.9, S=21.2, V=238.2
+2026-06-24 23:39:51,621 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.84999999999997 deg, practicalMoveTime: 0.6684462288115628 sec
+2026-06-24 23:39:51,622 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.9 ms
+2026-06-24 23:39:51,630 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c48610>
+2026-06-24 23:39:51,638 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.5, S=22.2, V=238.8
+2026-06-24 23:39:51,680 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.9399999999999977 deg, practicalMoveTime: 0.7266593277640119 sec
+2026-06-24 23:39:51,682 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 59.4 ms
+2026-06-24 23:39:51,695 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8caeac10>
+2026-06-24 23:39:51,703 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=131.2, S=22.4, V=236.2
+2026-06-24 23:39:51,752 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.1299999999999955 deg, practicalMoveTime: 0.7962916127271754 sec
+2026-06-24 23:39:51,754 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 70.9 ms
+2026-06-24 23:39:51,759 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20190>
+2026-06-24 23:39:51,765 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=133.2, S=21.9, V=234.9
+2026-06-24 23:39:51,800 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.91999999999996 deg, practicalMoveTime: 0.8418802954997427 sec
+2026-06-24 23:39:51,801 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 46.2 ms
+2026-06-24 23:39:51,815 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c48610>
+2026-06-24 23:39:51,823 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=131.6, S=22.4, V=235.8
+2026-06-24 23:39:51,863 - mazeUtils.moveTile - [moveTile.py:1649] - INFO - practicalVerticalMove: -0.02281694895449103 CM
+2026-06-24 23:39:51,916 - mazeUtils.moveTile - [moveTile.py:1996] - INFO - Set moved vertical distance: -0.02281694895449103 cm, past distances: [(0, False), (0, False), (0, False)]
+2026-06-24 23:39:52,071 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 129.4244728486127 cm
+2026-06-24 23:39:52,072 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 129.4244728486127 cm, TSD10 distance: 38.7 cm
+2026-06-24 23:39:52,075 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 16.502389313482418 cm
+2026-06-24 23:39:52,078 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 54.870897265144436 cm
+2026-06-24 23:39:52,081 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 130.7418215110129 cm
+2026-06-24 23:39:52,084 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:39:52,175 - __main__ - [main.py:105] - INFO - Current position: (20, 19, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=19..20
++   +
+  @ |
++   +
+| S |
++---+
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-24 23:39:52,185 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 18, 0)
+2026-06-24 23:39:52,197 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 19, 0) facing absDirection.NORTH
+2026-06-24 23:39:52,226 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 2.8799999999999955 target: 0
+2026-06-24 23:39:52,246 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 2.8799999999999955, diff: 2.8799999999999955
+2026-06-24 23:39:52,321 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 1.9800000000000182 deg
+2026-06-24 23:39:52,556 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b6210>
+2026-06-24 23:39:52,563 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=128.9, S=22.5, V=245.1
+2026-06-24 23:39:52,604 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.45 deg, practicalMoveTime: 0.05862941787551766 sec
+2026-06-24 23:39:52,605 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.3 ms
+2026-06-24 23:39:52,616 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cae9c90>
+2026-06-24 23:39:52,624 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.9, S=21.7, V=245.0
+2026-06-24 23:39:52,666 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.4 deg, practicalMoveTime: 0.11968821293596409 sec
+2026-06-24 23:39:52,669 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 63.4 ms
+2026-06-24 23:39:52,679 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fad331c50>
+2026-06-24 23:39:52,689 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.6, S=22.4, V=246.5
+2026-06-24 23:39:52,729 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.91999999999996 deg, practicalMoveTime: 0.18012684498051895 sec
+2026-06-24 23:39:52,730 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.3 ms
+2026-06-24 23:39:52,737 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:39:52,747 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=135.1, S=53.7, V=194.4
+2026-06-24 23:39:52,793 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.77 deg, practicalMoveTime: 0.24265240904287347 sec
+2026-06-24 23:39:52,794 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 62.8 ms
+2026-06-24 23:39:52,799 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b6150>
+2026-06-24 23:39:52,809 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=152.1, S=21.7, V=209.3
+2026-06-24 23:39:52,844 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 3.0 deg, practicalMoveTime: 0.29333879237115285 sec
+2026-06-24 23:39:52,845 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.1 ms
+2026-06-24 23:39:52,857 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:39:52,864 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=168.5, S=25.1, V=208.9
+2026-06-24 23:39:52,904 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 3.6299999999999955 deg, practicalMoveTime: 0.35176559831287885 sec
+2026-06-24 23:39:52,905 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 59.2 ms
+2026-06-24 23:39:52,917 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:39:52,925 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=169.8, S=27.1, V=207.0
+2026-06-24 23:39:52,967 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 5.069999999999993 deg, practicalMoveTime: 0.4131737939967985 sec
+2026-06-24 23:39:52,968 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 61.9 ms
+2026-06-24 23:39:52,979 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b6150>
+2026-06-24 23:39:52,990 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=168.5, S=27.4, V=205.5
+2026-06-24 23:39:53,038 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 4.919999999999959 deg, practicalMoveTime: 0.48310771981268397 sec
+2026-06-24 23:39:53,041 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 70.1 ms
+2026-06-24 23:39:53,047 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c88290>
+2026-06-24 23:39:53,055 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=136.3, S=25.8, V=223.5
+2026-06-24 23:39:53,093 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 6.2999999999999545 deg, practicalMoveTime: 0.5356017423705699 sec
+2026-06-24 23:39:53,094 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.9 ms
+2026-06-24 23:39:53,106 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b6210>
+2026-06-24 23:39:53,121 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=132.9, S=38.7, V=218.7
+2026-06-24 23:39:53,168 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 4.339999999999975 deg, practicalMoveTime: 0.6083515423399078 sec
+2026-06-24 23:39:53,169 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 73.7 ms
+2026-06-24 23:39:53,175 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cb62850>
+2026-06-24 23:39:53,183 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=130.8, S=45.2, V=213.8
+2026-06-24 23:39:53,219 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 2.079999999999984 deg, practicalMoveTime: 0.6586429657375042 sec
+2026-06-24 23:39:53,220 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.3 ms
+2026-06-24 23:39:53,232 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0e9e490>
+2026-06-24 23:39:53,240 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.8, S=43.4, V=219.6
+2026-06-24 23:39:53,281 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 2.329999999999984 deg, practicalMoveTime: 0.7188448873142708 sec
+2026-06-24 23:39:53,282 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 60.5 ms
+2026-06-24 23:39:53,296 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cae9c90>
+2026-06-24 23:39:53,303 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=128.6, S=70.2, V=197.8
+2026-06-24 23:39:53,339 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.51 deg, practicalMoveTime: 0.7760563313057972 sec
+2026-06-24 23:39:53,340 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.2 ms
+2026-06-24 23:39:53,350 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c88290>
+2026-06-24 23:39:53,358 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=126.6, S=60.0, V=208.8
+2026-06-24 23:39:53,402 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 357.71999999999997 deg, practicalMoveTime: 0.8371591408386707 sec
+2026-06-24 23:39:53,403 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 61.4 ms
+2026-06-24 23:39:53,414 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8caeac10>
+2026-06-24 23:39:53,422 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=128.3, S=89.6, V=173.0
+2026-06-24 23:39:53,462 - mazeUtils.moveTile - [moveTile.py:1649] - INFO - practicalVerticalMove: 0.8958147745648837 CM
+2026-06-24 23:39:53,518 - mazeUtils.moveTile - [moveTile.py:1996] - INFO - Set moved vertical distance: 0.8958147745648837 cm, past distances: [(-0.02281694895449103, False), (0, False), (0, False)]
+2026-06-24 23:39:53,670 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 99.0949133838663 cm
+2026-06-24 23:39:53,672 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 99.0949133838663 cm, TSD10 distance: 89.5 cm
+2026-06-24 23:39:53,675 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 15.7028853452383 cm
+2026-06-24 23:39:53,677 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 162.96236132833602 cm
+2026-06-24 23:39:53,680 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 19.17593259611476 cm
+2026-06-24 23:39:53,685 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:39:53,779 - __main__ - [main.py:105] - INFO - Current position: (20, 18, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=18..20
++   +
+| @ |
++   +
+  E |
++   +
+| S |
++---+
+mazeAsGraph[0][18][20] = {absDirection.NORTH: (20, 17, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 19, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-24 23:39:53,787 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 17, 0)
+2026-06-24 23:39:53,801 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 18, 0) facing absDirection.NORTH
+2026-06-24 23:39:53,827 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.87 target: 0
+2026-06-24 23:39:53,848 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 359.87, diff: 0.12999999999999545
+2026-06-24 23:39:53,893 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.86 deg
+2026-06-24 23:39:54,151 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa1109c90>
+2026-06-24 23:39:54,159 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=130.4, S=41.4, V=209.1
+2026-06-24 23:39:54,194 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.52 deg, practicalMoveTime: 0.05518282151008552 sec
+2026-06-24 23:39:54,197 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.0 ms
+2026-06-24 23:39:54,207 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f759ad850>
+2026-06-24 23:39:54,215 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=131.4, S=39.8, V=209.6
+2026-06-24 23:39:54,252 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.33 deg, practicalMoveTime: 0.11047178977667413 sec
+2026-06-24 23:39:54,253 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 55.4 ms
+2026-06-24 23:39:54,258 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f759ad810>
+2026-06-24 23:39:54,264 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=129.4, S=42.9, V=210.2
+2026-06-24 23:39:54,303 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 3.339999999999975 deg, practicalMoveTime: 0.16066679310388265 sec
+2026-06-24 23:39:54,304 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.6 ms
+2026-06-24 23:39:54,311 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87acf890>
+2026-06-24 23:39:54,318 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=127.5, S=46.5, V=214.3
+2026-06-24 23:39:54,351 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 3.7799999999999727 deg, practicalMoveTime: 0.2073011409003454 sec
+2026-06-24 23:39:54,354 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 48.9 ms
+2026-06-24 23:39:54,361 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f759ad850>
+2026-06-24 23:39:54,368 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=115.7, S=106.2, V=218.8
+2026-06-24 23:39:54,405 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 4.939999999999998 deg, practicalMoveTime: 0.25822864388452826 sec
+2026-06-24 23:39:54,405 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.4 ms
+2026-06-24 23:39:54,410 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa110a010>
+2026-06-24 23:39:54,414 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=131.1, S=42.0, V=214.1
+2026-06-24 23:39:54,447 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 7.1200000000000045 deg, practicalMoveTime: 0.291013632821673 sec
+2026-06-24 23:39:54,447 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 41.4 ms
+2026-06-24 23:39:54,452 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87accb90>
+2026-06-24 23:39:54,455 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=157.9, S=31.2, V=179.5
+2026-06-24 23:39:54,490 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 8.279999999999973 deg, practicalMoveTime: 0.3250654685269921 sec
+2026-06-24 23:39:54,490 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 43.2 ms
+2026-06-24 23:39:54,499 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f757f67d0>
+2026-06-24 23:39:54,506 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=159.6, S=33.2, V=175.8
+2026-06-24 23:39:54,543 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 7.229999999999961 deg, practicalMoveTime: 0.3663673073117456 sec
+2026-06-24 23:39:54,544 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.8 ms
+2026-06-24 23:39:54,553 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f759ad810>
+2026-06-24 23:39:54,559 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=155.5, S=31.1, V=176.5
+2026-06-24 23:39:54,597 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 9.879999999999995 deg, practicalMoveTime: 0.4089051915085057 sec
+2026-06-24 23:39:54,598 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.9 ms
+2026-06-24 23:39:54,603 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f757f67d0>
+2026-06-24 23:39:54,609 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=157.9, S=34.5, V=168.8
+2026-06-24 23:39:54,648 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 12.5 deg, practicalMoveTime: 0.44827885258292194 sec
+2026-06-24 23:39:54,649 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.6 ms
+2026-06-24 23:39:54,659 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f673ad210>
+2026-06-24 23:39:54,666 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=151.2, S=44.5, V=148.2
+2026-06-24 23:39:54,707 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 16.930000000000007 deg, practicalMoveTime: 0.4922756996380083 sec
+2026-06-24 23:39:54,708 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.7 ms
+2026-06-24 23:39:54,712 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f759ad810>
+2026-06-24 23:39:54,719 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=149.2, S=44.5, V=129.6
+2026-06-24 23:39:54,754 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 22.99000000000001 deg, practicalMoveTime: 0.5271022385054939 sec
+2026-06-24 23:39:54,755 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 47.1 ms
+2026-06-24 23:39:54,762 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f757f67d0>
+2026-06-24 23:39:54,769 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=137.7, S=71.7, V=101.4
+2026-06-24 23:39:54,802 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 20.549999999999955 deg, practicalMoveTime: 0.5619005119706478 sec
+2026-06-24 23:39:54,803 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 47.0 ms
+2026-06-24 23:39:54,808 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0e9e490>
+2026-06-24 23:39:54,814 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=146.7, S=58.2, V=104.6
+2026-06-24 23:39:54,853 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 15.699999999999989 deg, practicalMoveTime: 0.6001005728544055 sec
+2026-06-24 23:39:54,854 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.6 ms
+2026-06-24 23:39:54,860 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f757f67d0>
+2026-06-24 23:39:54,866 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=141.7, S=46.8, V=139.8
+2026-06-24 23:39:54,901 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 9.899999999999977 deg, practicalMoveTime: 0.636964095162936 sec
+2026-06-24 23:39:54,902 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 47.6 ms
+2026-06-24 23:39:54,910 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87acf890>
+2026-06-24 23:39:54,916 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=137.1, S=51.5, V=150.9
+2026-06-24 23:39:54,958 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 8.810000000000002 deg, practicalMoveTime: 0.6812895688435604 sec
+2026-06-24 23:39:54,960 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.9 ms
+2026-06-24 23:39:54,968 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa1109c90>
+2026-06-24 23:39:54,976 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=131.4, S=58.2, V=169.1
+2026-06-24 23:39:55,018 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 10.919999999999959 deg, practicalMoveTime: 0.7268067120088242 sec
+2026-06-24 23:39:55,019 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 58.2 ms
+2026-06-24 23:39:55,026 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f74c3c390>
+2026-06-24 23:39:55,035 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=132.4, S=60.3, V=153.9
+2026-06-24 23:39:55,075 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 4.6299999999999955 deg, practicalMoveTime: 0.7822049057158355 sec
+2026-06-24 23:39:55,076 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.0 ms
+2026-06-24 23:39:55,083 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87acf890>
+2026-06-24 23:39:55,091 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=127.2, S=62.3, V=184.4
+2026-06-24 23:39:55,126 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.5299999999999727 deg, practicalMoveTime: 0.8326557937909177 sec
+2026-06-24 23:39:55,127 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.6 ms
+2026-06-24 23:39:55,136 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa110a010>
+2026-06-24 23:39:55,146 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=125.6, S=65.1, V=188.2
+2026-06-24 23:39:55,193 - mazeUtils.moveTile - [moveTile.py:1649] - INFO - practicalVerticalMove: 4.423662929315695 CM
+2026-06-24 23:39:55,252 - mazeUtils.moveTile - [moveTile.py:1996] - INFO - Set moved vertical distance: 4.423662929315695 cm, past distances: [(0.8958147745648837, False), (-0.02281694895449103, False), (0, False)]
+2026-06-24 23:39:55,414 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 69.75695850725047 cm
+2026-06-24 23:39:55,415 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 69.75695850725047 cm, TSD10 distance: 34.4 cm
+2026-06-24 23:39:55,418 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 18.42876073738032 cm
+2026-06-24 23:39:55,421 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 199.85700114894718 cm
+2026-06-24 23:39:55,425 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 17.398570215909995 cm
+2026-06-24 23:39:55,431 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:39:55,533 - __main__ - [main.py:105] - INFO - Current position: (20, 17, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=17..20
++   +
+| @ |
++   +
+| E |
++   +
+  E |
++   +
+| S |
++---+
+mazeAsGraph[0][17][20] = {absDirection.NORTH: (20, 16, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 18, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][18][20] = {absDirection.NORTH: (20, 17, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 19, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-24 23:39:55,542 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 16, 0)
+2026-06-24 23:39:55,556 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 17, 0) facing absDirection.NORTH
+2026-06-24 23:39:55,585 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.03000000000002956 target: 0
+2026-06-24 23:39:55,609 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 0.03000000000002956, diff: 0.03000000000002956
+2026-06-24 23:39:55,665 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.09000000000003183 deg
+2026-06-24 23:39:55,947 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f74781050>
+2026-06-24 23:39:55,955 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=114.7, S=88.7, V=212.3
+2026-06-24 23:39:55,999 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 350.51 deg, practicalMoveTime: 0.05883994966683801 sec
+2026-06-24 23:39:56,000 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 59.2 ms
+2026-06-24 23:39:56,007 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f75e40790>
+2026-06-24 23:39:56,014 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=115.3, S=85.0, V=211.0
+2026-06-24 23:39:56,053 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 350.72999999999996 deg, practicalMoveTime: 0.1109477861863678 sec
+2026-06-24 23:39:56,054 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.3 ms
+2026-06-24 23:39:56,064 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a61590>
+2026-06-24 23:39:56,070 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=115.0, S=85.3, V=211.5
+2026-06-24 23:39:56,107 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 351.03999999999996 deg, practicalMoveTime: 0.1633378062500745 sec
+2026-06-24 23:39:56,108 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.0 ms
+2026-06-24 23:39:56,113 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f85393710>
+2026-06-24 23:39:56,120 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.6, S=108.0, V=206.2
+2026-06-24 23:39:56,160 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 346.63 deg, practicalMoveTime: 0.21927661314851887 sec
+2026-06-24 23:39:56,161 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.4 ms
+2026-06-24 23:39:56,172 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f74781050>
+2026-06-24 23:39:56,181 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.5, S=190.8, V=202.6
+2026-06-24 23:39:56,221 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 341.7 deg, practicalMoveTime: 0.28181200248828536 sec
+2026-06-24 23:39:56,222 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 60.4 ms
+2026-06-24 23:39:56,230 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a3d510>
+2026-06-24 23:39:56,238 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.6, S=214.2, V=202.0
+2026-06-24 23:39:56,277 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 345.37 deg, practicalMoveTime: 0.34005514247331015 sec
+2026-06-24 23:39:56,278 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 55.6 ms
+2026-06-24 23:39:56,284 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f75e40790>
+2026-06-24 23:39:56,295 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.7, S=195.9, V=208.0
+2026-06-24 23:39:56,330 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 352.07 deg, practicalMoveTime: 0.39127796298101936 sec
+2026-06-24 23:39:56,331 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.9 ms
+2026-06-24 23:39:56,341 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a60390>
+2026-06-24 23:39:56,352 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.9, S=215.7, V=184.0
+2026-06-24 23:39:56,396 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 351.37 deg, practicalMoveTime: 0.4611746485856878 sec
+2026-06-24 23:39:56,398 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 65.8 ms
+2026-06-24 23:39:56,404 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a60390>
+2026-06-24 23:39:56,414 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.0, S=214.4, V=158.6
+2026-06-24 23:39:56,453 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 351.7 deg, practicalMoveTime: 0.5161621725664856 sec
+2026-06-24 23:39:56,454 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 55.6 ms
+2026-06-24 23:39:56,462 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f85393c10>
+2026-06-24 23:39:56,470 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.5, S=183.0, V=204.5
+2026-06-24 23:39:56,509 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 351.7 deg, practicalMoveTime: 0.5698408082149802 sec
+2026-06-24 23:39:56,510 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 55.5 ms
+2026-06-24 23:39:56,518 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f759ad810>
+2026-06-24 23:39:56,531 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.6, S=194.7, V=202.1
+2026-06-24 23:39:56,565 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 357.64 deg, practicalMoveTime: 0.6244415560897931 sec
+2026-06-24 23:39:56,566 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 55.1 ms
+2026-06-24 23:39:56,573 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a61590>
+2026-06-24 23:39:56,580 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.1, S=123.4, V=198.5
+2026-06-24 23:39:56,616 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.94 deg, practicalMoveTime: 0.6744649127888772 sec
+2026-06-24 23:39:56,618 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.4 ms
+2026-06-24 23:39:56,633 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f75e40790>
+2026-06-24 23:39:56,639 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=114.3, S=119.4, V=190.2
+2026-06-24 23:39:56,679 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.5999999999999659 deg, practicalMoveTime: 0.73570987514316 sec
+2026-06-24 23:39:56,680 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 61.8 ms
+2026-06-24 23:39:56,687 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a61590>
+2026-06-24 23:39:56,694 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=114.2, S=121.3, V=191.5
+2026-06-24 23:39:56,737 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.0399999999999636 deg, practicalMoveTime: 0.792416824160207 sec
+2026-06-24 23:39:56,738 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.6 ms
+2026-06-24 23:39:56,746 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a61590>
+2026-06-24 23:39:56,752 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.9, S=126.3, V=191.3
+2026-06-24 23:39:56,787 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.16999999999995907 deg, practicalMoveTime: 0.841586769813536 sec
+2026-06-24 23:39:56,788 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 49.2 ms
+2026-06-24 23:39:56,795 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a3d510>
+2026-06-24 23:39:56,802 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.0, S=135.8, V=195.0
+2026-06-24 23:39:56,842 - mazeUtils.moveTile - [moveTile.py:1649] - INFO - practicalVerticalMove: -4.238902395601345 CM
+2026-06-24 23:39:56,890 - mazeUtils.moveTile - [moveTile.py:1996] - INFO - Set moved vertical distance: -4.238902395601345 cm, past distances: [(4.423662929315695, False), (0.8958147745648837, False), (-0.02281694895449103, False)]
+2026-06-24 23:39:57,045 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 37.04231942157891 cm
+2026-06-24 23:39:57,047 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 37.04231942157891 cm, TSD10 distance: 27.4 cm
+2026-06-24 23:39:57,050 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.99370345258526 cm
+2026-06-24 23:39:57,052 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 175.9610286470519 cm
+2026-06-24 23:39:57,055 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 49.358296576351094 cm
+2026-06-24 23:39:57,057 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:39:57,146 - __main__ - [main.py:105] - INFO - Current position: (20, 16, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=16..20
++   +
+  @ |
++   +
+| E |
++   +
+| E |
++   +
+  E |
++   +
+| S |
++---+
+mazeAsGraph[0][16][20] = {absDirection.NORTH: (20, 15, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 17, 0, 30), absDirection.WEST: (19, 16, 0, 30)}
+mazeAsGraph[0][17][20] = {absDirection.NORTH: (20, 16, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 18, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][18][20] = {absDirection.NORTH: (20, 17, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 19, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-24 23:39:57,156 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 15, 0)
+2026-06-24 23:39:57,166 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 16, 0) facing absDirection.NORTH
+2026-06-24 23:39:57,193 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 358.64 target: 0
+2026-06-24 23:39:57,213 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 358.64, diff: 1.3600000000000136
+2026-06-24 23:39:57,271 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 358.59000000000003 deg
+2026-06-24 23:39:57,542 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a371d0>
+2026-06-24 23:39:57,548 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.5, S=144.7, V=194.6
+2026-06-24 23:39:57,584 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.71999999999997 deg, practicalMoveTime: 0.053261789906505395 sec
+2026-06-24 23:39:57,586 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.7 ms
+2026-06-24 23:39:57,591 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cb8f090>
+2026-06-24 23:39:57,598 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.7, S=143.5, V=193.3
+2026-06-24 23:39:57,635 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.20999999999997954 deg, practicalMoveTime: 0.10200619360665164 sec
+2026-06-24 23:39:57,637 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 49.9 ms
+2026-06-24 23:39:57,645 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cb8f090>
+2026-06-24 23:39:57,653 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.7, S=144.5, V=194.6
+2026-06-24 23:39:57,693 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.63 deg, practicalMoveTime: 0.15792320459243914 sec
+2026-06-24 23:39:57,694 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.0 ms
+2026-06-24 23:39:57,698 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a371d0>
+2026-06-24 23:39:57,704 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.8, S=150.2, V=200.3
+2026-06-24 23:39:57,750 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.37000000000000455 deg, practicalMoveTime: 0.2137590654537005 sec
+2026-06-24 23:39:57,751 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.4 ms
+2026-06-24 23:39:57,758 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f74781050>
+2026-06-24 23:39:57,765 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.9, S=151.6, V=199.5
+2026-06-24 23:39:57,803 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.82 deg, practicalMoveTime: 0.266176467197638 sec
+2026-06-24 23:39:57,804 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.2 ms
+2026-06-24 23:39:57,815 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8cb8f090>
+2026-06-24 23:39:57,819 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.8, S=164.4, V=204.4
+2026-06-24 23:39:57,855 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.9099999999999682 deg, practicalMoveTime: 0.3174227878320897 sec
+2026-06-24 23:39:57,855 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.6 ms
+2026-06-24 23:39:57,868 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fad3a9250>
+2026-06-24 23:39:57,871 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.3, S=160.2, V=204.4
+2026-06-24 23:39:57,908 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.46999999999997 deg, practicalMoveTime: 0.36997786226459434 sec
+2026-06-24 23:39:57,909 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.4 ms
+2026-06-24 23:39:57,913 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f74781050>
+2026-06-24 23:39:57,916 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.4, S=170.6, V=208.2
+2026-06-24 23:39:57,951 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.38999999999998636 deg, practicalMoveTime: 0.41260440578836993 sec
+2026-06-24 23:39:57,952 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 43.0 ms
+2026-06-24 23:39:57,960 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fad331c50>
+2026-06-24 23:39:57,964 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.7, S=163.5, V=209.0
+2026-06-24 23:39:57,998 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.5999999999999659 deg, practicalMoveTime: 0.45862412765606453 sec
+2026-06-24 23:39:57,998 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 46.2 ms
+2026-06-24 23:39:58,007 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c88290>
+2026-06-24 23:39:58,011 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.3, S=167.1, V=210.4
+2026-06-24 23:39:58,044 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.9 deg, practicalMoveTime: 0.5045220855226427 sec
+2026-06-24 23:39:58,045 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 46.0 ms
+2026-06-24 23:39:58,050 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a371d0>
+2026-06-24 23:39:58,053 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.6, S=174.7, V=214.1
+2026-06-24 23:39:58,086 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.78 deg, practicalMoveTime: 0.5454970570433281 sec
+2026-06-24 23:39:58,086 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 41.2 ms
+2026-06-24 23:39:58,098 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:39:58,105 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.6, S=175.5, V=213.7
+2026-06-24 23:39:58,141 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.060000000000002274 deg, practicalMoveTime: 0.599753997424078 sec
+2026-06-24 23:39:58,143 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.1 ms
+2026-06-24 23:39:58,148 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c88290>
+2026-06-24 23:39:58,156 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.7, S=193.9, V=204.4
+2026-06-24 23:39:58,202 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.18000000000000682 deg, practicalMoveTime: 0.6587544645743748 sec
+2026-06-24 23:39:58,203 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 58.5 ms
+2026-06-24 23:39:58,210 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f87a371d0>
+2026-06-24 23:39:58,217 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.6, S=235.1, V=193.1
+2026-06-24 23:39:58,301 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little forward to adjust position
+2026-06-24 23:39:58,428 - mazeUtils.moveTile - [moveTile.py:1996] - INFO - Set moved vertical distance: -0.0016991271481975974 cm, past distances: [(-4.238902395601345, False), (4.423662929315695, False), (0.8958147745648837, False)]
+2026-06-24 23:39:58,581 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 10.706239405921215 cm
+2026-06-24 23:39:58,581 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 10.706239405921215 cm, TSD10 distance: 2.2 cm
+2026-06-24 23:39:58,584 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 14.334831216558264 cm
+2026-06-24 23:39:58,587 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 172.76669664456404 cm
+2026-06-24 23:39:58,590 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 45.06629803014741 cm
+2026-06-24 23:39:58,593 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:39:58,681 - __main__ - [main.py:105] - INFO - Current position: (20, 15, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=15..20
++---+
+  @ |
++   +
+  E |
++   +
+| E |
++   +
+| E |
++   +
+  E |
++   +
+| S |
++---+
+mazeAsGraph[0][15][20] = {absDirection.NORTH: None, absDirection.EAST: None, absDirection.SOUTH: (20, 16, 0, 30), absDirection.WEST: (19, 15, 0, 30)}
+mazeAsGraph[0][16][20] = {absDirection.NORTH: (20, 15, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 17, 0, 30), absDirection.WEST: (19, 16, 0, 30)}
+mazeAsGraph[0][17][20] = {absDirection.NORTH: (20, 16, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 18, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][18][20] = {absDirection.NORTH: (20, 17, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 19, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-24 23:39:58,691 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (19, 15, 0)
+2026-06-24 23:39:58,700 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.WEST from (20, 15, 0) facing absDirection.NORTH
+2026-06-24 23:39:58,727 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.5300000000000296 target: 90
+2026-06-24 23:39:59,835 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 84.34000000000003, diff: 5.659999999999968
+2026-06-24 23:39:59,896 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 88.89999999999998 deg
+2026-06-24 23:40:00,074 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little backward to adjust position
+2026-06-24 23:40:00,331 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f753b9a50>
+2026-06-24 23:40:00,337 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.5, S=186.3, V=228.8
+2026-06-24 23:40:00,380 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.22999999999996135 deg, practicalMoveTime: 0.056672192428683585 sec
+2026-06-24 23:40:00,381 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 54.4 ms
+2026-06-24 23:40:00,393 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23d10>
+2026-06-24 23:40:00,400 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.2, S=182.8, V=224.2
+2026-06-24 23:40:00,438 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.71 deg, practicalMoveTime: 0.11387416772426799 sec
+2026-06-24 23:40:00,439 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.3 ms
+2026-06-24 23:40:00,444 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f753b8f50>
+2026-06-24 23:40:00,450 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.3, S=183.5, V=232.5
+2026-06-24 23:40:00,487 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.18999999999999773 deg, practicalMoveTime: 0.16193680761216261 sec
+2026-06-24 23:40:00,488 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 48.2 ms
+2026-06-24 23:40:00,497 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23f10>
+2026-06-24 23:40:00,504 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.0, S=184.3, V=234.8
+2026-06-24 23:40:00,544 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.049999999999954525 deg, practicalMoveTime: 0.21851536886271303 sec
+2026-06-24 23:40:00,546 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.4 ms
+2026-06-24 23:40:00,554 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f753b9ad0>
+2026-06-24 23:40:00,562 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.0, S=184.7, V=235.5
+2026-06-24 23:40:00,600 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.90999999999997 deg, practicalMoveTime: 0.27297293999485767 sec
+2026-06-24 23:40:00,601 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 54.3 ms
+2026-06-24 23:40:00,612 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fad331c50>
+2026-06-24 23:40:00,621 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=107.9, S=188.6, V=233.5
+2026-06-24 23:40:00,660 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 3.740000000000009 deg, practicalMoveTime: 0.3314262316145456 sec
+2026-06-24 23:40:00,661 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 58.4 ms
+2026-06-24 23:40:00,666 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23d10>
+2026-06-24 23:40:00,675 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=107.6, S=190.5, V=236.5
+2026-06-24 23:40:00,717 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 5.96999999999997 deg, practicalMoveTime: 0.38767453773895594 sec
+2026-06-24 23:40:00,718 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.7 ms
+2026-06-24 23:40:00,728 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20510>
+2026-06-24 23:40:00,733 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.0, S=180.5, V=233.2
+2026-06-24 23:40:00,770 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 8.889999999999986 deg, practicalMoveTime: 0.428546244984951 sec
+2026-06-24 23:40:00,770 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 51.8 ms
+2026-06-24 23:40:00,783 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b650>
+2026-06-24 23:40:00,787 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.9, S=181.3, V=233.5
+2026-06-24 23:40:00,833 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 14.649999999999977 deg, practicalMoveTime: 0.4773953430914707 sec
+2026-06-24 23:40:00,833 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 62.8 ms
+2026-06-24 23:40:00,838 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b650>
+2026-06-24 23:40:00,842 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.9, S=171.2, V=228.6
+2026-06-24 23:40:00,877 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 16.799999999999955 deg, practicalMoveTime: 0.5106202447181684 sec
+2026-06-24 23:40:00,877 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 43.4 ms
+2026-06-24 23:40:00,889 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23d10>
+2026-06-24 23:40:00,892 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.5, S=163.2, V=226.6
+2026-06-24 23:40:00,931 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 19.680000000000007 deg, practicalMoveTime: 0.5519159486335778 sec
+2026-06-24 23:40:00,932 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 54.4 ms
+2026-06-24 23:40:00,937 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22550>
+2026-06-24 23:40:00,940 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.7, S=157.7, V=225.7
+2026-06-24 23:40:00,973 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 22.379999999999995 deg, practicalMoveTime: 0.5820414196835897 sec
+2026-06-24 23:40:00,973 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 41.0 ms
+2026-06-24 23:40:00,984 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22d90>
+2026-06-24 23:40:00,987 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.0, S=155.9, V=224.4
+2026-06-24 23:40:01,023 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.97999999999996 deg, practicalMoveTime: 0.618578729078985 sec
+2026-06-24 23:40:01,024 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.4 ms
+2026-06-24 23:40:01,027 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f753b8f90>
+2026-06-24 23:40:01,031 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.8, S=151.3, V=218.9
+2026-06-24 23:40:01,064 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 26.649999999999977 deg, practicalMoveTime: 0.6478142962900223 sec
+2026-06-24 23:40:01,065 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 40.9 ms
+2026-06-24 23:40:01,076 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23d10>
+2026-06-24 23:40:01,079 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.4, S=148.0, V=216.8
+2026-06-24 23:40:01,129 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 26.339999999999975 deg, practicalMoveTime: 0.6935002611839305 sec
+2026-06-24 23:40:01,129 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 64.0 ms
+2026-06-24 23:40:01,140 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20e50>
+2026-06-24 23:40:01,143 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.2, S=148.8, V=218.0
+2026-06-24 23:40:01,176 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.579999999999984 deg, practicalMoveTime: 0.7268780011743055 sec
+2026-06-24 23:40:01,176 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 46.6 ms
+2026-06-24 23:40:01,189 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22550>
+2026-06-24 23:40:01,192 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.8, S=151.2, V=219.5
+2026-06-24 23:40:01,229 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.96999999999997 deg, practicalMoveTime: 0.7646671150735305 sec
+2026-06-24 23:40:01,229 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.1 ms
+2026-06-24 23:40:01,235 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:40:01,238 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.7, S=152.0, V=220.1
+2026-06-24 23:40:01,271 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.329999999999984 deg, practicalMoveTime: 0.7947155189156176 sec
+2026-06-24 23:40:01,271 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 41.7 ms
+2026-06-24 23:40:01,282 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23f10>
+2026-06-24 23:40:01,285 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.9, S=151.8, V=218.6
+2026-06-24 23:40:01,322 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 24.649999999999977 deg, practicalMoveTime: 0.8314341454931115 sec
+2026-06-24 23:40:01,323 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.9 ms
+2026-06-24 23:40:01,328 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20510>
+2026-06-24 23:40:01,331 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.8, S=152.6, V=219.0
+2026-06-24 23:40:01,377 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b690>
+2026-06-24 23:40:01,381 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=115.0, S=136.2, V=190.5
+2026-06-24 23:40:01,420 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 24.930000000000007 deg, practicalMoveTime: 0.9014560680563986 sec
+2026-06-24 23:40:01,420 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 54.4 ms
+2026-06-24 23:40:01,426 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22550>
+2026-06-24 23:40:01,429 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=119.0, S=113.0, V=158.8
+2026-06-24 23:40:01,466 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.569999999999993 deg, practicalMoveTime: 0.9341153592763811 sec
+2026-06-24 23:40:01,466 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 45.3 ms
+2026-06-24 23:40:01,477 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20510>
+2026-06-24 23:40:01,480 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=122.2, S=96.0, V=135.9
+2026-06-24 23:40:01,514 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.16999999999996 deg, practicalMoveTime: 0.9688490444184674 sec
+2026-06-24 23:40:01,515 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 48.1 ms
+2026-06-24 23:40:01,520 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22550>
+2026-06-24 23:40:01,523 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=123.9, S=89.0, V=127.3
+2026-06-24 23:40:01,567 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 24.94999999999999 deg, practicalMoveTime: 1.007041298088601 sec
+2026-06-24 23:40:01,568 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.9 ms
+2026-06-24 23:40:01,573 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23f10>
+2026-06-24 23:40:01,577 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=124.9, S=85.7, V=117.8
+2026-06-24 23:40:01,614 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 24.819999999999993 deg, practicalMoveTime: 1.0404142658124669 sec
+2026-06-24 23:40:01,614 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 46.2 ms
+2026-06-24 23:40:01,625 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22550>
+2026-06-24 23:40:01,628 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=125.3, S=86.8, V=115.1
+2026-06-24 23:40:01,668 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.069999999999993 deg, practicalMoveTime: 1.079098120964927 sec
+2026-06-24 23:40:01,668 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.6 ms
+2026-06-24 23:40:01,673 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23f10>
+2026-06-24 23:40:01,676 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=124.9, S=89.6, V=113.8
+2026-06-24 23:40:01,706 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.399999999999977 deg, practicalMoveTime: 1.1066207147085294 sec
+2026-06-24 23:40:01,707 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 38.3 ms
+2026-06-24 23:40:01,710 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a22550>
+2026-06-24 23:40:01,714 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=123.9, S=94.6, V=117.4
+2026-06-24 23:40:01,747 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 25.310000000000002 deg, practicalMoveTime: 1.1357784523088248 sec
+2026-06-24 23:40:01,747 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 40.6 ms
+2026-06-24 23:40:01,752 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:40:01,756 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=123.4, S=97.2, V=120.0
+2026-06-24 23:40:01,795 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 23.569999999999993 deg, practicalMoveTime: 1.1706572630216652 sec
+2026-06-24 23:40:01,796 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 47.9 ms
+2026-06-24 23:40:01,801 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20510>
+2026-06-24 23:40:01,804 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=122.7, S=99.5, V=123.5
+2026-06-24 23:40:01,852 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 23.879999999999995 deg, practicalMoveTime: 1.2115706175704135 sec
+2026-06-24 23:40:01,852 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.5 ms
+2026-06-24 23:40:01,863 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b6d0>
+2026-06-24 23:40:01,867 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=124.9, S=86.3, V=115.8
+2026-06-24 23:40:01,908 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 20.289999999999964 deg, practicalMoveTime: 1.2531437539553292 sec
+2026-06-24 23:40:01,909 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.6 ms
+2026-06-24 23:40:01,918 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b6d0>
+2026-06-24 23:40:01,924 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=124.9, S=83.2, V=119.6
+2026-06-24 23:40:01,971 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 15.870000000000005 deg, practicalMoveTime: 1.3005072088745517 sec
+2026-06-24 23:40:01,972 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 61.2 ms
+2026-06-24 23:40:01,977 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b710>
+2026-06-24 23:40:01,986 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=121.2, S=100.1, V=135.4
+2026-06-24 23:40:02,029 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 9.129999999999995 deg, practicalMoveTime: 1.3452097215443093 sec
+2026-06-24 23:40:02,030 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.0 ms
+2026-06-24 23:40:02,042 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b650>
+2026-06-24 23:40:02,050 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=116.8, S=126.7, V=163.7
+2026-06-24 23:40:02,087 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 8.0 deg, practicalMoveTime: 1.3901532182393235 sec
+2026-06-24 23:40:02,088 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.0 ms
+2026-06-24 23:40:02,095 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a23d10>
+2026-06-24 23:40:02,101 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=115.7, S=136.5, V=172.4
+2026-06-24 23:40:02,140 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 4.329999999999984 deg, practicalMoveTime: 1.4418391924955705 sec
+2026-06-24 23:40:02,141 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.7 ms
+2026-06-24 23:40:02,147 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b750>
+2026-06-24 23:40:02,154 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=114.5, S=146.4, V=180.9
+2026-06-24 23:40:02,192 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.6899999999999977 deg, practicalMoveTime: 1.492367648924668 sec
+2026-06-24 23:40:02,193 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 49.9 ms
+2026-06-24 23:40:02,203 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0a20e50>
+2026-06-24 23:40:02,210 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.7, S=153.9, V=188.4
+2026-06-24 23:40:02,246 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.8199999999999932 deg, practicalMoveTime: 1.5454659276709837 sec
+2026-06-24 23:40:02,247 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-24 23:40:02,253 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:40:02,259 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.9, S=154.2, V=186.8
+2026-06-24 23:40:02,297 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.1200000000000045 deg, practicalMoveTime: 1.59537150753582 sec
+2026-06-24 23:40:02,298 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 49.7 ms
+2026-06-24 23:40:02,304 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f7515b650>
+2026-06-24 23:40:02,310 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=114.6, S=153.5, V=180.4
+2026-06-24 23:40:02,344 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.1800000000000068 deg, practicalMoveTime: 1.6419903387395263 sec
+2026-06-24 23:40:02,346 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 47.2 ms
+2026-06-24 23:40:02,358 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:40:02,364 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=114.1, S=151.2, V=183.3
+2026-06-24 23:40:02,405 - mazeUtils.moveTile - [moveTile.py:1649] - INFO - practicalVerticalMove: 15.455785856181505 CM
+2026-06-24 23:40:02,406 - mazeUtils.moveTile - [moveTile.py:1660] - INFO - Waiting for adjustment after ramp
+2026-06-24 23:40:02,687 - mazeUtils.moveTile - [moveTile.py:1904] - INFO - Set slope for tile at absDirection.WEST, horizontal: 30 cm, vertical: 15 cm based on roll 24.879999999999995 deg
+2026-06-24 23:40:02,834 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 270, Distance: 15.422070741269701 cm
+2026-06-24 23:40:02,838 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 180, Distance: 167.88179663805872 cm
+2026-06-24 23:40:02,840 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 90, Distance: 249.19898531397138 cm
+2026-06-24 23:40:02,844 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 0, Distance: 36.40596442755474 cm
+2026-06-24 23:40:02,845 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 36.40596442755474 cm, TSD10 distance: 23.0 cm
+2026-06-24 23:40:02,848 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:40:02,980 - __main__ - [main.py:105] - INFO - Current position: (20, 15, 1), front direction: absDirection.WEST
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=15..20
++---+
+  E |
++   +
+  E |
++   +
+| E |
++   +
+| E |
++   +
+  E |
++   +
+| S |
++---+
+Layer 1 (altitude=15.0cm, offset=(-60.0cm, 0.0cm)):
+Known map area: x=20..20, y=15..15
++---+
+  @  
++   +
+mazeAsGraph[0][15][20] = {absDirection.NORTH: None, absDirection.EAST: None, absDirection.SOUTH: (20, 16, 0, 30), absDirection.WEST: (20, 15, 1, 60)}
+mazeAsGraph[0][16][20] = {absDirection.NORTH: (20, 15, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 17, 0, 30), absDirection.WEST: (19, 16, 0, 30)}
+mazeAsGraph[0][17][20] = {absDirection.NORTH: (20, 16, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 18, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][18][20] = {absDirection.NORTH: (20, 17, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 19, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+mazeAsGraph[1][15][20] = {absDirection.NORTH: None, absDirection.EAST: (20, 15, 0, 60), absDirection.SOUTH: (20, 16, 1, 30), absDirection.WEST: (19, 15, 1, 30)}
+2026-06-24 23:40:02,987 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (19, 15, 1)
+2026-06-24 23:40:02,995 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.WEST from (20, 15, 1) facing absDirection.WEST
+2026-06-24 23:40:03,029 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 91.59000000000003 target: 90
+2026-06-24 23:40:03,054 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 91.59000000000003, diff: 1.5900000000000318
+2026-06-24 23:40:03,102 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 91.74000000000001 deg
+2026-06-24 23:40:03,327 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f96e712d0>
+2026-06-24 23:40:03,335 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.2, S=173.2, V=199.2
+2026-06-24 23:40:03,374 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.71 deg, practicalMoveTime: 0.059734479320051256 sec
+2026-06-24 23:40:03,374 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.2 ms
+2026-06-24 23:40:03,380 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f96e70910>
+2026-06-24 23:40:03,386 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.4, S=171.5, V=197.6
+2026-06-24 23:40:03,427 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.5600000000000023 deg, practicalMoveTime: 0.11173544480286704 sec
+2026-06-24 23:40:03,427 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 52.2 ms
+2026-06-24 23:40:03,439 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:40:03,448 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.0, S=173.6, V=200.0
+2026-06-24 23:40:03,486 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.7 deg, practicalMoveTime: 0.17013864067652756 sec
+2026-06-24 23:40:03,487 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 58.6 ms
+2026-06-24 23:40:03,494 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f96e70b90>
+2026-06-24 23:40:03,500 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.2, S=180.6, V=205.4
+2026-06-24 23:40:03,537 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.19 deg, practicalMoveTime: 0.22026000791119468 sec
+2026-06-24 23:40:03,538 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.5 ms
+2026-06-24 23:40:03,543 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f96e70b90>
+2026-06-24 23:40:03,549 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.8, S=187.4, V=208.8
+2026-06-24 23:40:03,595 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.3599999999999568 deg, practicalMoveTime: 0.2770464811231714 sec
+2026-06-24 23:40:03,595 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 57.1 ms
+2026-06-24 23:40:03,603 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b5c90>
+2026-06-24 23:40:03,609 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=110.1, S=187.4, V=215.9
+2026-06-24 23:40:03,643 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.28999999999996 deg, practicalMoveTime: 0.32474357554332567 sec
+2026-06-24 23:40:03,644 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 48.2 ms
+2026-06-24 23:40:03,656 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f96e70910>
+2026-06-24 23:40:03,662 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=109.3, S=193.7, V=221.5
+2026-06-24 23:40:03,701 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.6399999999999864 deg, practicalMoveTime: 0.3816307633792476 sec
+2026-06-24 23:40:03,702 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.4 ms
+2026-06-24 23:40:03,708 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0c88290>
+2026-06-24 23:40:03,715 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.9, S=198.7, V=227.3
+2026-06-24 23:40:03,759 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.0199999999999818 deg, practicalMoveTime: 0.43788029675002116 sec
+2026-06-24 23:40:03,759 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 56.4 ms
+2026-06-24 23:40:03,767 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b5d90>
+2026-06-24 23:40:03,773 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=108.4, S=205.1, V=229.3
+2026-06-24 23:40:03,810 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.4399999999999977 deg, practicalMoveTime: 0.488269227659688 sec
+2026-06-24 23:40:03,811 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 50.7 ms
+2026-06-24 23:40:03,821 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fa0fc90d0>
+2026-06-24 23:40:03,829 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=113.5, S=182.5, V=179.6
+2026-06-24 23:40:03,869 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.4300000000000068 deg, practicalMoveTime: 0.5467283219078689 sec
+2026-06-24 23:40:03,871 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 59.5 ms
+2026-06-24 23:40:03,878 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f96e71410>
+2026-06-24 23:40:03,884 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=112.0, S=209.6, V=190.4
+2026-06-24 23:40:03,925 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.3199999999999932 deg, practicalMoveTime: 0.6005284540701986 sec
+2026-06-24 23:40:03,926 - mazeUtils.moveTile - [moveTile.py:1801] - DEBUG - moveTile loop time: 53.8 ms
+2026-06-24 23:40:03,933 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f750b5c90>
+2026-06-24 23:40:03,939 - mazeUtils.device.camera - [camera.py:39] - DEBUG - Average HSV: H=111.7, S=230.0, V=198.2
+2026-06-24 23:40:04,027 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little forward to adjust position
+2026-06-24 23:40:04,114 - mazeUtils.moveTile - [moveTile.py:1996] - INFO - Set moved vertical distance: -0.07211352396552749 cm, past distances: [(15.455785856181505, True), (0, False), (0, False)]
+2026-06-24 23:40:04,276 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.NORTH, Angle: 270, Distance: 15.430252572305543 cm
+2026-06-24 23:40:04,280 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.EAST, Angle: 180, Distance: 189.57628556264132 cm
+2026-06-24 23:40:04,282 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.SOUTH, Angle: 90, Distance: 250.41775363234996 cm
+2026-06-24 23:40:04,285 - mazeUtils.moveTile - [moveTile.py:553] - DEBUG - Direction: absDirection.WEST, Angle: 0, Distance: 15.303848704602666 cm
+2026-06-24 23:40:04,287 - mazeUtils.moveTile - [moveTile.py:578] - DEBUG - Front LiDAR distance: 15.303848704602666 cm, TSD10 distance: 11.2 cm
+2026-06-24 23:40:04,291 - mazeUtils.moveTile - [moveTile.py:2151] - INFO - Tile color detection, decided tile type: E
+2026-06-24 23:40:04,422 - __main__ - [main.py:105] - INFO - Current position: (19, 15, 1), front direction: absDirection.WEST
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=15..20
++---+
+  E |
++   +
+  E |
++   +
+| E |
++   +
+| E |
++   +
+  E |
++   +
+| S |
++---+
+Layer 1 (altitude=15.0cm, offset=(-60.0cm, 0.0cm)):
+Known map area: x=19..20, y=15..15
++---+---+
+| @   E  
++   +   +
+mazeAsGraph[0][15][20] = {absDirection.NORTH: None, absDirection.EAST: None, absDirection.SOUTH: (20, 16, 0, 30), absDirection.WEST: (20, 15, 1, 60)}
+mazeAsGraph[0][16][20] = {absDirection.NORTH: (20, 15, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 17, 0, 30), absDirection.WEST: (19, 16, 0, 30)}
+mazeAsGraph[0][17][20] = {absDirection.NORTH: (20, 16, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 18, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][18][20] = {absDirection.NORTH: (20, 17, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 19, 0, 30), absDirection.WEST: None}
+mazeAsGraph[0][19][20] = {absDirection.NORTH: (20, 18, 0, 30), absDirection.EAST: None, absDirection.SOUTH: (20, 20, 0, 30), absDirection.WEST: (19, 19, 0, 30)}
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+mazeAsGraph[1][15][19] = {absDirection.NORTH: None, absDirection.EAST: (20, 15, 1, 30), absDirection.SOUTH: (19, 16, 1, 30), absDirection.WEST: None}
+mazeAsGraph[1][15][20] = {absDirection.NORTH: None, absDirection.EAST: (20, 15, 0, 60), absDirection.SOUTH: (20, 16, 1, 30), absDirection.WEST: (19, 15, 1, 30)}
+2026-06-24 23:40:04,434 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (19, 16, 1)
+2026-06-24 23:40:04,447 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.SOUTH from (19, 15, 1) facing absDirection.WEST
+2026-06-24 23:40:04,476 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 93.12 target: 180
+2026-06-24 23:40:05,549 - mazeUtils.moveTile - [moveTile.py:427] - DEBUG - stopped turning at heading: 174.55, diff: 5.449999999999989
+2026-06-24 23:40:05,616 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 178.09 deg
+2026-06-24 23:40:05,785 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little backward to adjust position
+2026-06-24 23:40:06,477 - __main__ - [main.py:170] - INFO - Program interrupted by user.
+2026-06-24 23:40:07,559 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7fad238dd0>
+2026-06-24 23:40:07,575 - picamera2.picamera2 - [picamera2.py:1323] - INFO - Camera stopped
+2026-06-24 23:40:07,776 - picamera2.picamera2 - [picamera2.py:1329] - DEBUG - Camera was not started
+2026-06-24 23:40:07,981 - picamera2.picamera2 - [picamera2.py:723] - INFO - Camera closed successfully.
+2026-06-24 23:40:08,222 - picamera2.picamera2 - [picamera2.py:500] - DEBUG - Resources now free: <picamera2.picamera2.Picamera2 object at 0x7fa09d2590>

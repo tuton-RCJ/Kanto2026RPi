@@ -591,8 +591,8 @@ def detectWall(
             # 壁情報が一致してなかったらエラーとしてログに出す
             if (
                 (dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
-                and (dist - stmInstance.frontTSD10.get_distance() / 10)
-                < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
+                and (not (direction == mapInstance.frontDirection and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM))
                 and mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL
             ) or (
                 (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
@@ -1587,6 +1587,8 @@ def moveTile(
                 < mazeConstraints.ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD
                 and RampFinishTime == 0
             ):
+                stmInstance.sts3032.stop()
+                time.sleep(2)
                 RampFinishTime = time.time()
                 print(f"Ramp finished, RampFinishTile : {RampFinishTime }")
 
@@ -1657,6 +1659,7 @@ def moveTile(
                     < mazeConstraints.ADJUSTMENT_AFTER_RAMP_TIME_SEC
                 )
             ):
+                logger.info("Waiting for adjustment after ramp")
                 while True:
                     stmInstance.update()
                     if stmInstance.switch.getToggleSwitch1():
@@ -1890,6 +1893,21 @@ def moveTile(
                     mapInstance.setTileType(mazeEnums.tileType.EMPTY)
                 mapInstance.resetMovedVerticalDistance()
 
+            # 1マスの階段を坂と誤検知したときの例外処理
+            if abs( practicalVerticalMoveTime
+                    * mazeConstraints.TILE_SIZE_CM
+                    / mazeConstraints.MOVE_STRAIGHT_SEC
+                ) < mazeConstraints.STAIR_THRESHOLD_CM:
+                logger.info(
+                    f"Detected one-tile ramp but regarded it as stairs on one tile, set height-0 slope. Vertical Movement: {practicalVerticalMoveTime  * mazeConstraints.TILE_SIZE_CM   / mazeConstraints.MOVE_STRAIGHT_SEC} cm"
+                )
+                mapInstance.setSlope(direction, mazeConstraints.TILE_SIZE_CM, 0)
+                mapInstance.setMovedVerticalDistance(
+                    practicalVerticalMoveTime
+                    * mazeConstraints.TILE_SIZE_CM
+                    / mazeConstraints.MOVE_STRAIGHT_SEC,
+                    False,
+                )
             else:
                 mapInstance.setSlope(
                     direction,
