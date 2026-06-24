@@ -242,7 +242,7 @@ def escapeFromBlackTile(
             {deviceEnums.Side.LEFT: -100, deviceEnums.Side.RIGHT: -100}
         )
         startEscapeTime = time.time()
-        while time.time() - startEscapeTime < practicalMoveTime * 1:
+        while time.time() - startEscapeTime < practicalMoveTime + 0.16: # 0.16は補正値
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
@@ -537,6 +537,8 @@ def detectWall(
     @param stmInstance: 通信に使用する STM インスタンス
     @param points: LiDARのスキャンデータのリスト。Noneの場合はLiDARから取得する。
     """
+    if enableOverwrite:
+        logger.debug("overwrite the wall data")
     if points is None:
         points = LiDAR.getLiDARScan(lidar)
     currentDirVal = mapInstance.frontDirection.value
@@ -1701,6 +1703,7 @@ def moveTile(
                         stmInstance.sts3032.stop()
                         logger.info("Front wall detected on up ramp, stopping movement")
                         detectFlag = True
+                        practicalMoveTime -= 0.2
                 else:
                     if (
                         stmInstance.tof.getDistance()[0]
@@ -1711,7 +1714,7 @@ def moveTile(
                             "Front wall detected on down ramp, stopping movement"
                         )
                         detectFlag = True
-                        practicalMoveTime += 0.4
+                        practicalMoveTime += 0.4 # 補正
             if detectFlag:
                 # 下がる
                 _practicalMoveTime = 0
