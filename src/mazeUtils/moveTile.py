@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 colorSensor = None
 pr = None
-DEBUG_TIMING_LOG = False
+DEBUG_TIMING_LOG = True
 
 lastDist = {
     mazeEnums.absDirection.NORTH: 0,
@@ -417,6 +417,12 @@ def turnToCertainDirection(
                 )
                 stmInstance.sts3032.stop()
                 _turn_start_time = time.time()
+
+                (
+                    stmInstance.sts3032.turnRight(normalTurnSpeed)
+                    if turnDirection == mazeEnums.turnDirection.RIGHT
+                    else stmInstance.sts3032.turnLeft(normalTurnSpeed)
+                )
 
         assert (
             abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))

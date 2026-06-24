@@ -96,7 +96,7 @@ def dijkstra(
                 getTileType((nx, ny, nz)) == mazeEnums.tileType.UNKNOWN
                 and getTileType(pos) == mazeEnums.tileType.RED
             ):
-                step_cost += 1000
+                step_cost += 10000
                 neighbor_graph = mazeGraph[nz][ny][nx]
                 for _dir in mazeEnums.absDirection:
                     # 今のタイル以外に辺が張ってあれば、それは発見済みタイルなのでコストは変えない
@@ -436,7 +436,7 @@ class mazeMap:
 
         if tiletype == mazeEnums.tileType.SILVER:
             logger.debug("Silver tile detected, saving cache")
-            # self.saveCache()
+            self.saveCache()
 
     def existsLayerWithinAltitude(
         self, altitude: float, tolerance: float = 7.0
