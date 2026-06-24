@@ -577,7 +577,7 @@ def detectWall(
                 if (
                     dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
                     and (dist - stmInstance.frontTSD10.get_distance() / 10)
-                    > mazeConstraints.WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM
+                    > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
                 ):
                     mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
                     logger.debug(
@@ -588,7 +588,7 @@ def detectWall(
             if (
                 (dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
                 and (dist - stmInstance.frontTSD10.get_distance() / 10)
-                     < mazeConstraints.WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM
+                     < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
                 and mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL
             ) or (
                 (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
@@ -1392,7 +1392,7 @@ def moveTile(
                 LiDAR.getCertainAngleDist(direction.value, pts)
                 - stmInstance.frontTSD10.get_distance() / 10
             )
-            > mazeConstraints.WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM
+            > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
         ):
             mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             return False, False, False
@@ -1571,9 +1571,10 @@ def moveTile(
             f"moveTile ramp check isBigRamp={isBigRamp}", timing_start
         )
 
-        if targetSteps > 1 and min(roll, 360 - roll) < 10 and RampFinishTime == 0:
-            RampFinishTime = time.time()
-            print(f"Ramp finished, RampFinishTile : {RampFinishTime }")
+        if mazeConstraints.USE_ADJUSTMENT_AFTER_RAMP:
+            if targetSteps > 1 and min(roll, 360 - roll) < mazeConstraints.ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD and RampFinishTime == 0:
+                RampFinishTime = time.time()
+                print(f"Ramp finished, RampFinishTile : {RampFinishTime }")
 
         ###### 黒タイル回避処理 ######
         escapeFromBlackTileRes = escapeFromBlackTile(
@@ -1634,9 +1635,14 @@ def moveTile(
             logger.info(
                 f"practicalVerticalMove: {practicalVerticalMoveTime*mazeConstraints.TILE_SIZE_CM/mazeConstraints.MOVE_STRAIGHT_SEC} CM"
             )
-            # print(time.time()-RampFinishTime)
-            # if targetSteps > 1 and ((time.time() - RampFinishTime) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.5):
-            #     time.sleep(mazeConstraints.MOVE_STRAIGHT_SEC * 0.5 - (time.time() - RampFinishTime))
+            if targetSteps > 1 and mazeConstraints.USE_ADJUSTMENT_AFTER_RAMP and ((time.time() - RampFinishTime) < mazeConstraints.ADJUSTMENT_AFTER_RAMP_TIME_SEC):
+                while True:
+                    stmInstance.update()
+                    if stmInstance.switch.getToggleSwitch1():
+                        stmInstance.sts3032.stop()
+                        return False, True, False
+                    if time.time() - RampFinishTime > mazeConstraints.ADJUSTMENT_AFTER_RAMP_TIME_SEC:
+                        break
             stmInstance.sts3032.stop()
             debugTimingPrint("moveTile finished by time control", timing_start)
             break
@@ -1988,7 +1994,7 @@ def moveTile(
 
     ##### 移動終了時の被災者検出処理 #####
     ##### 移動終了直前、移動終了時に見たもの、上り坂をのぼったあとの特殊処理で見たものについて、ここで救助動作を行う。
-    ##### 坂道中に見たものを追加 #####
+    # 坂道中に見たものを追加 
     for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
         for unitvStatus, count in getVictimDict_AfterRamp[side].items():
             getVictimDict[side][unitvStatus] += count

@@ -44,7 +44,7 @@ MOVE_STRAIGHT_THRESHOLD_CM: int = (
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
 USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
-WALL_DETECTION_RAMP_THRESHOULD_DIFF_CM: int = 15  # 坂検出をする、LiDAR距離とTSD10距離の差の閾値
+WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: int = 15  # 坂検出をする、LiDAR距離とTSD10距離の差の閾値
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
 WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
@@ -134,6 +134,10 @@ TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 12.0 # 下
 SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE: bool = False # Dangerous Zone内の坂道で速度を落とすかどうか
 SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO: float = 0.5 # Dangerous Zone内の坂道で速度を落とす場合の速度の補正率（スピードにこれをかけた値にする）
 
+USE_ADJUSTMENT_AFTER_RAMP: bool = True # 坂道を上りor下り終わった時に、平らになってからの時間を利用して位置の微調整を行うかどうか
+ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD: float = 1.0 # ±この角度の範囲内になったら、平らになったと判断し、時間の計測開始
+ADJUSTMENT_AFTER_RAMP_TIME_SEC: float = 0.5 # 坂道を上りor下り終わった後、平らになってからこの時間経過するまで待って止まる
+ 
 
 ###### Dangerous Zone関連
 
