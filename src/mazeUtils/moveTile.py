@@ -1301,7 +1301,7 @@ def moveTile(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     lidar: ydlidar.CYdLidar,
-) -> tuple[bool, bool]:
+) -> tuple[bool, bool, bool]:
     """
     @brief direction の方向へ一マス移動する
     @param direction: 移動方向
