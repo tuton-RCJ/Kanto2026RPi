@@ -1433,6 +1433,7 @@ def moveTile(
         timing_start = debugTimingPrint(
             "moveTile finished backward adjustment", timing_start
         )
+
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
 
@@ -1451,7 +1452,6 @@ def moveTile(
     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
     littleFowardFlag = False
     isBigRamp = False
-    isBigUpperRamp = False
     startTime = time.time()
     practicalMoveTime = 0.0
     targetSteps = (
@@ -1476,6 +1476,10 @@ def moveTile(
 
     oldTime = startTime
     getVictimDict = {
+        deviceEnums.Side.LEFT: defaultdict(int),
+        deviceEnums.Side.RIGHT: defaultdict(int),
+    }
+    getVictimDict_AfterRamp = {
         deviceEnums.Side.LEFT: defaultdict(int),
         deviceEnums.Side.RIGHT: defaultdict(int),
     }
@@ -1622,6 +1626,10 @@ def moveTile(
             if isUnknownTileAhead and isBigRamp:
                 targetSteps += 1
                 RollonRamp.append(stmInstance.gyro.getValue().roll)
+                getVictimDict_AfterRamp = {
+                    deviceEnums.Side.LEFT: defaultdict(int),
+                    deviceEnums.Side.RIGHT: defaultdict(int),
+                }
                 continue
             logger.info(
                 f"practicalVerticalMove: {practicalVerticalMoveTime*mazeConstraints.TILE_SIZE_CM/mazeConstraints.MOVE_STRAIGHT_SEC} CM"
@@ -1707,6 +1715,16 @@ def moveTile(
                 getVictimDict,
                 practicalMoveTime,
             )
+        else:   
+            ######## 坂道上の被災者検知 ######
+            # getVictimDict_AfterRampに被災者情報を格納する。救助は坂を上ってor下ってから行う。
+            for s in deviceEnums.Side:
+                unitvStatus = stmInstance.unitv.getStatus()[s]
+                if unitvStatus != deviceEnums.UnitVStatus.NOTHING:
+                    getVictimDict_AfterRamp[s][unitvStatus] += 1
+                    logger.debug(
+                        f"Detected victim info during ramp movement: {unitvStatus} on {s.name} side"
+                    )
 
         if not victimRescueFlag:
             pratical_loop_time = 0
@@ -1781,32 +1799,6 @@ def moveTile(
         "moveTile finished final forward adjustment", timing_start
     )
 
-    ##### 上り坂をのぼった後の被災者検知 #####
-    oldTime = time.time()
-    # if isBigUpperRamp and (not isBigRamp):
-    #     turnToCertainDirection((direction.value + 30) % 360, stmInstance)
-    #     t = time.time()
-    #     while time.time() - t < 0.5:
-    #         stmInstance.update()
-    #         unitvStatus = stmInstance.unitv.getStatus()
-    #         for s in deviceEnums.Side:
-    #             if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
-    #                 getVictimDict[s][unitvStatus[s]] += 1
-    #                 logger.debug(
-    #                     f"Detected victim info during big upper ramp movement: {unitvStatus}"
-    #                 )
-    #     turnToCertainDirection((direction.value - 30) % 360, stmInstance)
-    #     t = time.time()
-    #     while time.time() - t < 0.5:
-    #         stmInstance.update()
-    #         unitvStatus = stmInstance.unitv.getStatus()
-    #         for s in deviceEnums.Side:
-    #             if unitvStatus[s] != deviceEnums.UnitVStatus.NOTHING:
-    #                 getVictimDict[s][unitvStatus[s]] += 1
-    #                 logger.debug(
-    #                     f"Detected victim info during big upper ramp movement: {unitvStatus}"
-    #                 )
-    #     turnToCertainDirection(direction.value, stmInstance)
 
     ##### 坂を上ったのであればマップに登録 #####
     if targetSteps > 1 and isUnknownTileAhead:
@@ -1990,9 +1982,17 @@ def moveTile(
         return True, False, True
 
     debugTimingPrint("moveTile updated map and detected walls", timing_start)
+    
+    
+
 
     ##### 移動終了時の被災者検出処理 #####
     ##### 移動終了直前、移動終了時に見たもの、上り坂をのぼったあとの特殊処理で見たものについて、ここで救助動作を行う。
+    ##### 坂道中に見たものを追加 #####
+    for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+        for unitvStatus, count in getVictimDict_AfterRamp[side].items():
+            getVictimDict[side][unitvStatus] += count
+    
     maxVictimInfo = {
         side: (
             max(getVictimDict[side], key=getVictimDict[side].get)
