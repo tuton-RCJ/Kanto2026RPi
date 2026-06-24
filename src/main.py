@@ -53,7 +53,7 @@ def main():
     mapInstance = mazeMap.mazeMap()
     stmInstance.rearSTM.camled((255, 255, 255))
     lidarInstance = LiDAR.initializeLidar()
-    stmInstance.buzzer.playMusic(buzzerSongs.start)
+    stmInstance.rearSTM.playMusic(buzzerSongs.start)
     stmInstance.update()
     while stmInstance.switch.getToggleSwitch1():
         stmInstance.update()
@@ -119,7 +119,7 @@ def main():
 
             ##### 帰還開始 #####
 
-            stmInstance.buzzer.playMusic(buzzerSongs.hotaru)
+            stmInstance.rearSTM.playMusic(buzzerSongs.hotaru)
             returnPath = mapInstance.getPathTo((20, 20, 0))
             logger.info(f"Return Path: {returnPath}")
 
@@ -145,7 +145,7 @@ def main():
                 continue
 
             logger.info("Robot now at the starting position, Congratulations!")
-            stmInstance.buzzer.playMusic(buzzerSongs.matuken)
+            stmInstance.rearSTM.playMusic(buzzerSongs.matuken)
             moveTile.flashLED(
                 stmInstance,
                 mapInstance,
