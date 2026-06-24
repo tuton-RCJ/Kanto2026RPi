@@ -101,7 +101,14 @@ TURN_P = 2  # 回転制御の比例ゲイン
 TURN_I = 0.00  # 回転制御の積分ゲイン
 TURN_D = 0.00  # 回転制御の微分ゲイン
 
-
+### 旋回時スタック回避
+USE_STUCK_AVOIDANCE_WHEN_TURNING: bool = True  # 旋回時にスタック回避をするかどうか
+STUCK_AVOIDANCE_WHEN_TURNING_THRESHOLD_SEC: float = 8.0  # この時間以上旋回している場合にスタック回避を行う
+STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_TIME_SEC: float = 0.4  # スタック回避時に後退する時間
+STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_SPEED: dict[deviceEnums.Side, int] = {
+    deviceEnums.Side.LEFT: 50,
+    deviceEnums.Side.RIGHT: 50,
+}  # スタック回避時に前進する速度
 
 DEBUG_MODE: bool = True  # デバッグモードの有効化
 

@@ -331,6 +331,7 @@ def turnToCertainDirection(
         )
         oldTurnDir = turnDirection
         rescueStopped = False
+        _turn_start_time = time.time()
         while (
             abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))
             > mazeConstraints.TURN_THRESHOLD_DEG
@@ -400,6 +401,21 @@ def turnToCertainDirection(
                 )
                 oldTurnDir = turnDirection
                 rescueStopped = False
+            if mazeConstraints.USE_STUCK_AVOIDANCE_WHEN_TURNING and (
+                time.time() - _turn_start_time
+                > mazeConstraints.STUCK_AVOIDANCE_WHEN_TURNING_THRESHOLD_SEC
+            ):
+                stmInstance.sts3032.stop()
+                logger.warning(
+                    "Stuck avoidance triggered during turning. Performing escape maneuver."
+                )
+                stmInstance.sts3032.setMotorSpeed(
+                    mazeConstraints.STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_SPEED
+                )
+                time.sleep(mazeConstraints.STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_TIME_SEC)
+                stmInstance.sts3032.stop()
+                _turn_start_time = time.time()
+
 
         assert (
             abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))
