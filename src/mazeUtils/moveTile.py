@@ -676,6 +676,7 @@ def dropRescueKit(
     ############################
 
     if flashLED_flag:
+        stmInstance.rearSTM.playMusic(buzzerSongs.detectedVictim)
         if mazeConstraints.USE_SAME_COLOR_FOR_VICTIM_DETECTION_LED_BLINK:
             flashLED(
                 stmInstance,
@@ -1368,9 +1369,9 @@ def moveTile(
     )
 
     # ディスプレイを更新
-    # stmInstance.rearSTM.update_oled(
-    #     *mapInstance.currentPosition, mapInstance.frontDirection.value
-    # )
+    stmInstance.rearSTM.update_oled(
+        *mapInstance.currentPosition, mapInstance.frontDirection.value
+    )
 
     ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
@@ -2007,9 +2008,9 @@ def moveTile(
     else:
         mapInstance.moveTo(direction)
 
-    # stmInstance.rearSTM.update_oled(
-    #     *mapInstance.currentPosition, mapInstance.frontDirection.value
-    # )
+    stmInstance.rearSTM.update_oled(
+        *mapInstance.currentPosition, mapInstance.frontDirection.value
+    )
 
     mapInstance.isSlopeDetected = False
 
@@ -2148,10 +2149,10 @@ def moveTile(
     )
     logger.info(f"Tile color detection, decided tile type: {tileType}")
     if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
-        stmInstance.buzzer.playMusic(buzzerSongs.checkpoint)
+        stmInstance.rearSTM.playMusic(buzzerSongs.checkpoint)
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
-        stmInstance.buzzer.playMusic(buzzerSongs.swamp)
+        stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
         time.sleep(5.2)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
         logger.info(

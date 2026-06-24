@@ -137,7 +137,7 @@ SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO: float = 0.5 # Dangerous Zone内の坂
 
 USE_ADJUSTMENT_AFTER_RAMP: bool = True # 坂道を上りor下り終わった時に、平らになってからの時間を利用して位置の微調整を行うかどうか
 ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD: float = 1.0 # ±この角度の範囲内になったら、平らになったと判断し、時間の計測開始
-ADJUSTMENT_AFTER_RAMP_TIME_SEC: float = 0.5 # 坂道を上りor下り終わった後、平らになってからこの時間経過するまで待って止まる
+ADJUSTMENT_AFTER_RAMP_TIME_SEC: float = 0.4 # 坂道を上りor下り終わった後、平らになってからこの時間経過するまで待って止まる
  
 
 ###### Dangerous Zone関連

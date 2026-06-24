@@ -1,0 +1,682 @@
+2026-06-17 21:58:35,755 - root - [logging_config.py:61] - INFO - Logging initialized. Log file: /home/tuton/Kanto2026RPi/src/config/../logs/robot_20260617_215834.log
+2026-06-17 21:58:37,932 - mazeUtils.device.LiDAR - [LiDAR.py:36] - INFO - Available ports: <ydlidar.Str2strMap; proxy of <Swig Object of type 'std::map< std::string,std::string > *' at 0x7f86c59260> >
+2026-06-17 21:58:41,932 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 107.50446333883428 cm
+2026-06-17 21:58:41,933 - mazeUtils.moveTile - [moveTile.py:550] - DEBUG - Front LiDAR distance: 107.50446333883428 cm, TSD10 distance: 100.6 cm
+2026-06-17 21:58:41,935 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 16.753802820680654 cm
+2026-06-17 21:58:41,938 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.289221703524152 cm
+2026-06-17 21:58:41,941 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 41.57847948153756 cm
+2026-06-17 21:58:41,942 - __main__ - [main.py:69] - INFO - Initial Map:
+2026-06-17 21:58:41,959 - __main__ - [main.py:70] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+  @ |
++---+
+2026-06-17 21:58:41,960 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-17 21:58:41,961 - __main__ - [main.py:73] - INFO - Next Direction: [<absDirection.NORTH: 0>]
+2026-06-17 21:58:41,962 - __main__ - [main.py:74] - INFO - Exploration started.
+2026-06-17 21:58:41,963 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-17 21:58:41,964 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [1619.528851] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-17 21:58:41,969 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1619.534077] moveTile after initial toggle check (+5.2 ms)
+2026-06-17 21:58:41,970 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1619.535294] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+1.2 ms)
+2026-06-17 21:58:41,971 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-17 21:58:41,971 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1619.536351] moveTile updated front direction (+1.1 ms)
+2026-06-17 21:58:41,986 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1619.551015] moveTile acquired initial LiDAR scan (+14.7 ms)
+2026-06-17 21:58:42,026 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1619.590996] moveTile stopped motors before alignment (+40.0 ms)
+2026-06-17 21:58:42,092 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1619.656748] moveTile start backward adjustment behind_wall_dist=16.302450536760862 (+65.8 ms)
+2026-06-17 21:58:42,135 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little backward to adjust position
+2026-06-17 21:58:42,487 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.051610] moveTile finished backward adjustment (+394.9 ms)
+2026-06-17 21:58:42,527 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.092322] moveTile ready for forward move (+40.7 ms)
+2026-06-17 21:58:42,630 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.194737] moveTile initialized movement targetSteps=1 (+102.4 ms)
+2026-06-17 21:58:42,631 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.195940] moveTile loop start (+1.2 ms)
+2026-06-17 21:58:42,640 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.205188] moveTile calculated motor speeds left=95 right=100 gyroSteer=0.25499999999999545 wallSteer=-5.0 (+9.2 ms)
+2026-06-17 21:58:42,681 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.245750] moveTile applied motor speed left=95 right=100 (+40.6 ms)
+2026-06-17 21:58:42,681 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.246390] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:42,682 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.246799] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:42,682 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.247192] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:42,683 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.87 deg, practicalMoveTime: 0.05293689453146715 sec
+2026-06-17 21:58:42,683 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.4 ms
+2026-06-17 21:58:42,684 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.248709] moveTile loop end practicalMoveTime=0.053 (+1.5 ms)
+2026-06-17 21:58:42,684 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.249004] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:42,695 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.260092] moveTile calculated motor speeds left=95 right=100 gyroSteer=0.1349999999999909 wallSteer=-5.0 (+11.1 ms)
+2026-06-17 21:58:42,735 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.300178] moveTile applied motor speed left=95 right=100 (+40.1 ms)
+2026-06-17 21:58:42,736 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.300632] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:42,736 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.301035] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:42,736 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.301466] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:42,737 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.3199999999999932 deg, practicalMoveTime: 0.09858156264931148 sec
+2026-06-17 21:58:42,738 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.7 ms
+2026-06-17 21:58:42,738 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.303257] moveTile loop end practicalMoveTime=0.099 (+1.8 ms)
+2026-06-17 21:58:42,739 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.303619] moveTile loop start (+0.4 ms)
+2026-06-17 21:58:42,749 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.313891] moveTile calculated motor speeds left=95 right=100 gyroSteer=0.25 wallSteer=-5.0 (+10.3 ms)
+2026-06-17 21:58:42,789 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.354072] moveTile applied motor speed left=95 right=100 (+40.2 ms)
+2026-06-17 21:58:42,790 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.354547] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:42,790 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.354921] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:42,790 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.355246] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:42,791 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.44 deg, practicalMoveTime: 0.1515854414694198 sec
+2026-06-17 21:58:42,791 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.7 ms
+2026-06-17 21:58:42,792 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.356675] moveTile loop end practicalMoveTime=0.152 (+1.4 ms)
+2026-06-17 21:58:42,792 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.356963] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:42,801 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.365758] moveTile calculated motor speeds left=95 right=100 gyroSteer=0.5199999999999818 wallSteer=-5.0 (+8.8 ms)
+2026-06-17 21:58:42,841 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.405769] moveTile applied motor speed left=95 right=100 (+40.0 ms)
+2026-06-17 21:58:42,841 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.406245] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:42,842 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.406627] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:42,842 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.406953] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:42,843 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.410000000000025 deg, practicalMoveTime: 0.1949937292637102 sec
+2026-06-17 21:58:42,843 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.0 ms
+2026-06-17 21:58:42,843 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.408387] moveTile loop end practicalMoveTime=0.195 (+1.4 ms)
+2026-06-17 21:58:42,844 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.408764] moveTile loop start (+0.4 ms)
+2026-06-17 21:58:42,853 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.417589] moveTile calculated motor speeds left=95 right=100 gyroSteer=0.16499999999999204 wallSteer=-5.0 (+8.8 ms)
+2026-06-17 21:58:42,893 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.457601] moveTile applied motor speed left=95 right=100 (+40.0 ms)
+2026-06-17 21:58:42,893 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.458060] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:42,893 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.458429] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:42,894 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.458758] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:42,894 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.21999999999997 deg, practicalMoveTime: 0.24624206035793117 sec
+2026-06-17 21:58:42,895 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 50.9 ms
+2026-06-17 21:58:42,895 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.460054] moveTile loop end practicalMoveTime=0.246 (+1.3 ms)
+2026-06-17 21:58:42,895 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.460372] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:42,904 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.469158] moveTile calculated motor speeds left=94 right=100 gyroSteer=-0.18500000000000227 wallSteer=-5.0 (+8.8 ms)
+2026-06-17 21:58:42,945 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.510310] moveTile applied motor speed left=94 right=100 (+41.2 ms)
+2026-06-17 21:58:42,946 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.510804] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:42,946 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.511174] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:42,946 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.511500] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:42,947 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.35000000000002274 deg, practicalMoveTime: 0.29066824484664144 sec
+2026-06-17 21:58:42,948 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.1 ms
+2026-06-17 21:58:42,948 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.512854] moveTile loop end practicalMoveTime=0.291 (+1.4 ms)
+2026-06-17 21:58:42,948 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.513134] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:42,959 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.524119] moveTile calculated motor speeds left=97 right=100 gyroSteer=-0.3300000000000125 wallSteer=-2.6000000000000014 (+11.0 ms)
+2026-06-17 21:58:42,999 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.564157] moveTile applied motor speed left=97 right=100 (+40.0 ms)
+2026-06-17 21:58:43,000 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.564778] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,000 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.565158] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,000 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.565492] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:43,001 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.8700000000000045 deg, practicalMoveTime: 0.3360834408587465 sec
+2026-06-17 21:58:43,001 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-17 21:58:43,002 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.566746] moveTile loop end practicalMoveTime=0.336 (+1.3 ms)
+2026-06-17 21:58:43,002 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.567068] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,011 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.575886] moveTile calculated motor speeds left=97 right=100 gyroSteer=-0.125 wallSteer=-2.6000000000000014 (+8.8 ms)
+2026-06-17 21:58:43,051 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.615913] moveTile applied motor speed left=97 right=100 (+40.0 ms)
+2026-06-17 21:58:43,051 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.616381] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:43,052 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.616746] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,052 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.617068] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:43,053 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.45 deg, practicalMoveTime: 0.38716846656389803 sec
+2026-06-17 21:58:43,053 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 50.9 ms
+2026-06-17 21:58:43,053 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.618302] moveTile loop end practicalMoveTime=0.387 (+1.2 ms)
+2026-06-17 21:58:43,054 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.618581] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,062 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.627362] moveTile calculated motor speeds left=99 right=100 gyroSteer=0.24500000000000455 wallSteer=-0.7999999999999972 (+8.8 ms)
+2026-06-17 21:58:43,103 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.668456] moveTile applied motor speed left=99 right=100 (+41.1 ms)
+2026-06-17 21:58:43,104 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.668895] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:43,104 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.669301] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,105 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.669695] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:43,105 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.6000000000000227 deg, practicalMoveTime: 0.43151928133608325 sec
+2026-06-17 21:58:43,106 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.0 ms
+2026-06-17 21:58:43,106 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.670971] moveTile loop end practicalMoveTime=0.432 (+1.3 ms)
+2026-06-17 21:58:43,106 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.671255] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,117 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.681698] moveTile calculated motor speeds left=98 right=100 gyroSteer=-0.30000000000001137 wallSteer=-0.7999999999999972 (+10.4 ms)
+2026-06-17 21:58:43,157 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.722391] moveTile applied motor speed left=98 right=100 (+40.7 ms)
+2026-06-17 21:58:43,158 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.723030] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,158 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.723417] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,159 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.723750] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:43,159 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.79 deg, practicalMoveTime: 0.48515356463724363 sec
+2026-06-17 21:58:43,160 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.5 ms
+2026-06-17 21:58:43,160 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.725125] moveTile loop end practicalMoveTime=0.485 (+1.4 ms)
+2026-06-17 21:58:43,160 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.725411] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,171 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.736456] moveTile calculated motor speeds left=100 right=96 gyroSteer=0.539999999999992 wallSteer=3.3999999999999986 (+11.0 ms)
+2026-06-17 21:58:43,212 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.776634] moveTile applied motor speed left=100 right=96 (+40.2 ms)
+2026-06-17 21:58:43,212 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.777248] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,213 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.777630] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,213 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.777961] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:43,214 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.4900000000000091 deg, practicalMoveTime: 0.5307251326232519 sec
+2026-06-17 21:58:43,214 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.4 ms
+2026-06-17 21:58:43,214 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.779216] moveTile loop end practicalMoveTime=0.531 (+1.3 ms)
+2026-06-17 21:58:43,215 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.779507] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,226 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.790558] moveTile calculated motor speeds left=100 right=96 gyroSteer=0.3649999999999807 wallSteer=3.3999999999999986 (+11.1 ms)
+2026-06-17 21:58:43,266 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.830653] moveTile applied motor speed left=100 right=96 (+40.1 ms)
+2026-06-17 21:58:43,266 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.831173] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:43,267 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.831538] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,267 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.831863] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:43,268 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.43 deg, practicalMoveTime: 0.5842326737444393 sec
+2026-06-17 21:58:43,268 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-17 21:58:43,268 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.833203] moveTile loop end practicalMoveTime=0.584 (+1.3 ms)
+2026-06-17 21:58:43,268 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.833490] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,277 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.842279] moveTile calculated motor speeds left=100 right=96 gyroSteer=0.3100000000000023 wallSteer=3.3999999999999986 (+8.8 ms)
+2026-06-17 21:58:43,317 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.882310] moveTile applied motor speed left=100 right=96 (+40.0 ms)
+2026-06-17 21:58:43,318 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.882777] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:43,318 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.883130] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,318 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.883448] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:43,319 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.20999999999997954 deg, practicalMoveTime: 0.6275895759925578 sec
+2026-06-17 21:58:43,319 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 50.9 ms
+2026-06-17 21:58:43,320 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.884761] moveTile loop end practicalMoveTime=0.628 (+1.3 ms)
+2026-06-17 21:58:43,320 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.885042] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,329 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.893816] moveTile calculated motor speeds left=100 right=96 gyroSteer=0.125 wallSteer=3.3999999999999986 (+8.8 ms)
+2026-06-17 21:58:43,370 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.935022] moveTile applied motor speed left=100 right=96 (+41.2 ms)
+2026-06-17 21:58:43,371 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.935580] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,371 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.936159] moveTile tile color check tempTileColor=E (+0.6 ms)
+2026-06-17 21:58:43,372 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.936581] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:43,372 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.13999999999998636 deg, practicalMoveTime: 0.6723451634778 sec
+2026-06-17 21:58:43,373 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.6 ms
+2026-06-17 21:58:43,373 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.937993] moveTile loop end practicalMoveTime=0.672 (+1.4 ms)
+2026-06-17 21:58:43,373 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.938323] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,383 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.948478] moveTile calculated motor speeds left=100 right=96 gyroSteer=0.0 wallSteer=3.8000000000000007 (+10.2 ms)
+2026-06-17 21:58:43,424 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.988772] moveTile applied motor speed left=100 right=96 (+40.3 ms)
+2026-06-17 21:58:43,424 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.989269] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:43,425 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.989674] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,425 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.990036] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:43,426 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.2699999999999818 deg, practicalMoveTime: 0.7173332365543872 sec
+2026-06-17 21:58:43,426 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.7 ms
+2026-06-17 21:58:43,426 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.991441] moveTile loop end practicalMoveTime=0.717 (+1.4 ms)
+2026-06-17 21:58:43,427 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1620.991759] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,438 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.002983] moveTile calculated motor speeds left=100 right=95 gyroSteer=0.40500000000000114 wallSteer=3.8000000000000007 (+11.2 ms)
+2026-06-17 21:58:43,478 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.042729] moveTile applied motor speed left=100 right=95 (+39.7 ms)
+2026-06-17 21:58:43,478 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.043354] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,479 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.043742] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,479 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.044132] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:43,480 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.2099999999999795 deg, practicalMoveTime: 0.7628337022022286 sec
+2026-06-17 21:58:43,480 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-17 21:58:43,481 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.045561] moveTile loop end practicalMoveTime=0.763 (+1.4 ms)
+2026-06-17 21:58:43,481 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.045865] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,492 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.056944] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.5800000000000125 wallSteer=5.800000000000001 (+11.1 ms)
+2026-06-17 21:58:43,532 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.097399] moveTile applied motor speed left=100 right=94 (+40.5 ms)
+2026-06-17 21:58:43,533 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.098027] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,533 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.098419] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,534 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.098795] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:43,534 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.71999999999997 deg, practicalMoveTime: 0.8170368036594016 sec
+2026-06-17 21:58:43,535 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 54.0 ms
+2026-06-17 21:58:43,535 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.100338] moveTile loop end practicalMoveTime=0.817 (+1.5 ms)
+2026-06-17 21:58:43,536 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.100656] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:43,545 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.109573] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.125 wallSteer=5.800000000000001 (+8.9 ms)
+2026-06-17 21:58:43,586 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.150758] moveTile applied motor speed left=100 right=94 (+41.2 ms)
+2026-06-17 21:58:43,586 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.151392] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:43,587 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.151785] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:43,587 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.152193] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:43,588 - mazeUtils.moveTile - [moveTile.py:1252] - INFO - practicalVerticalMove: 0.06599459897609024 CM
+2026-06-17 21:58:43,628 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.193428] moveTile finished by time control (+41.2 ms)
+2026-06-17 21:58:43,629 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.194040] moveTile start final forward adjustment (+41.8 ms)
+2026-06-17 21:58:43,675 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.239671] moveTile finished final forward adjustment (+45.6 ms)
+2026-06-17 21:58:43,676 - mazeUtils.moveTile - [moveTile.py:1498] - INFO - Set moved vertical distance: 0.06599459897609024 cm, past distances: [(0, False), (0, False), (0, False)]
+2026-06-17 21:58:43,677 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.241515] moveTile updated moved vertical distance 0.066 (+1.8 ms)
+2026-06-17 21:58:43,693 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 73.36997648238005 cm
+2026-06-17 21:58:43,694 - mazeUtils.moveTile - [moveTile.py:550] - DEBUG - Front LiDAR distance: 73.36997648238005 cm, TSD10 distance: 61.9 cm
+2026-06-17 21:58:43,696 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 78.33182251267371 cm
+2026-06-17 21:58:43,698 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 55.05296462129075 cm
+2026-06-17 21:58:43,700 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.73883524251867 cm
+2026-06-17 21:58:43,701 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.265517] moveTile updated map and detected walls (+24.0 ms)
+2026-06-17 21:58:43,701 - mazeUtils.moveTile - [moveTile.py:1618] - INFO - Tile color detection counts: {}, decided tile type: E
+2026-06-17 21:58:43,702 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.267075] moveTile finished (+25.6 ms)
+2026-06-17 21:58:43,798 - __main__ - [main.py:87] - INFO - Current position: (20, 19, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=19..20
++   +
+| @  
++   +
+  S |
++---+
+2026-06-17 21:58:44,307 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 18, 0)
+2026-06-17 21:58:44,308 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 18, 0)
+2026-06-17 21:58:44,309 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [1621.873903] moveTile start direction=absDirection.NORTH position=(20, 19, 0) front=absDirection.NORTH
+2026-06-17 21:58:44,315 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.879543] moveTile after initial toggle check (+5.6 ms)
+2026-06-17 21:58:44,315 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.880287] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+0.7 ms)
+2026-06-17 21:58:44,316 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 19, 0) facing absDirection.NORTH
+2026-06-17 21:58:44,316 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.881233] moveTile updated front direction (+0.9 ms)
+2026-06-17 21:58:44,321 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.886365] moveTile acquired initial LiDAR scan (+5.1 ms)
+2026-06-17 21:58:44,362 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.926772] moveTile stopped motors before alignment (+40.4 ms)
+2026-06-17 21:58:44,419 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1621.984415] moveTile ready for forward move (+57.6 ms)
+2026-06-17 21:58:44,520 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.085377] moveTile initialized movement targetSteps=1 (+101.0 ms)
+2026-06-17 21:58:44,523 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.087492] moveTile loop start (+2.1 ms)
+2026-06-17 21:58:44,531 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.096446] moveTile calculated motor speeds left=100 right=94 gyroSteer=0.09000000000000341 wallSteer=5.800000000000001 (+9.0 ms)
+2026-06-17 21:58:44,572 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.136930] moveTile applied motor speed left=100 right=94 (+40.5 ms)
+2026-06-17 21:58:44,573 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.137551] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:44,573 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.137956] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:44,573 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.138346] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:44,574 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.5500000000000114 deg, practicalMoveTime: 0.04539908802053512 sec
+2026-06-17 21:58:44,574 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.8 ms
+2026-06-17 21:58:44,575 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.139643] moveTile loop end practicalMoveTime=0.045 (+1.3 ms)
+2026-06-17 21:58:44,575 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.139918] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,587 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.151841] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.10000000000002274 wallSteer=5.800000000000001 (+11.9 ms)
+2026-06-17 21:58:44,627 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.191998] moveTile applied motor speed left=100 right=94 (+40.2 ms)
+2026-06-17 21:58:44,627 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.192455] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:44,628 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.192804] moveTile tile color check tempTileColor=E (+0.3 ms)
+2026-06-17 21:58:44,628 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.193095] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:44,629 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.3600000000000136 deg, practicalMoveTime: 0.09147874521704273 sec
+2026-06-17 21:58:44,629 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 54.1 ms
+2026-06-17 21:58:44,629 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.194338] moveTile loop end practicalMoveTime=0.091 (+1.2 ms)
+2026-06-17 21:58:44,630 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.194605] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,638 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.203303] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.4200000000000159 wallSteer=6.199999999999999 (+8.7 ms)
+2026-06-17 21:58:44,678 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.243284] moveTile applied motor speed left=100 right=94 (+40.0 ms)
+2026-06-17 21:58:44,679 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.243802] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:44,679 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.244297] moveTile tile color check tempTileColor=E (+0.5 ms)
+2026-06-17 21:58:44,680 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.244752] moveTile obstacle check escapeFlag=False (+0.5 ms)
+2026-06-17 21:58:44,680 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.62 deg, practicalMoveTime: 0.14270170564066545 sec
+2026-06-17 21:58:44,681 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.1 ms
+2026-06-17 21:58:44,681 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.246042] moveTile loop end practicalMoveTime=0.143 (+1.3 ms)
+2026-06-17 21:58:44,681 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.246325] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,690 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.255101] moveTile calculated motor speeds left=100 right=93 gyroSteer=-0.125 wallSteer=6.199999999999999 (+8.8 ms)
+2026-06-17 21:58:44,730 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.295173] moveTile applied motor speed left=100 right=93 (+40.1 ms)
+2026-06-17 21:58:44,731 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.295655] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:44,731 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.296042] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:44,731 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.296389] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:44,732 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.8999999999999773 deg, practicalMoveTime: 0.18615527089843537 sec
+2026-06-17 21:58:44,732 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.0 ms
+2026-06-17 21:58:44,733 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.297626] moveTile loop end practicalMoveTime=0.186 (+1.2 ms)
+2026-06-17 21:58:44,733 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.297908] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,742 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.306765] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.7199999999999989 wallSteer=6.199999999999999 (+8.9 ms)
+2026-06-17 21:58:44,783 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.347928] moveTile applied motor speed left=100 right=94 (+41.2 ms)
+2026-06-17 21:58:44,783 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.348484] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:44,784 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.348853] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:44,784 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.349169] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:44,785 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.8 deg, practicalMoveTime: 0.238495697946603 sec
+2026-06-17 21:58:44,785 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.3 ms
+2026-06-17 21:58:44,786 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.350535] moveTile loop end practicalMoveTime=0.238 (+1.4 ms)
+2026-06-17 21:58:44,786 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.350863] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,796 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.360828] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.47500000000002274 wallSteer=6.199999999999999 (+10.0 ms)
+2026-06-17 21:58:44,837 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.402412] moveTile applied motor speed left=100 right=94 (+41.6 ms)
+2026-06-17 21:58:44,838 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.403071] moveTile ramp check isBigRamp=False (+0.7 ms)
+2026-06-17 21:58:44,839 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.403617] moveTile tile color check tempTileColor=E (+0.5 ms)
+2026-06-17 21:58:44,839 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.404228] moveTile obstacle check escapeFlag=False (+0.6 ms)
+2026-06-17 21:58:44,840 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.839999999999975 deg, practicalMoveTime: 0.28484802587918456 sec
+2026-06-17 21:58:44,840 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 54.4 ms
+2026-06-17 21:58:44,841 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.405586] moveTile loop end practicalMoveTime=0.285 (+1.4 ms)
+2026-06-17 21:58:44,841 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.405868] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,851 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.415798] moveTile calculated motor speeds left=100 right=97 gyroSteer=-0.5 wallSteer=3.1999999999999993 (+9.9 ms)
+2026-06-17 21:58:44,891 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.456042] moveTile applied motor speed left=100 right=97 (+40.2 ms)
+2026-06-17 21:58:44,891 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.456489] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:44,892 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.456845] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:44,892 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.457162] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:44,893 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.9800000000000182 deg, practicalMoveTime: 0.32934310719477405 sec
+2026-06-17 21:58:44,893 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.2 ms
+2026-06-17 21:58:44,893 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.458398] moveTile loop end practicalMoveTime=0.329 (+1.2 ms)
+2026-06-17 21:58:44,894 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.458687] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:44,902 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.467469] moveTile calculated motor speeds left=100 right=97 gyroSteer=-1.115000000000009 wallSteer=3.1999999999999993 (+8.8 ms)
+2026-06-17 21:58:44,944 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.508491] moveTile applied motor speed left=100 right=97 (+41.0 ms)
+2026-06-17 21:58:44,944 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.509236] moveTile ramp check isBigRamp=False (+0.7 ms)
+2026-06-17 21:58:44,945 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.509870] moveTile tile color check tempTileColor=E (+0.6 ms)
+2026-06-17 21:58:44,945 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.510406] moveTile obstacle check escapeFlag=False (+0.5 ms)
+2026-06-17 21:58:44,946 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.14999999999997726 deg, practicalMoveTime: 0.3743582760918606 sec
+2026-06-17 21:58:44,947 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.5 ms
+2026-06-17 21:58:44,948 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.513028] moveTile loop end practicalMoveTime=0.374 (+2.6 ms)
+2026-06-17 21:58:44,949 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.513837] moveTile loop start (+0.8 ms)
+2026-06-17 21:58:44,960 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.524748] moveTile calculated motor speeds left=94 right=100 gyroSteer=-1.170000000000016 wallSteer=-4.600000000000001 (+10.9 ms)
+2026-06-17 21:58:44,999 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.564421] moveTile applied motor speed left=94 right=100 (+39.7 ms)
+2026-06-17 21:58:45,000 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.565107] moveTile ramp check isBigRamp=False (+0.7 ms)
+2026-06-17 21:58:45,001 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.565671] moveTile tile color check tempTileColor=E (+0.6 ms)
+2026-06-17 21:58:45,001 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.566104] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:45,002 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.7099999999999795 deg, practicalMoveTime: 0.42061921746949216 sec
+2026-06-17 21:58:45,002 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-17 21:58:45,003 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.567571] moveTile loop end practicalMoveTime=0.421 (+1.5 ms)
+2026-06-17 21:58:45,003 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.567953] moveTile loop start (+0.4 ms)
+2026-06-17 21:58:45,014 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.578718] moveTile calculated motor speeds left=94 right=100 gyroSteer=-1.3799999999999955 wallSteer=-4.600000000000001 (+10.8 ms)
+2026-06-17 21:58:45,055 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.619954] moveTile applied motor speed left=94 right=100 (+41.2 ms)
+2026-06-17 21:58:45,056 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.620520] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:45,056 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.620848] moveTile tile color check tempTileColor=E (+0.3 ms)
+2026-06-17 21:58:45,056 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.621120] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:45,057 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 358.91 deg, practicalMoveTime: 0.47495975876108326 sec
+2026-06-17 21:58:45,057 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.9 ms
+2026-06-17 21:58:45,057 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.622175] moveTile loop end practicalMoveTime=0.475 (+1.1 ms)
+2026-06-17 21:58:45,057 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.622410] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:45,068 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.633116] moveTile calculated motor speeds left=94 right=100 gyroSteer=-0.7800000000000011 wallSteer=-4.600000000000001 (+10.7 ms)
+2026-06-17 21:58:45,108 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.673249] moveTile applied motor speed left=94 right=100 (+40.1 ms)
+2026-06-17 21:58:45,109 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.673799] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:45,109 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.674117] moveTile tile color check tempTileColor=E (+0.3 ms)
+2026-06-17 21:58:45,109 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.674385] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:45,110 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.6999999999999886 deg, practicalMoveTime: 0.5198744548936861 sec
+2026-06-17 21:58:45,110 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.7 ms
+2026-06-17 21:58:45,110 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.675415] moveTile loop end practicalMoveTime=0.520 (+1.0 ms)
+2026-06-17 21:58:45,111 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.675644] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:45,118 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.683228] moveTile calculated motor speeds left=97 right=100 gyroSteer=-0.75 wallSteer=-1.8000000000000007 (+7.6 ms)
+2026-06-17 21:58:45,159 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.724079] moveTile applied motor speed left=97 right=100 (+40.9 ms)
+2026-06-17 21:58:45,160 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.724535] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:45,160 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.724836] moveTile tile color check tempTileColor=E (+0.3 ms)
+2026-06-17 21:58:45,160 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.725105] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:45,161 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.8000000000000114 deg, practicalMoveTime: 0.5626347116666756 sec
+2026-06-17 21:58:45,161 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 50.2 ms
+2026-06-17 21:58:45,161 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.726197] moveTile loop end practicalMoveTime=0.563 (+1.1 ms)
+2026-06-17 21:58:45,161 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.726440] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:45,171 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.736172] moveTile calculated motor speeds left=97 right=100 gyroSteer=-0.8799999999999955 wallSteer=-1.8000000000000007 (+9.7 ms)
+2026-06-17 21:58:45,211 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.776237] moveTile applied motor speed left=97 right=100 (+40.1 ms)
+2026-06-17 21:58:45,212 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.776773] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:45,212 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.777144] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:45,213 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.777508] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:45,213 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.7300000000000182 deg, practicalMoveTime: 0.6068931983589805 sec
+2026-06-17 21:58:45,213 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.0 ms
+2026-06-17 21:58:45,214 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.778858] moveTile loop end practicalMoveTime=0.607 (+1.3 ms)
+2026-06-17 21:58:45,214 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.779149] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:45,225 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.790159] moveTile calculated motor speeds left=95 right=100 gyroSteer=-0.8900000000000148 wallSteer=-3.3999999999999986 (+11.0 ms)
+2026-06-17 21:58:45,265 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.830349] moveTile applied motor speed left=95 right=100 (+40.2 ms)
+2026-06-17 21:58:45,266 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.830868] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:45,266 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.831271] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:45,267 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.831611] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:45,267 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.95 deg, practicalMoveTime: 0.6605511865029661 sec
+2026-06-17 21:58:45,268 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.6 ms
+2026-06-17 21:58:45,268 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.833104] moveTile loop end practicalMoveTime=0.661 (+1.5 ms)
+2026-06-17 21:58:45,268 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.833402] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:45,279 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.844430] moveTile calculated motor speeds left=95 right=100 gyroSteer=-0.6000000000000227 wallSteer=-3.3999999999999986 (+11.0 ms)
+2026-06-17 21:58:45,320 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.884514] moveTile applied motor speed left=95 right=100 (+40.1 ms)
+2026-06-17 21:58:45,320 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.884986] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:45,320 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.885350] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:45,321 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.885667] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:45,321 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.839999999999975 deg, practicalMoveTime: 0.705916686790261 sec
+2026-06-17 21:58:45,322 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.2 ms
+2026-06-17 21:58:45,322 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.886991] moveTile loop end practicalMoveTime=0.706 (+1.3 ms)
+2026-06-17 21:58:45,322 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.887309] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:45,332 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.896604] moveTile calculated motor speeds left=96 right=100 gyroSteer=-0.575000000000017 wallSteer=-3.3999999999999986 (+9.3 ms)
+2026-06-17 21:58:45,371 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.936436] moveTile applied motor speed left=96 right=100 (+39.8 ms)
+2026-06-17 21:58:45,372 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.937080] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:45,373 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.937615] moveTile tile color check tempTileColor=E (+0.5 ms)
+2026-06-17 21:58:45,373 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.938075] moveTile obstacle check escapeFlag=False (+0.5 ms)
+2026-06-17 21:58:45,374 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.8000000000000114 deg, practicalMoveTime: 0.7501381520344381 sec
+2026-06-17 21:58:45,374 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.0 ms
+2026-06-17 21:58:45,375 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.939785] moveTile loop end practicalMoveTime=0.750 (+1.7 ms)
+2026-06-17 21:58:45,375 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.940227] moveTile loop start (+0.4 ms)
+2026-06-17 21:58:45,385 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.950367] moveTile calculated motor speeds left=95 right=100 gyroSteer=-0.6450000000000102 wallSteer=-3.3999999999999986 (+10.1 ms)
+2026-06-17 21:58:45,426 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.991356] moveTile applied motor speed left=95 right=100 (+41.0 ms)
+2026-06-17 21:58:45,427 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.991905] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:45,427 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.992365] moveTile tile color check tempTileColor=E (+0.5 ms)
+2026-06-17 21:58:45,428 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.992689] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:45,428 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.12999999999999545 deg, practicalMoveTime: 0.7958393474173218 sec
+2026-06-17 21:58:45,429 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-17 21:58:45,429 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.993888] moveTile loop end practicalMoveTime=0.796 (+1.2 ms)
+2026-06-17 21:58:45,429 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1622.994135] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:45,440 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.005062] moveTile calculated motor speeds left=96 right=100 gyroSteer=-0.125 wallSteer=-3.3999999999999986 (+10.9 ms)
+2026-06-17 21:58:45,480 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.045025] moveTile applied motor speed left=96 right=100 (+40.0 ms)
+2026-06-17 21:58:45,480 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.045421] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:45,481 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.045672] moveTile tile color check tempTileColor=E (+0.3 ms)
+2026-06-17 21:58:45,481 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.045890] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:45,481 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.5 deg, practicalMoveTime: 0.8405378387760774 sec
+2026-06-17 21:58:45,482 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.4 ms
+2026-06-17 21:58:45,482 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.046716] moveTile loop end practicalMoveTime=0.841 (+0.8 ms)
+2026-06-17 21:58:45,482 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.046890] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:45,492 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.056589] moveTile calculated motor speeds left=95 right=100 gyroSteer=-0.75 wallSteer=-3.3999999999999986 (+9.7 ms)
+2026-06-17 21:58:45,532 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.097100] moveTile applied motor speed left=95 right=100 (+40.5 ms)
+2026-06-17 21:58:45,532 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.097477] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:45,533 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.097691] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:45,533 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.097884] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:45,533 - mazeUtils.moveTile - [moveTile.py:1252] - INFO - practicalVerticalMove: 0.22897068244977783 CM
+2026-06-17 21:58:45,574 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.139362] moveTile finished by time control (+41.5 ms)
+2026-06-17 21:58:45,575 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.139735] moveTile start final forward adjustment (+41.9 ms)
+2026-06-17 21:58:45,619 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.183886] moveTile finished final forward adjustment (+44.2 ms)
+2026-06-17 21:58:45,619 - mazeUtils.moveTile - [moveTile.py:1498] - INFO - Set moved vertical distance: 0.22897068244977783 cm, past distances: [(0.06599459897609024, False), (0, False), (0, False)]
+2026-06-17 21:58:45,620 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.184663] moveTile updated moved vertical distance 0.229 (+0.8 ms)
+2026-06-17 21:58:45,688 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 37.882546194695216 cm
+2026-06-17 21:58:45,688 - mazeUtils.moveTile - [moveTile.py:550] - DEBUG - Front LiDAR distance: 37.882546194695216 cm, TSD10 distance: 25.3 cm
+2026-06-17 21:58:45,689 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 106.75906290285046 cm
+2026-06-17 21:58:45,690 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 90.61946341597992 cm
+2026-06-17 21:58:45,691 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 47.1458262026941 cm
+2026-06-17 21:58:45,691 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.255912] moveTile updated map and detected walls (+71.2 ms)
+2026-06-17 21:58:45,691 - mazeUtils.moveTile - [moveTile.py:1618] - INFO - Tile color detection counts: {}, decided tile type: E
+2026-06-17 21:58:45,692 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.256694] moveTile finished (+72.0 ms)
+2026-06-17 21:58:45,783 - __main__ - [main.py:87] - INFO - Current position: (20, 18, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=18..20
++   +
+  @  
++   +
+| E  
++   +
+  S |
++---+
+2026-06-17 21:58:46,294 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 17, 0)
+2026-06-17 21:58:46,295 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 17, 0)
+2026-06-17 21:58:46,295 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [1623.859964] moveTile start direction=absDirection.NORTH position=(20, 18, 0) front=absDirection.NORTH
+2026-06-17 21:58:46,300 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.864833] moveTile after initial toggle check (+4.9 ms)
+2026-06-17 21:58:46,300 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.865129] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+0.3 ms)
+2026-06-17 21:58:46,300 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 18, 0) facing absDirection.NORTH
+2026-06-17 21:58:46,301 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.865673] moveTile updated front direction (+0.5 ms)
+2026-06-17 21:58:46,303 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.867893] moveTile acquired initial LiDAR scan (+2.2 ms)
+2026-06-17 21:58:46,344 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.908778] moveTile stopped motors before alignment (+40.9 ms)
+2026-06-17 21:58:46,411 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1623.975700] moveTile ready for forward move (+66.9 ms)
+2026-06-17 21:58:46,513 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.078075] moveTile initialized movement targetSteps=1 (+102.4 ms)
+2026-06-17 21:58:46,514 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.078911] moveTile loop start (+0.8 ms)
+2026-06-17 21:58:46,524 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.089408] moveTile calculated motor speeds left=97 right=100 gyroSteer=0.3649999999999807 wallSteer=-2.6000000000000014 (+10.5 ms)
+2026-06-17 21:58:46,565 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.130465] moveTile applied motor speed left=97 right=100 (+41.1 ms)
+2026-06-17 21:58:46,566 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.130851] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:46,566 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.131056] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,566 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.131221] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,567 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.029999999999972715 deg, practicalMoveTime: 0.04536388490634132 sec
+2026-06-17 21:58:46,567 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.8 ms
+2026-06-17 21:58:46,567 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.131892] moveTile loop end practicalMoveTime=0.045 (+0.7 ms)
+2026-06-17 21:58:46,567 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.132068] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:46,576 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.141332] moveTile calculated motor speeds left=97 right=100 gyroSteer=0.25 wallSteer=-2.6000000000000014 (+9.3 ms)
+2026-06-17 21:58:46,618 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.182736] moveTile applied motor speed left=97 right=100 (+41.4 ms)
+2026-06-17 21:58:46,618 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.183020] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:46,618 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.183203] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,618 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.183358] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,619 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.06999999999999318 deg, practicalMoveTime: 0.08943560980846033 sec
+2026-06-17 21:58:46,619 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.8 ms
+2026-06-17 21:58:46,619 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.183985] moveTile loop end practicalMoveTime=0.089 (+0.6 ms)
+2026-06-17 21:58:46,619 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.184154] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:46,628 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.193380] moveTile calculated motor speeds left=97 right=100 gyroSteer=0.3100000000000023 wallSteer=-2.6000000000000014 (+9.2 ms)
+2026-06-17 21:58:46,670 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.234756] moveTile applied motor speed left=97 right=100 (+41.4 ms)
+2026-06-17 21:58:46,670 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.235004] moveTile ramp check isBigRamp=False (+0.2 ms)
+2026-06-17 21:58:46,670 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.235179] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,670 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.235330] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,671 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.9399999999999977 deg, practicalMoveTime: 0.1333881672164481 sec
+2026-06-17 21:58:46,671 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.6 ms
+2026-06-17 21:58:46,671 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.235942] moveTile loop end practicalMoveTime=0.133 (+0.6 ms)
+2026-06-17 21:58:46,671 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.236120] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:46,681 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.246397] moveTile calculated motor speeds left=97 right=100 gyroSteer=0.12000000000000455 wallSteer=-2.6000000000000014 (+10.3 ms)
+2026-06-17 21:58:46,722 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.286725] moveTile applied motor speed left=97 right=100 (+40.3 ms)
+2026-06-17 21:58:46,722 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.287059] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:46,722 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.287297] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,722 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.287474] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,723 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.21 deg, practicalMoveTime: 0.18530030838284944 sec
+2026-06-17 21:58:46,723 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.8 ms
+2026-06-17 21:58:46,723 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.288187] moveTile loop end practicalMoveTime=0.185 (+0.7 ms)
+2026-06-17 21:58:46,723 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.288364] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:46,734 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.298862] moveTile calculated motor speeds left=98 right=100 gyroSteer=0.8499999999999943 wallSteer=-2.6000000000000014 (+10.5 ms)
+2026-06-17 21:58:46,774 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.339264] moveTile applied motor speed left=98 right=100 (+40.4 ms)
+2026-06-17 21:58:46,775 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.339599] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:46,775 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.339787] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,775 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.339945] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,775 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.0199999999999818 deg, practicalMoveTime: 0.22970143797117995 sec
+2026-06-17 21:58:46,775 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.1 ms
+2026-06-17 21:58:46,776 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.340643] moveTile loop end practicalMoveTime=0.230 (+0.7 ms)
+2026-06-17 21:58:46,776 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.340775] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:46,786 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.351052] moveTile calculated motor speeds left=100 right=90 gyroSteer=0.4849999999999852 wallSteer=8.600000000000001 (+10.3 ms)
+2026-06-17 21:58:46,827 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.391990] moveTile applied motor speed left=100 right=90 (+40.9 ms)
+2026-06-17 21:58:46,827 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.392422] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:46,828 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.392629] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,828 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.392802] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,828 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.06999999999999318 deg, practicalMoveTime: 0.27440565112883425 sec
+2026-06-17 21:58:46,828 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.6 ms
+2026-06-17 21:58:46,829 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.393529] moveTile loop end practicalMoveTime=0.274 (+0.7 ms)
+2026-06-17 21:58:46,829 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.393678] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:46,838 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.402944] moveTile calculated motor speeds left=100 right=90 gyroSteer=0.7749999999999773 wallSteer=8.600000000000001 (+9.3 ms)
+2026-06-17 21:58:46,880 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.445401] moveTile applied motor speed left=100 right=90 (+42.5 ms)
+2026-06-17 21:58:46,881 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.445649] moveTile ramp check isBigRamp=False (+0.2 ms)
+2026-06-17 21:58:46,881 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.445828] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,881 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.445982] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,881 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.9300000000000068 deg, practicalMoveTime: 0.31933561386554365 sec
+2026-06-17 21:58:46,881 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.8 ms
+2026-06-17 21:58:46,882 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.446643] moveTile loop end practicalMoveTime=0.319 (+0.7 ms)
+2026-06-17 21:58:46,882 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.446774] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:46,892 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.457053] moveTile calculated motor speeds left=100 right=93 gyroSteer=0.37000000000000455 wallSteer=6.600000000000001 (+10.3 ms)
+2026-06-17 21:58:46,932 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.497359] moveTile applied motor speed left=100 right=93 (+40.3 ms)
+2026-06-17 21:58:46,933 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.497632] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:46,933 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.497814] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,933 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.497968] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,933 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.3199999999999932 deg, practicalMoveTime: 0.36327698661528307 sec
+2026-06-17 21:58:46,933 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.6 ms
+2026-06-17 21:58:46,934 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.498584] moveTile loop end practicalMoveTime=0.363 (+0.6 ms)
+2026-06-17 21:58:46,934 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.498712] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:46,944 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.508985] moveTile calculated motor speeds left=100 right=93 gyroSteer=-0.22500000000002274 wallSteer=6.600000000000001 (+10.3 ms)
+2026-06-17 21:58:46,985 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.550412] moveTile applied motor speed left=100 right=93 (+41.4 ms)
+2026-06-17 21:58:46,986 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.550712] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:46,986 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.550898] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:46,986 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.551120] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:46,986 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.08999999999997499 deg, practicalMoveTime: 0.4082723939988069 sec
+2026-06-17 21:58:46,987 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.9 ms
+2026-06-17 21:58:46,987 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.551822] moveTile loop end practicalMoveTime=0.408 (+0.7 ms)
+2026-06-17 21:58:46,987 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.551957] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:46,996 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.561273] moveTile calculated motor speeds left=100 right=90 gyroSteer=0.06999999999999318 wallSteer=9.0 (+9.3 ms)
+2026-06-17 21:58:47,038 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.602640] moveTile applied motor speed left=100 right=90 (+41.4 ms)
+2026-06-17 21:58:47,038 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.602886] moveTile ramp check isBigRamp=False (+0.2 ms)
+2026-06-17 21:58:47,038 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.603062] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,038 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.603213] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,039 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.329999999999984 deg, practicalMoveTime: 0.4523049274005262 sec
+2026-06-17 21:58:47,039 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.7 ms
+2026-06-17 21:58:47,039 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.603849] moveTile loop end practicalMoveTime=0.452 (+0.6 ms)
+2026-06-17 21:58:47,039 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.604067] moveTile loop start (+0.2 ms)
+2026-06-17 21:58:47,048 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.613283] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.7250000000000227 wallSteer=5.800000000000001 (+9.2 ms)
+2026-06-17 21:58:47,090 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.655169] moveTile applied motor speed left=100 right=94 (+41.9 ms)
+2026-06-17 21:58:47,091 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.655577] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:47,091 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.655778] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,091 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.655943] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,091 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.13 deg, practicalMoveTime: 0.5048355969516737 sec
+2026-06-17 21:58:47,092 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.5 ms
+2026-06-17 21:58:47,092 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.656711] moveTile loop end practicalMoveTime=0.505 (+0.8 ms)
+2026-06-17 21:58:47,092 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.656857] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:47,101 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.666098] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.48500000000001364 wallSteer=5.800000000000001 (+9.2 ms)
+2026-06-17 21:58:47,142 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.707487] moveTile applied motor speed left=100 right=94 (+41.4 ms)
+2026-06-17 21:58:47,143 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.707786] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:47,143 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.707976] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,143 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.708168] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,143 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.2199999999999704 deg, practicalMoveTime: 0.5489048607834137 sec
+2026-06-17 21:58:47,144 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.8 ms
+2026-06-17 21:58:47,144 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.708802] moveTile loop end practicalMoveTime=0.549 (+0.6 ms)
+2026-06-17 21:58:47,144 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.708931] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:47,153 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.718127] moveTile calculated motor speeds left=100 right=95 gyroSteer=-0.9800000000000182 wallSteer=5.800000000000001 (+9.2 ms)
+2026-06-17 21:58:47,194 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.759477] moveTile applied motor speed left=100 right=95 (+41.4 ms)
+2026-06-17 21:58:47,195 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.759775] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:47,195 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.759956] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,195 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.760157] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,195 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.4800000000000182 deg, practicalMoveTime: 0.5928717211958341 sec
+2026-06-17 21:58:47,196 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.7 ms
+2026-06-17 21:58:47,196 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.760777] moveTile loop end practicalMoveTime=0.593 (+0.6 ms)
+2026-06-17 21:58:47,196 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.760908] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:47,206 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.771188] moveTile calculated motor speeds left=100 right=95 gyroSteer=-0.9750000000000227 wallSteer=5.800000000000001 (+10.3 ms)
+2026-06-17 21:58:47,247 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.811534] moveTile applied motor speed left=100 right=95 (+40.3 ms)
+2026-06-17 21:58:47,247 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.811794] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:47,247 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.811971] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,247 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.812164] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,247 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.7599999999999909 deg, practicalMoveTime: 0.6368575335233629 sec
+2026-06-17 21:58:47,248 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.7 ms
+2026-06-17 21:58:47,248 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.812803] moveTile loop end practicalMoveTime=0.637 (+0.6 ms)
+2026-06-17 21:58:47,248 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.812933] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:47,258 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.823195] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.6599999999999966 wallSteer=5.800000000000001 (+10.3 ms)
+2026-06-17 21:58:47,300 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.864538] moveTile applied motor speed left=100 right=94 (+41.3 ms)
+2026-06-17 21:58:47,300 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.864842] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:47,300 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.865026] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,300 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.865202] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,300 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 1.089999999999975 deg, practicalMoveTime: 0.681708289087712 sec
+2026-06-17 21:58:47,301 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.7 ms
+2026-06-17 21:58:47,301 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.865857] moveTile loop end practicalMoveTime=0.682 (+0.7 ms)
+2026-06-17 21:58:47,301 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.865995] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:47,310 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.875210] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.6450000000000102 wallSteer=5.800000000000001 (+9.2 ms)
+2026-06-17 21:58:47,352 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.916709] moveTile applied motor speed left=100 right=94 (+41.5 ms)
+2026-06-17 21:58:47,352 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.917093] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:47,352 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.917290] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,352 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.917459] moveTile obstacle check escapeFlag=False (+0.2 ms)
+2026-06-17 21:58:47,353 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.34 deg, practicalMoveTime: 0.7337098913821268 sec
+2026-06-17 21:58:47,353 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 51.9 ms
+2026-06-17 21:58:47,353 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.918112] moveTile loop end practicalMoveTime=0.734 (+0.7 ms)
+2026-06-17 21:58:47,353 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.918244] moveTile loop start (+0.1 ms)
+2026-06-17 21:58:47,363 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.927497] moveTile calculated motor speeds left=100 right=93 gyroSteer=0.20499999999998408 wallSteer=5.800000000000001 (+9.3 ms)
+2026-06-17 21:58:47,404 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.968933] moveTile applied motor speed left=100 right=93 (+41.4 ms)
+2026-06-17 21:58:47,404 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.969216] moveTile ramp check isBigRamp=False (+0.3 ms)
+2026-06-17 21:58:47,404 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1624.969402] moveTile tile color check tempTileColor=E (+0.2 ms)
+2026-06-17 21:58:47,405 - mazeUtils.moveTile - [moveTile.py:210] - WARNING - Escape from obstacle on Side.RIGHT side
+2026-06-17 21:58:48,168 - mazeUtils.moveTile - [moveTile.py:1235] - DEBUG - Obstacle escape adjustment: 0.08150108811739966
+2026-06-17 21:58:48,273 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.838399] moveTile obstacle check escapeFlag=True (+869.0 ms)
+2026-06-17 21:58:48,314 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.878975] moveTile finished by front distance control (+40.6 ms)
+2026-06-17 21:58:48,314 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.879376] moveTile start final forward adjustment (+41.0 ms)
+2026-06-17 21:58:48,359 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.923577] moveTile finished final forward adjustment (+44.2 ms)
+2026-06-17 21:58:48,359 - mazeUtils.moveTile - [moveTile.py:1498] - INFO - Set moved vertical distance: 0.16285377481637567 cm, past distances: [(0.22897068244977783, False), (0.06599459897609024, False), (0, False)]
+2026-06-17 21:58:48,359 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.924401] moveTile updated moved vertical distance 0.163 (+0.8 ms)
+2026-06-17 21:58:48,395 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 12.529475311530677 cm
+2026-06-17 21:58:48,396 - mazeUtils.moveTile - [moveTile.py:550] - DEBUG - Front LiDAR distance: 12.529475311530677 cm, TSD10 distance: 1.9 cm
+2026-06-17 21:58:48,396 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 105.85394240289551 cm
+2026-06-17 21:58:48,397 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 114.18136719998506 cm
+2026-06-17 21:58:48,398 - mazeUtils.moveTile - [moveTile.py:527] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 15.26438985567248 cm
+2026-06-17 21:58:48,398 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.963297] moveTile updated map and detected walls (+38.9 ms)
+2026-06-17 21:58:48,399 - mazeUtils.moveTile - [moveTile.py:1618] - INFO - Tile color detection counts: {}, decided tile type: E
+2026-06-17 21:58:48,399 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1625.963914] moveTile finished (+39.5 ms)
+2026-06-17 21:58:48,492 - __main__ - [main.py:87] - INFO - Current position: (20, 17, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=17..20
++---+
+| @  
++   +
+  E  
++   +
+| E  
++   +
+  S |
++---+
+2026-06-17 21:58:49,003 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (21, 17, 0)
+2026-06-17 21:58:49,004 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (21, 17, 0)
+2026-06-17 21:58:49,004 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [1626.569176] moveTile start direction=absDirection.EAST position=(20, 17, 0) front=absDirection.NORTH
+2026-06-17 21:58:49,009 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1626.574021] moveTile after initial toggle check (+4.8 ms)
+2026-06-17 21:58:49,009 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1626.574405] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+0.4 ms)
+2026-06-17 21:58:49,010 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.EAST from (20, 17, 0) facing absDirection.NORTH
+2026-06-17 21:58:49,010 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1626.574826] moveTile start heading change target=270 (+0.4 ms)
+2026-06-17 21:58:49,055 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 12.949999999999989 target: 315
+2026-06-17 21:58:49,582 - mazeUtils.moveTile - [moveTile.py:402] - DEBUG - stopped turning at heading: 324.84999999999997, diff: 9.849999999999966
+2026-06-17 21:58:50,070 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 315.2 deg
+2026-06-17 21:58:50,619 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 314.94 target: 270
+2026-06-17 21:58:50,971 - mazeUtils.moveTile - [moveTile.py:402] - DEBUG - stopped turning at heading: 279.68, diff: 9.680000000000007
+2026-06-17 21:58:51,346 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 270.19 deg
+2026-06-17 21:58:51,347 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1628.911625] moveTile finished heading change (+2336.8 ms)
+2026-06-17 21:58:51,347 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1628.912062] moveTile updated front direction (+0.4 ms)
+2026-06-17 21:58:51,352 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1628.917188] moveTile acquired initial LiDAR scan (+5.1 ms)
+2026-06-17 21:58:51,393 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1628.957856] moveTile stopped motors before alignment (+40.7 ms)
+2026-06-17 21:58:51,400 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1628.965232] moveTile start backward adjustment behind_wall_dist=20.248480806286636 (+7.4 ms)
+2026-06-17 21:58:51,442 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Little backward to adjust position
+2026-06-17 21:58:51,587 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.151595] moveTile finished backward adjustment (+186.4 ms)
+2026-06-17 21:58:51,628 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.192776] moveTile ready for forward move (+41.2 ms)
+2026-06-17 21:58:51,729 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.293742] moveTile initialized movement targetSteps=1 (+101.0 ms)
+2026-06-17 21:58:51,732 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.297016] moveTile loop start (+3.3 ms)
+2026-06-17 21:58:51,743 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.308181] moveTile calculated motor speeds left=100 right=96 gyroSteer=-0.22500000000002274 wallSteer=4.199999999999999 (+11.2 ms)
+2026-06-17 21:58:51,784 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.348885] moveTile applied motor speed left=100 right=96 (+40.7 ms)
+2026-06-17 21:58:51,785 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.349520] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:51,785 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.349945] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:51,785 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.350298] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:51,786 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.2699999999999818 deg, practicalMoveTime: 0.0484593255990713 sec
+2026-06-17 21:58:51,786 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 54.2 ms
+2026-06-17 21:58:51,787 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.351619] moveTile loop end practicalMoveTime=0.048 (+1.3 ms)
+2026-06-17 21:58:51,787 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.351913] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:51,797 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.361953] moveTile calculated motor speeds left=100 right=96 gyroSteer=-0.40500000000000114 wallSteer=4.199999999999999 (+10.0 ms)
+2026-06-17 21:58:51,839 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.404388] moveTile applied motor speed left=100 right=96 (+42.4 ms)
+2026-06-17 21:58:51,840 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.404941] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:51,840 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.405330] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:51,841 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.405693] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:51,841 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.69 deg, practicalMoveTime: 0.10334605540737297 sec
+2026-06-17 21:58:51,842 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 54.7 ms
+2026-06-17 21:58:51,842 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.407037] moveTile loop end practicalMoveTime=0.103 (+1.3 ms)
+2026-06-17 21:58:51,842 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.407409] moveTile loop start (+0.4 ms)
+2026-06-17 21:58:51,853 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.418454] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.1950000000000216 wallSteer=5.800000000000001 (+11.0 ms)
+2026-06-17 21:58:51,894 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.458933] moveTile applied motor speed left=100 right=94 (+40.5 ms)
+2026-06-17 21:58:51,894 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.459419] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:51,895 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.459784] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:51,895 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.460187] moveTile obstacle check escapeFlag=False (+0.4 ms)
+2026-06-17 21:58:51,896 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 359.31 deg, practicalMoveTime: 0.1573086643335328 sec
+2026-06-17 21:58:51,896 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.7 ms
+2026-06-17 21:58:51,896 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.461457] moveTile loop end practicalMoveTime=0.157 (+1.3 ms)
+2026-06-17 21:58:51,897 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.461742] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:51,908 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.472796] moveTile calculated motor speeds left=100 right=94 gyroSteer=-0.585000000000008 wallSteer=5.800000000000001 (+11.1 ms)
+2026-06-17 21:58:51,948 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.512995] moveTile applied motor speed left=100 right=94 (+40.2 ms)
+2026-06-17 21:58:51,948 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.513439] moveTile ramp check isBigRamp=False (+0.4 ms)
+2026-06-17 21:58:51,949 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.513792] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:51,949 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.514114] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:51,950 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 0.9399999999999977 deg, practicalMoveTime: 0.2027203497099821 sec
+2026-06-17 21:58:51,950 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.3 ms
+2026-06-17 21:58:51,950 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.515359] moveTile loop end practicalMoveTime=0.203 (+1.2 ms)
+2026-06-17 21:58:51,951 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.515644] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:51,960 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.524493] moveTile calculated motor speeds left=100 right=97 gyroSteer=-0.9200000000000159 wallSteer=3.0 (+8.8 ms)
+2026-06-17 21:58:52,001 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.565788] moveTile applied motor speed left=100 right=97 (+41.3 ms)
+2026-06-17 21:58:52,001 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.566307] moveTile ramp check isBigRamp=False (+0.5 ms)
+2026-06-17 21:58:52,002 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.566672] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:52,002 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.566987] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:52,003 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 2.1499999999999773 deg, practicalMoveTime: 0.2472252426482427 sec
+2026-06-17 21:58:52,003 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 52.2 ms
+2026-06-17 21:58:52,003 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.568276] moveTile loop end practicalMoveTime=0.247 (+1.3 ms)
+2026-06-17 21:58:52,004 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.568561] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:52,015 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.579595] moveTile calculated motor speeds left=100 right=98 gyroSteer=-1.0949999999999989 wallSteer=3.0 (+11.0 ms)
+2026-06-17 21:58:52,055 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.620203] moveTile applied motor speed left=100 right=98 (+40.6 ms)
+2026-06-17 21:58:52,056 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.620830] moveTile ramp check isBigRamp=False (+0.6 ms)
+2026-06-17 21:58:52,056 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.621216] moveTile tile color check tempTileColor=E (+0.4 ms)
+2026-06-17 21:58:52,057 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.621546] moveTile obstacle check escapeFlag=False (+0.3 ms)
+2026-06-17 21:58:52,057 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - roll: 2.339999999999975 deg, practicalMoveTime: 0.2931814453177705 sec
+2026-06-17 21:58:52,058 - mazeUtils.moveTile - [moveTile.py:1305] - DEBUG - moveTile loop time: 53.9 ms
+2026-06-17 21:58:52,058 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.622820] moveTile loop end practicalMoveTime=0.293 (+1.3 ms)
+2026-06-17 21:58:52,058 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.623106] moveTile loop start (+0.3 ms)
+2026-06-17 21:58:52,069 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [1629.634146] moveTile calculated motor speeds left=100 right=98 gyroSteer=-1.1650000000000205 wallSteer=3.0 (+11.0 ms)
+2026-06-17 21:58:52,093 - __main__ - [main.py:147] - INFO - Program interrupted by user.
+2026-06-17 21:58:53,175 - mazeUtils.device.stm - [stm.py:216] - DEBUG - ACK resynchronized: type=STS_MOTOR dropped=3B seq=151

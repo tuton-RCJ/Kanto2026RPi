@@ -11,10 +11,8 @@ class MusicData:
     notes: list[list[int]]  # [[周波数(Hz), 長さ(ms)], ...]
 
 
-# 例: 被災者検知時の音
-# NOTE: STM側のBUZZER実装が「音符数(1byte) + 各音符(周波数2byte, 長さ2byte)」を
-# 受け取る前提のデータ。
-detectedVictim = MusicData(
+
+jisinsokuhou = MusicData(
     musicID=1,
     notes=[
         [392, 80],
@@ -41,6 +39,15 @@ detectedVictim = MusicData(
     ],
 )
 
+detectedVictim = MusicData(
+    musicID=7,
+    notes=[
+        [523, 100],
+        [784, 100],
+        [659, 100],
+        [1047, 100],
+    ]
+)
 
 kimigayo = MusicData(
     musicID=2,

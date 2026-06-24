@@ -1,7 +1,9 @@
 import time
-
+import struct
 import serial
 from config import get_logger
+from .buzzerSongs import MusicData
+
 
 logger = get_logger(__name__)
 
@@ -81,14 +83,17 @@ class RearSTM:
 
         response = self._read_exact(3)
         if response is None:
+            logger.warning("No response received for CamLED command")
             return False
         if response[0] != msg_type or response[1] != self._seq:
             self._flush_input()
+            logger.warning("Unexpected response for CamLED command")
             return False
 
         expected_cd = self._xor_check_digit(list(response[0:2]))
         if expected_cd != response[2]:
             self._flush_input()
+            logger.warning("Checksum mismatch for CamLED response")
             return False
 
         return True
@@ -105,22 +110,28 @@ class RearSTM:
 
         response = self._read_exact(3)
         if response is None:
+            logger.warning("No response received for VictimLED command")
             return False
         if response[0] != msg_type or response[1] != self._seq:
             self._flush_input()
+            logger.warning("Unexpected response for VictimLED command")
             return False
 
         expected_cd = self._xor_check_digit(list(response[0:2]))
         if expected_cd != response[2]:
             self._flush_input()
+            logger.warning("Checksum mismatch for VictimLED response")
             return False
 
         return True
 
     def update_oled(self, x_coord: int, y_coord: int,z_coord: int, direction: int) -> bool:
         if not (0 <= x_coord <= 255 and 0 <= y_coord <= 255 and 0 <= z_coord <= 255):
+            logger.warning("Invalid coordinates for OLED update")
             return False
+        direction = direction // 90
         if not (0 <= direction <= 3):
+            logger.warning("Invalid direction for OLED update")
             return False
 
         msg_type = 1
@@ -131,14 +142,17 @@ class RearSTM:
 
         response = self._read_exact(3)
         if response is None:
+            logger.warning("No response received for OLED update command")
             return False
         if response[0] != msg_type or response[1] != self._seq:
             self._flush_input()
+            logger.warning("Unexpected response for OLED update command")
             return False
 
         expected_cd = self._xor_check_digit(list(response[0:2]))
         if expected_cd != response[2]:
             self._flush_input()
+            logger.warning("Checksum mismatch for OLED update response")
             return False
 
         return True
@@ -157,17 +171,56 @@ class RearSTM:
 
         response = self._read_exact(3)
         if response is None:
+            logger.warning("No response received for send_message command")
             return False
         if response[0] != msg_type or response[1] != self._seq:
             self._flush_input()
+            logger.warning("Unexpected response for send_message command")
             return False
 
         expected_cd = self._xor_check_digit(list(response[0:2]))
         if expected_cd != response[2]:
             self._flush_input()
+            logger.warning("Checksum mismatch for send_message response")
             return False
 
         return True
+ 
+    def playMusic(self, music: MusicData) -> bool:
+        """
+        @brief 音楽を再生する
+        @param music: 再生する音楽データ
+        @return: 成功したらTrue、失敗したらFalse
+        """
+        # データの作成
+        # 音符数(1byte) + 各音符(周波数2byte, 長さ2byte)
+        msg_type = 3
+        self._update_seq()
+        send_data = bytearray()
+        send_data.append(msg_type)
+        send_data.append(self._seq)
+        send_data.append(len(music.notes))
+        for note in music.notes:
+            send_data.extend(struct.pack(">HH", note[0], note[1]))  # big-endianでパック
+        
+        check_digit = self._xor_check_digit(list(send_data))
+        self._serial.write(send_data + bytes([check_digit]))
+        
+        response = self._read_exact(3)
+        if response is None:
+            logger.warning("No response received for Buzzer command")
+            return False
+        if response[0] != msg_type or response[1] != self._seq:
+            self._flush_input()
+            logger.warning("Unexpected response for Buzzer command")
+            return False
+
+        expected_cd = self._xor_check_digit(list(response[0:2]))
+        if expected_cd != response[2]:
+            self._flush_input()
+            logger.warning("Checksum mismatch for Buzzer command response")
+            return False
+        
 
 
 class _NullRearSTM:
