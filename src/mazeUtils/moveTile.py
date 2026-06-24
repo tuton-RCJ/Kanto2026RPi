@@ -1370,9 +1370,9 @@ def moveTile(
     )
 
     # ディスプレイを更新
-    # stmInstance.rearSTM.update_oled(
-    #     *mapInstance.currentPosition, mapInstance.frontDirection.value
-    # )
+    stmInstance.rearSTM.update_oled(
+        *mapInstance.currentPosition, mapInstance.frontDirection.value
+    )
 
     ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
@@ -1972,9 +1972,9 @@ def moveTile(
     else:
         mapInstance.moveTo(direction)
 
-    # stmInstance.rearSTM.update_oled(
-    #     *mapInstance.currentPosition, mapInstance.frontDirection.value
-    # )
+    stmInstance.rearSTM.update_oled(
+        *mapInstance.currentPosition, mapInstance.frontDirection.value
+    )
 
     mapInstance.isSlopeDetected = False
 

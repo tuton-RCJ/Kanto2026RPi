@@ -129,6 +129,7 @@ class RearSTM:
         if not (0 <= x_coord <= 255 and 0 <= y_coord <= 255 and 0 <= z_coord <= 255):
             logger.warning("Invalid coordinates for OLED update")
             return False
+        direction = direction // 90
         if not (0 <= direction <= 3):
             logger.warning("Invalid direction for OLED update")
             return False
