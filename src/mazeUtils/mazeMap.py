@@ -203,10 +203,10 @@ class mazeMap:
         self.isStartedDangerousZone = False
         self.dangerousZoneTileSet: set[tuple[int, int, int]] = set()  # 危険地帯と判断したタイルの集合
 
-        self.isBrokenMapData = (
+        self.isBrokenMapData: bool = (
             False  # 壁検出エラーが発生して内部マップを破棄したかどうかのフラグ
         )
-        self.startPosAfterBreakingMapData = (
+        self.startPosAfterBreakingMapData: tuple[int, int] = (
             20,
             20,
         )  # マップデータを破壊後、スタート推定に使用。破壊場所と同じレイヤ（レイヤ0）にあったとしたときのX座標とY座標
@@ -812,25 +812,34 @@ class mazeMap:
         @brief 現在のマップ状態をキャッシュに保存する
         """
         self.savedCache["tileTypes"] = [
-            [copy.deepcopy(row) for row in self.tileTypes[z]]
+            [row[:] for row in self.tileTypes[z]]
             for z in range(self.maxLayer)
         ]
         self.savedCache["wallTypes"] = [
             [
-                [{d: wt[d] for d in mazeEnums.absDirection} for wt in row]
+                [wt.copy() for wt in row]
                 for row in self.wallTypes[z]
             ]
             for z in range(self.maxLayer)
         ]
         self.savedCache["mazeAsGraph"] = [
             [
-                [copy.deepcopy(neighbors) for neighbors in row]
+                [neighbors.copy() for neighbors in row]
                 for row in self.mazeAsGraph[z]
             ]
             for z in range(self.maxLayer)
         ]
 
-        self.savedCache["layerInfo"] = copy.deepcopy(self.layerInfo)
+        self.savedCache["layerInfo"] = [
+                    layerInfoData(
+                        isKnown=info.isKnown,
+                        layerNumber=info.layerNumber,
+                        altitude=info.altitude,
+                        x_offset=info.x_offset,
+                        y_offset=info.y_offset
+                    )
+                    for info in self.layerInfo
+                ]
         self.savedCache["knownLayerCount"] = self.knownLayerCount
         self.lastCheckpoint = self.currentPosition
         self.savedCache["isSlopeDetected"] = self.isSlopeDetected
@@ -843,9 +852,9 @@ class mazeMap:
             for z in range(self.maxLayer)
         ]
         self.savedCache["isBrokenMapData"] = self.isBrokenMapData
-        self.savedCache["dangerousZoneTileSet"] = copy.deepcopy(self.dangerousZoneTileSet)
-        self.savedCache["WallsAroundStartTile"] = copy.deepcopy(self.WallsAroundStartTile)
-        self.savedCache["startPosAfterBreakingMapData"] = copy.deepcopy(self.startPosAfterBreakingMapData)
+        self.savedCache["dangerousZoneTileSet"] = self.dangerousZoneTileSet.copy()
+        self.savedCache["WallsAroundStartTile"] = self.WallsAroundStartTile.copy()
+        self.savedCache["startPosAfterBreakingMapData"] = self.startPosAfterBreakingMapData
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
         """
@@ -854,12 +863,12 @@ class mazeMap:
         """
         if "tileTypes" in self.savedCache and "wallTypes" in self.savedCache:
             self.tileTypes = [
-                [copy.deepcopy(row) for row in self.savedCache["tileTypes"][z]]
+                [row[:] for row in self.savedCache["tileTypes"][z]]
                 for z in range(self.maxLayer)
             ]
             self.wallTypes = [
                 [
-                    [{d: wt[d] for d in mazeEnums.absDirection} for wt in row]
+                    [wt.copy() for wt in row]
                     for row in self.savedCache["wallTypes"][z]
                 ]
                 for z in range(self.maxLayer)
@@ -867,14 +876,23 @@ class mazeMap:
 
             self.mazeAsGraph = [
                 [
-                    [copy.deepcopy(neighbors) for neighbors in row]
+                    [neighbors.copy() for neighbors in row]
                     for row in self.savedCache["mazeAsGraph"][z]
                 ]
                 for z in range(self.maxLayer)
             ]
             self.frontDirection = nowDirection
             self.currentPosition = self.lastCheckpoint
-            self.layerInfo = copy.deepcopy(self.savedCache["layerInfo"])
+            self.layerInfo = [
+                layerInfoData(
+                    isKnown=info.isKnown,
+                    layerNumber=info.layerNumber,
+                    altitude=info.altitude,
+                    x_offset=info.x_offset,
+                    y_offset=info.y_offset
+                )
+                for info in self.savedCache["layerInfo"]
+            ]
             self.knownLayerCount = self.savedCache["knownLayerCount"]
             self.isSlopeDetected = self.savedCache["isSlopeDetected"]
             self.isStartedDangerousZone = self.savedCache["isStartedDangerousZone"]
@@ -889,10 +907,10 @@ class mazeMap:
                 (0, False) for _ in range(self.movedVerticalDistanceNUM)
             ]
             self.isBrokenMapData = self.savedCache["isBrokenMapData"]
-            self.dangerousZoneTileSet = copy.deepcopy(self.savedCache["dangerousZoneTileSet"])
-            self.startPosAfterBreakingMapData = copy.deepcopy(self.savedCache["startPosAfterBreakingMapData"])  
-            self.WallsAroundStartTile = copy.deepcopy(self.savedCache["WallsAroundStartTile"])
-            
+            self.dangerousZoneTileSet = self.savedCache["dangerousZoneTileSet"].copy()
+            self.startPosAfterBreakingMapData = self.savedCache["startPosAfterBreakingMapData"]
+            self.WallsAroundStartTile = self.savedCache["WallsAroundStartTile"].copy()
+
     def resetMapData(self) -> None:
         """
         @brief マップデータを初期状態にリセットする。キャッシュは保持する。
