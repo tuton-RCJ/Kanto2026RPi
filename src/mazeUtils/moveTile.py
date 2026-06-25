@@ -1534,11 +1534,11 @@ def moveTile(
     if _judge_front_wall_result == deviceEnums.judgeWallResult.LEFT_OBSTACLE:
         turnToCertainDirection((mapInstance.frontDirection.value - 25) % 360, stmInstance)
         steer_gain_correction_due_to_obstacle = 0.7
-        time_correction_due_to_obstacle = 0.12
+        time_correction_due_to_obstacle = 0.1
     elif _judge_front_wall_result == deviceEnums.judgeWallResult.RIGHT_OBSTACLE:
         turnToCertainDirection((mapInstance.frontDirection.value + 25) % 360, stmInstance)
         steer_gain_correction_due_to_obstacle = 0.7
-        time_correction_due_to_obstacle = 0.12
+        time_correction_due_to_obstacle = 0.1
 
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
