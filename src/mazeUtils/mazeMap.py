@@ -282,7 +282,7 @@ class mazeMap:
                         z,
                         mazeConstraints.TILE_SIZE_CM,
                     )
-        elif wallType == mazeEnums.wallType.WALL:
+        elif wallType != mazeEnums.wallType.WALL:
             if direction == mazeEnums.absDirection.NORTH and y > 0:
                 self.mazeAsGraph[z][y][x][direction] = None
                 self.mazeAsGraph[z][y - 1][x][direction.opposite()] = None
@@ -670,6 +670,7 @@ class mazeMap:
             return -1
 
         cost = 0.0
+        now_dir = self.frontDirection
         for i in range(1, len(path)):
             currX, currY, currZ = path[i - 1]
             nextX, nextY, nextZ = path[i]
@@ -679,7 +680,7 @@ class mazeMap:
                     continue
                 nx, ny, nz, d = neighbor
                 if (nx, ny, nz) == (nextX, nextY, nextZ):
-                    turn_q = _turn_quarters(self.frontDirection, direction)
+                    turn_q = _turn_quarters(now_dir, direction)
                     step_cost = (
                         turn_q * float(mazeConstraints.DIJKSTRA_COST_TURN_90_DEG)
                     ) + float(
@@ -688,7 +689,7 @@ class mazeMap:
                         / mazeConstraints.TILE_SIZE_CM
                     )
                     cost += step_cost
-                    self.frontDirection = direction
+                    now_dir = direction
                     break
         return cost
 

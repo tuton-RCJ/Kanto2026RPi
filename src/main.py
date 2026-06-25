@@ -112,6 +112,7 @@ def main():
                         isLoP = True
                         break
                     if before_movement_pos == mapInstance.currentPosition:
+                        logger.warning("Position did not change after movement. Possible error in movement or wall detection.")
                         break
                     # moveTile.turnOffLED(stmInstance)
                 nextDirection = mapInstance.getNearestUnexploredTile()

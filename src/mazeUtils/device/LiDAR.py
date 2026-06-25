@@ -227,7 +227,7 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
     connected_component_length = 0  # 連結成分の長さ(cm) 曲線の長さ
     
     
-    for dp in range(0, 46, 2):
+    for dp in range(0, 46, 1):
         l_idx = (angle + dp) % 360
         r_idx = (angle - dp) % 360
         
@@ -263,7 +263,7 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
     right_cross = abs(points.x[pre_right_idx] * dir_y - points.y[pre_right_idx] * dir_x)
     connected_component_length_horizontal = left_cross + right_cross  # 連結成分の長さ(cm) 見ている方向に垂直な成分を見る
     
-    # print(f"center_dist: {center_dist}, connected_component_length_horizontal: {connected_component_length_horizontal}")
+    print(f"angle: {angle}, center_dist: {center_dist}, connected_component_length_horizontal: {connected_component_length_horizontal}")
 
     if center_dist < deviceConstraints.WALL_DETECTION_THRESHOLD_CM if (angle==0 or angle == 180) else deviceConstraints.WALL_DETECTION_THRESHOLD_CM_SIDE:
         if connected_component_length_horizontal > deviceConstraints.WALL_DETECTION_CONNECTED_COMPONENT_THRESHOLD_CM:
@@ -278,7 +278,7 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
     obstacle_left_flag = False
     obstacle_right_flag = False
     
-    for dp in range(0, 40, 3):
+    for dp in range(0, 40, 2):
         l_idx = (angle + dp) % 360
         r_idx = (angle - dp) % 360
         

@@ -340,6 +340,7 @@ def turnToCertainDirection(
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
                 return
+            _before_rescue_time = time.time()
             if rescueVictim:
                 for s in deviceEnums.Side:
                     victimInfo = getVictimInfo(stmInstance)
@@ -390,6 +391,7 @@ def turnToCertainDirection(
                             logger.info(
                                 f"Dropped rescue kit, detected victim info: {victimInfo}"
                             )
+            _turn_start_time += time.time() - _before_rescue_time
             turnDirection = getTurnDirection(
                 stmInstance.gyro.getValue().heading, targetDir
             )
@@ -565,14 +567,13 @@ def detectWall(
         ):
             if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (angle == 0 or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT):
                 detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
+                logger.info(f"angle: {angle}, result: {detectedWallStatus}")
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
                     if angle == 0: # 正面に壁がある時は坂道判定を入れる
                         logger.debug(
                             f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
                         )
-                        if (
-                            dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
-                            and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                        if ((dist - stmInstance.frontTSD10.get_distance() / 10)
                             > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
                         ):
                             mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
@@ -582,10 +583,14 @@ def detectWall(
                             continue
                     mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
                 elif detectedWallStatus == deviceEnums.judgeWallResult.CENTER_OBSTACLE:
-                    mapInstance.setWallType(direction, mazeEnums.wallType.OBSTACLE_WALL)
-                    logger.debug(
-                        f"Detected center obstacle at {direction}, distance: {dist} cm"
-                    )
+                    if (dist - stmInstance.frontTSD10.get_distance() / 10) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM:   
+                        # 階段は測定結果が荒れてCENTER_OBSTACLEと判断してしまうが、ToFの値の差で坂と判断できる
+                        mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                    else:
+                        mapInstance.setWallType(direction, mazeEnums.wallType.OBSTACLE_WALL)
+                        logger.debug(
+                            f"Detected center obstacle at {direction}, distance: {dist} cm"
+                        )
                 else:
                     mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
             else:
@@ -644,6 +649,11 @@ def detectWall(
                         return False
                 #### CENTER_OBSTACLEとNO_WALLは判定が変わる可能性があるので、その差は許容
                 elif detectedWallStatus == deviceEnums.judgeWallResult.CENTER_OBSTACLE:
+                    # 坂でないか判断
+                    if (dist - stmInstance.frontTSD10.get_distance() / 10) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: # このとき坂です
+                        if mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
+                            logger.warning(f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm")
+                            return False
                     if mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
                         logger.warning(f"inconsistent wall detection: LiDAR indicates center obstacle, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm")
                         return False
