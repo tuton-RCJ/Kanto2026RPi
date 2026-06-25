@@ -41,7 +41,7 @@ def processLiDARScanToMap(scan_points: list[tuple[int, int]]) -> ScanMap:
     # ydlidarからの生データを取り出すと仮定
     for s in scan_points:
         # 距離のフィルタリング (10cm未満、400cm以上、または0.0は除外)
-        r_cm = s[0] * 100
+        r_cm = s[0]
         if r_cm < 10 or r_cm > 400 or r_cm == 0.0:
             continue
             
@@ -211,7 +211,7 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
     @param angle: 判定する角度(度)
     @return 壁なし: 0, 壁: 1, 中央障害物: 2, 左障害物: 3, 右障害物: 4
     """
-    center_dist = ScanMap.ranges[angle]
+    center_dist = points.ranges[angle]
 
     center_rad = math.radians(angle)
     dir_x = math.cos(center_rad)
@@ -265,10 +265,12 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
     
     # print(f"center_dist: {center_dist}, connected_component_length_horizontal: {connected_component_length_horizontal}")
 
-    if center_dist < deviceConstraints.WALL_DETECTION_THRESHOLD_CM:
+    if center_dist < deviceConstraints.WALL_DETECTION_THRESHOLD_CM if (angle==0 or angle == 180) else deviceConstraints.WALL_DETECTION_THRESHOLD_CM_SIDE:
         if connected_component_length_horizontal > deviceConstraints.WALL_DETECTION_CONNECTED_COMPONENT_THRESHOLD_CM:
             return deviceEnums.judgeWallResult.WALL  # 壁
         else:
+            if center_dist < 15:
+                return deviceEnums.judgeWallResult.WALL  # あまりに近いと視野に入りきらなくて中央障害物と判断してしまうけど、これは壁としよう。
             return deviceEnums.judgeWallResult.CENTER_OBSTACLE  # 中央障害物
         
     #### 左右障害物の判定

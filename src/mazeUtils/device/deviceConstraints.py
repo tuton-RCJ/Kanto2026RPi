@@ -4,6 +4,7 @@ LOADCELL_THRESHOLD = 100  # ADCのしきい値
 
 ### LiDARの壁・障害物判定のしきい値
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
+WALL_DETECTION_THRESHOLD_CM_SIDE: int = 25 # 側方の壁の検出閾値
 SIDE_OBSTACLE_DETECTION_THRESHOLD_CM: int = 30  # LiDARで側方障害物を検出する閾値
 SIDE_OBSTACLE_DETECTION_X_LIMIT_CM: int = 10 # LiDARで側方障害物を検出する際のX軸方向の制限(cm) LiDARの原点から見て、±X_LIMITの範囲内にある障害物のみを検出する
 

@@ -96,6 +96,7 @@ def main():
                 if nextDirection is None:
                     continue
                 for direction in nextDirection:
+                    before_movement_pos = mapInstance.currentPosition
                     isBlack, stopped, resetMapData = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
@@ -109,6 +110,8 @@ def main():
 
                         _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         isLoP = True
+                        break
+                    if before_movement_pos == mapInstance.currentPosition:
                         break
                     # moveTile.turnOffLED(stmInstance)
                 nextDirection = mapInstance.getNearestUnexploredTile()

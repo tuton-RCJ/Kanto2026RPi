@@ -563,7 +563,7 @@ def detectWall(
             mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN
             or enableOverwrite
         ):
-            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
+            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (angle == 0 or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT):
                 detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
                     if angle == 0: # 正面に壁がある時は坂道判定を入れる
@@ -623,7 +623,7 @@ def detectWall(
                             f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
                         )
         else:
-            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
+            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (angle == 0 or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT):
                 detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
                     if angle == 0: # 正面に壁がある時は坂道判定を入れる
@@ -664,7 +664,7 @@ def detectWall(
                     and mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL
                 ) or (
                     (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
-                    and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL
+                    and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL
                 ):
                     logger.warning(
                         f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
@@ -1464,6 +1464,11 @@ def moveTile(
         ):
             mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             return False, False, False
+        
+    ##### 回転後、正面に障害物がないか確認
+    detectWall(lidar, mapInstance, stmInstance, pts)
+    if mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.NO_WALL:
+        return False, False, False
 
     ###### 移動前、真後ろが壁であれば位置調整 ######
     if (
