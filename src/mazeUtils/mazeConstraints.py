@@ -130,7 +130,6 @@ STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下
 
 ##### 坂道例外処理
 
-
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = True # 坂道の途中で前に壁を検出した時に引き返すか
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 20.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 12.0 # 下り坂道の途中で前に壁を検出した時に引き返すかのしきい値
@@ -191,3 +190,8 @@ GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 RETURN_TIME_THRESHOLD_SEC: float = 360.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
 RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 420.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
+
+
+###### 探索モード
+
+PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT: bool = True  # 未探索タイルが右か左にある場合、優先的に右か左に進むかどうか
