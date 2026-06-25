@@ -679,7 +679,10 @@ def detectWall(
                     logger.warning(
                         f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
                     )
-                    return False
+                    if not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT:
+                        return False
+                    elif direction == mapInstance.frontDirection:
+                        return False
     return True
 
 
@@ -1732,7 +1735,7 @@ def moveTile(
                 logger.debug(
                     f"Obstacle escape adjustment: {(time.time() - oldTime) * np.cos(np.radians(abs(stmInstance.gyro.getValue().roll))) * 0.1}"
                 )
-                practicalMoveTime -= 0.12
+                practicalMoveTime -= 0.11
                 escapeFlag = True
                 time.sleep(0.1)
         timing_start = debugTimingPrint(

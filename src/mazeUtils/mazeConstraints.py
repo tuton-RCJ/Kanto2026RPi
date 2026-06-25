@@ -172,6 +172,7 @@ TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
 
 ###### エラーハンドリング
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = True  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
+DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT: bool = True # 壁検出エラーを正面でのみ出すようにする
 
 
 

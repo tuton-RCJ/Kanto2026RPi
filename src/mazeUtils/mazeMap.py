@@ -282,7 +282,7 @@ class mazeMap:
                         z,
                         mazeConstraints.TILE_SIZE_CM,
                     )
-        elif wallType != mazeEnums.wallType.WALL:
+        else:
             if direction == mazeEnums.absDirection.NORTH and y > 0:
                 self.mazeAsGraph[z][y][x][direction] = None
                 self.mazeAsGraph[z][y - 1][x][direction.opposite()] = None
