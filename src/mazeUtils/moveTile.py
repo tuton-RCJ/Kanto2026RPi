@@ -346,7 +346,7 @@ def turnToCertainDirection(
                     tiletype = detectTileColor()
                     if (
                         victimInfo[s] != deviceEnums.UnitVStatus.NOTHING
-                        and mapInstance.isSeenVictimType(
+                        and mapInstance.isSeenVictimType( # type: ignore
                             getQuantizedDir(
                                 stmInstance.gyro.getValue().heading
                                 + (90 if s == deviceEnums.Side.LEFT else 270)
@@ -354,14 +354,14 @@ def turnToCertainDirection(
                             victimInfo[s],
                         )
                         == False
-                        and mapInstance.getWallType()[
+                        and mapInstance.getWallType()[ # type: ignore
                             getQuantizedDir(
                                 stmInstance.gyro.getValue().heading
                                 + (90 if s == deviceEnums.Side.LEFT else 270)
                             )[0]
                         ]
                         == mazeEnums.wallType.WALL
-                        and mapInstance.getWallType()[
+                        and mapInstance.getWallType()[ # type: ignore
                             getQuantizedDir(
                                 stmInstance.gyro.getValue().heading
                                 + (90 if s == deviceEnums.Side.LEFT else 270)
@@ -379,8 +379,8 @@ def turnToCertainDirection(
                                 f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during turn: {victimInfo[s]}"
                             )
 
-                            dropRescueKit(stmInstance, mapInstance, victimInfo, s)
-                            mapInstance.addSeenVictimType(
+                            dropRescueKit(stmInstance, mapInstance, victimInfo, s) # type: ignore
+                            mapInstance.addSeenVictimType( # type: ignore
                                 getQuantizedDir(
                                     stmInstance.gyro.getValue().heading
                                     + (90 if s == deviceEnums.Side.LEFT else 270)
@@ -533,7 +533,7 @@ def detectWall(
     lidar: ydlidar.CYdLidar,
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
-    points: list[LiDAR.Point] | None = None,
+    points: LiDAR.ScanMap | None = None,
     enableOverwrite: bool = False,
 ) -> bool:
     """
@@ -920,7 +920,7 @@ def findVictimDuringMove(
                         )
                         % 360
                     ),
-                    victimToWallType(consequentSearchRes[side]),
+                    victimToWallType(consequentSearchRes[side]), # type: ignore
                 )
                 mapInstance.addSeenVictimType(
                     [
@@ -932,7 +932,7 @@ def findVictimDuringMove(
                             % 360
                         )
                     ],
-                    consequentSearchRes[side],
+                    consequentSearchRes[side], # type: ignore
                 )
 
                 # 下がった分前進して元の位置に戻る
@@ -956,7 +956,7 @@ def findVictimDuringMove(
                     logger.debug(f"Detected victim info during movement: {victimInfo}")
 
             if (
-                practicalMoveTime - lastUpdateTime / 1000
+                practicalMoveTime - lastUpdateTime / 1000 # type: ignore
             ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:  # 移動開始直後ならば
                 victimInfo = stmInstance.unitv.getStatus()
                 if (  # 発見した方向に壁があり、すでに見たことのある被災者でもない　ならば
@@ -1543,17 +1543,17 @@ def moveTile(
     practicalVerticalMoveTime = 0.0  # practicalMoveTimeにtanθをかけた値。鉛直方向の移動距離を見積もるために使用。
 
     oldTime = startTime
-    getVictimDict = {
+    getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus,int]] = {
         deviceEnums.Side.LEFT: defaultdict(int),
         deviceEnums.Side.RIGHT: defaultdict(int),
     }
-    getVictimDict_AfterRamp = {
+    getVictimDict_AfterRamp: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]] = {
         deviceEnums.Side.LEFT: defaultdict(int),
         deviceEnums.Side.RIGHT: defaultdict(int),
     }
-    getTileColorDict = defaultdict(int)
+    getTileColorDict: defaultdict[mazeEnums.tileType, int] = defaultdict(int)
     cameraBlackTileDetected = False
-    isWallAhead = {
+    isWallAhead: dict[deviceEnums.Side, bool] = {
         s: LiDAR.isWallAheadTile(points, s)
         for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
@@ -2122,7 +2122,7 @@ def moveTile(
 
     maxVictimInfo = {
         side: (
-            max(getVictimDict[side], key=getVictimDict[side].get)
+            max(getVictimDict[side], key=lambda k: getVictimDict[side][k])
             if getVictimDict[side]
             else deviceEnums.UnitVStatus.NOTHING
         )
@@ -2155,7 +2155,7 @@ def moveTile(
                         % 360
                     )
                 ],
-                consequentSearchRes[side],
+                consequentSearchRes[side], # type: ignore
             )
         elif (  # 見たことがない、被災者を発見した、壁がある　ならばレスキューキットを落とす
             mapInstance.isSeenVictimType(
@@ -2255,7 +2255,7 @@ def moveNextTile(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     lidar: ydlidar.CYdLidar,
-) -> tuple[bool, bool]:
+) -> tuple[bool, bool,bool]:
     """
     @brief direction の方向のタイルへ一マス移動する
     @param direction: 移動方向
