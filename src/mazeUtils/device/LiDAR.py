@@ -7,6 +7,7 @@ from . import deviceConstraints
 from . import deviceEnums
 from typing import overload
 import math
+import matplotlib.pyplot as plt
 
 logger = get_logger(__name__)
 
@@ -122,6 +123,25 @@ def getCertainAngleDist(
             distances.append(10**9)  # LiDAR の測定範囲外は非常に大きな値とする
     return distances[0] if single else distances
 
+def getCertainAngleDist_SinglePoint(angle: int, points: list[Point]) -> int:
+    """
+    @brief 指定した角度の距離を取得する(単一の点のみ)
+    @param angle: 取得したい角度(度)
+    @param points: LiDAR のスキャンデータのリスト
+    @return 指定した角度の距離(cm)
+    @memo: 角度はロボット正面を 0 度として、反時計回りに増加する
+    """
+    minerror = 1e9
+    dist = -1
+    for p in points:
+        if p.range < 10 or p.range > 400:
+            continue
+        if abs(regulationAngle(p.angle - angle)) < 20:
+            error = abs(regulationAngle(p.angle - angle))
+            if error < minerror:
+                minerror = error
+                dist = p.range * np.cos(np.deg2rad(regulationAngle(p.angle - angle)))
+    return dist
 
 def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
     """
@@ -149,14 +169,14 @@ def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
     return res
 
 
-def judgeWallCertainAngle(points: list[Point], angle: int) -> deviceEnums.judgeWallResult:
+def judgeWallCertainAngle(angle: int, points: list[Point] ) -> deviceEnums.judgeWallResult:
     """
     @brief 指定した角度について、中央障害物・左障害物・右障害物・壁・壁なしのいずれかを判定する
     @param points: LiDAR のスキャンデータのリスト
     @param angle: 判定する角度(度)
     @return 壁なし: 0, 壁: 1, 中央障害物: 2, 左障害物: 3, 右障害物: 4
     """
-    center_dist = getCertainAngleDist(angle, points)
+    center_dist = getCertainAngleDist_SinglePoint(angle, points)
 
     # 連結成分を判定
     # angleから±45度の範囲を探索し、連結成分の長さを計算する
@@ -168,10 +188,10 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> deviceEnums.judgeW
     connected_component_length = 0  # 連結成分の長さ(cm) 曲線の長さ
     for dp in range(0, 46, 2):
         left_point = Point(
-            range=getCertainAngleDist(angle - dp, points), angle=angle - dp
+            range=getCertainAngleDist_SinglePoint(angle - dp, points), angle=angle - dp
         )
         right_point = Point(
-            range=getCertainAngleDist(angle + dp, points), angle=angle + dp
+            range=getCertainAngleDist_SinglePoint(angle + dp, points), angle=angle + dp
         )
         if abs(
             left_point.range - pre_left_point.range
@@ -207,6 +227,8 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> deviceEnums.judgeW
         pre_right_point.range * np.sin(np.deg2rad(pre_right_point.angle - angle))
     ) + abs(pre_left_point.range * np.sin(np.deg2rad(pre_left_point.angle - angle))) # 連結成分の長さ(cm) 見ている方向に垂直な成分を見る
 
+    # print(f"center_dist: {center_dist}, connected_component_length_horizontal: {connected_component_length_horizontal}")
+
     if (
         center_dist < deviceConstraints.WALL_DETECTION_THRESHOLD_CM
         and connected_component_length_horizontal > deviceConstraints.WALL_DETECTION_CONNECTED_COMPONENT_THRESHOLD_CM
@@ -220,12 +242,12 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> deviceEnums.judgeW
 
     obstacle_left_flag = False
     obstacle_right_flag = False
-    for dp in range(0, 46, 3):
+    for dp in range(0, 40, 3):
         left_point = Point(
-            range=getCertainAngleDist(angle - dp, points), angle=angle - dp
+            range=getCertainAngleDist_SinglePoint(angle + dp, points), angle=angle + dp
         )
         right_point = Point(
-            range=getCertainAngleDist(angle + dp, points), angle=angle + dp
+            range=getCertainAngleDist_SinglePoint(angle - dp, points), angle=angle - dp
         )
 
         if left_point.range < deviceConstraints.SIDE_OBSTACLE_DETECTION_THRESHOLD_CM and abs(left_point.range * np.sin(np.deg2rad(dp))) < deviceConstraints.SIDE_OBSTACLE_DETECTION_X_LIMIT_CM:
@@ -256,3 +278,46 @@ def liDARShutdown(lidar: ydlidar.CYdLidar):
     """
     lidar.turnOff()
     lidar.disconnecting()
+
+
+def exportPointCloudImg(points: list[Point], output_path: str = "map.png"):
+    """LiDARの点群データからマップ画像を生成し保存する。
+
+    Args:
+        points (list[Point]): 点群データのリスト
+        output_path (str): 出力する画像ファイルのパス
+    """
+    x_coords = []
+    y_coords = []
+
+    for p in points:
+        angle_rad = math.radians(p.angle)
+
+        # 極座標 (r, theta) から 直交座標 (x, y) への変換
+        x = p.range * math.cos(angle_rad)
+        y = p.range * math.sin(angle_rad)
+
+        x_coords.append(x)
+        y_coords.append(y)
+
+    # グラフのプロット設定
+    plt.figure(figsize=(10, 10))  # 10x10インチのサイズ
+
+    # 点群をプロット（散布図: scatter）
+    # sは点のサイズ、cは色、alphaは透明度
+    plt.scatter(x_coords, y_coords, c="blue", s=2, alpha=0.6, label="Points")
+
+    # LiDARの基準位置 (0, 0) を赤色のXでプロット
+    plt.scatter(0, 0, c="red", marker="x", s=100, label="LiDAR Origin")
+
+    # グラフの見た目の調整
+    plt.title("LiDAR Point Cloud Map")
+    plt.xlabel("X (cm)")
+    plt.ylabel("Y (cm)")
+    plt.grid(True, linestyle="--", alpha=0.5)  # グリッド線の表示
+    plt.axis("equal")  # X軸とY軸のスケール（比率）を1:1にする
+    plt.legend(loc="upper right")
+
+    # 画像として保存 (dpiを高めに設定して鮮明に)
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close()  # メモリ解放のためにクローズ
