@@ -563,53 +563,113 @@ def detectWall(
             mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN
             or enableOverwrite
         ):
-            if (
-                min(
-                    stmInstance.gyro.getValue().roll,
-                    360 - stmInstance.gyro.getValue().roll,
-                )
-                > 15
-                and direction == mapInstance.frontDirection
-            ):
-                mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
-                logger.debug(
-                    f"Detected no wall at {direction} due to high roll angle: {stmInstance.gyro.getValue().roll} deg"
-                )
-                mapInstance.isSlopeDetected = True
-                continue
-            if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
-                mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
+                detectedWallStatus = LiDAR.judgeWallCertainAngle(points, angle)
+                if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
+                    if angle == 0: # 正面に壁がある時は坂道判定を入れる
+                        logger.debug(
+                            f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
+                        )
+                        if (
+                            dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
+                            and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                            > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
+                        ):
+                            mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                            logger.debug(
+                                f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
+                            )
+                            continue
+                    mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+                elif detectedWallStatus == deviceEnums.judgeWallResult.CENTER_OBSTACLE:
+                    mapInstance.setWallType(direction, mazeEnums.wallType.OBSTACLE_WALL)
+                    logger.debug(
+                        f"Detected center obstacle at {direction}, distance: {dist} cm"
+                    )
+                else:
+                    mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
             else:
-                mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
-
-            if angle == 0:
-                logger.debug(
-                    f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
-                )
-                if (
-                    dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
-                    and (dist - stmInstance.frontTSD10.get_distance() / 10)
-                    > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
+                if ( # 坂道上では前の壁は検出しない
+                    min(
+                        stmInstance.gyro.getValue().roll,
+                        360 - stmInstance.gyro.getValue().roll,
+                    )
+                    > 15
+                    and direction == mapInstance.frontDirection
                 ):
                     mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
                     logger.debug(
-                        f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
+                        f"Detected no wall at {direction} due to high roll angle: {stmInstance.gyro.getValue().roll} deg"
                     )
+                    mapInstance.isSlopeDetected = True
+                    continue
+
+                if dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM:
+                    mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+                else:
+                    mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+
+                if angle == 0:
+                    logger.debug(
+                        f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
+                    )
+                    if (
+                        dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
+                        and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                        > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
+                    ):
+                        mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                        logger.debug(
+                            f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
+                        )
         else:
-            # 壁情報が一致してなかったらエラーとしてログに出す
-            if (
-                (dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
-                and (not (direction == mapInstance.frontDirection and (dist - stmInstance.frontTSD10.get_distance() / 10)
-                < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM))
-                and mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL
-            ) or (
-                (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
-                and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL
-            ):
-                logger.warning(
-                    f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
-                )
-                return False
+            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
+                detectedWallStatus = LiDAR.judgeWallCertainAngle(points, angle)
+                if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
+                    if angle == 0: # 正面に壁がある時は坂道判定を入れる
+                        logger.debug(
+                            f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
+                        )
+                        if (
+                            dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM
+                            and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                            > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
+                        ):
+                            if mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
+                                logger.warning(f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm")
+                                return False
+                            continue
+                    if mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL:
+                        logger.warning(f"inconsistent wall detection: LiDAR indicates wall, but map indicates no wall. distance: {dist} cm")
+                        return False
+                #### CENTER_OBSTACLEとNO_WALLは判定が変わる可能性があるので、その差は許容
+                elif detectedWallStatus == deviceEnums.judgeWallResult.CENTER_OBSTACLE:
+                    if mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
+                        logger.warning(f"inconsistent wall detection: LiDAR indicates center obstacle, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm")
+                        return False
+                    mapInstance.setWallType(direction, mazeEnums.wallType.OBSTACLE_WALL)
+                    logger.debug(
+                        f"Detected center obstacle at {direction}, distance: {dist} cm"
+                    )
+                else:
+                    if mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL:
+                        logger.warning(f"inconsistent wall detection: LiDAR indicates no wall, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm")
+                        return False
+            else:
+                # 壁情報が一致してなかったらエラーとしてログに出す
+                if (
+                    (dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
+                    and (not (direction == mapInstance.frontDirection and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                    < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM))
+                    and mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL
+                ) or (
+                    (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
+                    and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL
+                ):
+                    logger.warning(
+                        f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
+                    )
+                    return False
     return True
 
 

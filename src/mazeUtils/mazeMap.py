@@ -101,7 +101,7 @@ def dijkstra(
                 for _dir in mazeEnums.absDirection:
                     # 今のタイル以外に辺が張ってあれば、それは発見済みタイルなのでコストは変えない
                     if _dir != move_dir.opposite() and neighbor_graph[_dir] is not None:
-                        if getTileType(neighbor_graph[_dir][:3]) != mazeEnums.tileType.RED: # type: ignore 赤タイル隣接でなければ
+                        if getTileType(neighbor_graph[_dir][:3]) != mazeEnums.tileType.RED:  # type: ignore 赤タイル隣接でなければ
                             step_cost -= 10000
                             break
 
@@ -201,7 +201,9 @@ class mazeMap:
 
         # DangerousZone探索を始めたかどうかのフラグ
         self.isStartedDangerousZone = False
-        self.dangerousZoneTileSet: set[tuple[int, int, int]] = set()  # 危険地帯と判断したタイルの集合
+        self.dangerousZoneTileSet: set[tuple[int, int, int]] = (
+            set()
+        )  # 危険地帯と判断したタイルの集合
 
         self.isBrokenMapData: bool = (
             False  # 壁検出エラーが発生して内部マップを破棄したかどうかのフラグ
@@ -214,7 +216,6 @@ class mazeMap:
         self.WallsAroundStartTile: dict[mazeEnums.absDirection, mazeEnums.wallType] = {
             d: mazeEnums.wallType.UNKNOWN for d in mazeEnums.absDirection
         }  # スタートタイル周辺の壁の情報。スタート位置推定に使用。
-        
 
         self.saveCache()
 
@@ -342,13 +343,14 @@ class mazeMap:
         if direction is None:
             return current_tile_pos in self.dangerousZoneTileSet
         else:
-            neighbor = self.mazeAsGraph[current_tile_pos[2]][current_tile_pos[1]][current_tile_pos[0]][direction]
+            neighbor = self.mazeAsGraph[current_tile_pos[2]][current_tile_pos[1]][
+                current_tile_pos[0]
+            ][direction]
             if neighbor is None:
                 return False
             nx, ny, nz, _ = neighbor
             return (nx, ny, nz) in self.dangerousZoneTileSet
-            
-    
+
     def isSeenVictimType(
         self,
         direction: list[mazeEnums.absDirection],
@@ -411,9 +413,12 @@ class mazeMap:
         assert (
             0 <= x < self.maxSize and 0 <= y < self.maxSize and 0 <= z < self.maxLayer
         ), self.renderKnownTileAndWall()
-        
+
         # DangerousZone探索を開始しており、UNKNOWNのタイルを更新する時にはDangerousZoneTileSetを更新する
-        if self.isStartedDangerousZone and self.tileTypes[z][y][x] == mazeEnums.tileType.UNKNOWN:
+        if (
+            self.isStartedDangerousZone
+            and self.tileTypes[z][y][x] == mazeEnums.tileType.UNKNOWN
+        ):
             self.dangerousZoneTileSet.add((x, y, z))
 
         self.tileTypes[z][y][x] = tiletype
@@ -652,7 +657,7 @@ class mazeMap:
         start_tile_position = self.estimateStartTile()
         if start_tile_position is None:
             return -1
-        
+
         path = dijkstra(
             self.mazeAsGraph,
             (x, y, z),
@@ -812,34 +817,27 @@ class mazeMap:
         @brief 現在のマップ状態をキャッシュに保存する
         """
         self.savedCache["tileTypes"] = [
-            [row[:] for row in self.tileTypes[z]]
-            for z in range(self.maxLayer)
+            [row[:] for row in self.tileTypes[z]] for z in range(self.maxLayer)
         ]
         self.savedCache["wallTypes"] = [
-            [
-                [wt.copy() for wt in row]
-                for row in self.wallTypes[z]
-            ]
+            [[wt.copy() for wt in row] for row in self.wallTypes[z]]
             for z in range(self.maxLayer)
         ]
         self.savedCache["mazeAsGraph"] = [
-            [
-                [neighbors.copy() for neighbors in row]
-                for row in self.mazeAsGraph[z]
-            ]
+            [[neighbors.copy() for neighbors in row] for row in self.mazeAsGraph[z]]
             for z in range(self.maxLayer)
         ]
 
         self.savedCache["layerInfo"] = [
-                    layerInfoData(
-                        isKnown=info.isKnown,
-                        layerNumber=info.layerNumber,
-                        altitude=info.altitude,
-                        x_offset=info.x_offset,
-                        y_offset=info.y_offset
-                    )
-                    for info in self.layerInfo
-                ]
+            layerInfoData(
+                isKnown=info.isKnown,
+                layerNumber=info.layerNumber,
+                altitude=info.altitude,
+                x_offset=info.x_offset,
+                y_offset=info.y_offset,
+            )
+            for info in self.layerInfo
+        ]
         self.savedCache["knownLayerCount"] = self.knownLayerCount
         self.lastCheckpoint = self.currentPosition
         self.savedCache["isSlopeDetected"] = self.isSlopeDetected
@@ -854,7 +852,9 @@ class mazeMap:
         self.savedCache["isBrokenMapData"] = self.isBrokenMapData
         self.savedCache["dangerousZoneTileSet"] = self.dangerousZoneTileSet.copy()
         self.savedCache["WallsAroundStartTile"] = self.WallsAroundStartTile.copy()
-        self.savedCache["startPosAfterBreakingMapData"] = self.startPosAfterBreakingMapData
+        self.savedCache["startPosAfterBreakingMapData"] = (
+            self.startPosAfterBreakingMapData
+        )
 
     def loadCache(self, nowDirection: mazeEnums.absDirection) -> None:
         """
@@ -867,10 +867,7 @@ class mazeMap:
                 for z in range(self.maxLayer)
             ]
             self.wallTypes = [
-                [
-                    [wt.copy() for wt in row]
-                    for row in self.savedCache["wallTypes"][z]
-                ]
+                [[wt.copy() for wt in row] for row in self.savedCache["wallTypes"][z]]
                 for z in range(self.maxLayer)
             ]
 
@@ -889,7 +886,7 @@ class mazeMap:
                     layerNumber=info.layerNumber,
                     altitude=info.altitude,
                     x_offset=info.x_offset,
-                    y_offset=info.y_offset
+                    y_offset=info.y_offset,
                 )
                 for info in self.savedCache["layerInfo"]
             ]
@@ -908,7 +905,9 @@ class mazeMap:
             ]
             self.isBrokenMapData = self.savedCache["isBrokenMapData"]
             self.dangerousZoneTileSet = self.savedCache["dangerousZoneTileSet"].copy()
-            self.startPosAfterBreakingMapData = self.savedCache["startPosAfterBreakingMapData"]
+            self.startPosAfterBreakingMapData = self.savedCache[
+                "startPosAfterBreakingMapData"
+            ]
             self.WallsAroundStartTile = self.savedCache["WallsAroundStartTile"].copy()
 
     def resetMapData(self) -> None:
@@ -1047,7 +1046,7 @@ class mazeMap:
                     #             break
                     #     if not match:
                     #         break
-                    
+
                     if match:
                         logger.debug(
                             f"Estimated start tile at ({x}, {y}, {z}) based on wall information."

@@ -34,6 +34,7 @@ GO_BACKWARD_LOW_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.RIGHT: -30,
 }  # ゆっくり後退時のスピード
 
+#### 壁検知のパラメータ
 
 MOVE_THRESHOLD_CM: int = (
     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
@@ -43,8 +44,11 @@ MOVE_STRAIGHT_THRESHOLD_CM: int = (
 )
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
-USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
+
 WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: int = 15  # 坂検出をする、LiDAR距離とTSD10距離の差の閾値
+
+USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL: bool = True  # 壁検出時に障害物検出モードを使用するかどうか
+
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
 WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
