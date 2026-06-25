@@ -698,14 +698,17 @@ class mazeMap:
         @return: 未探索タイルへの方向リスト。未探索タイルが存在しない場合は None を返す
         """
         x, y, z = self.currentPosition
-        
+
         ### もし右か左に未探索タイルがあれば、そちらを優先する
         if mazeConstraints.PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT:
             for s in deviceEnums.Side:
-                check_direction = mazeEnums.absDirection(self.frontDirection.value + (90 if s == deviceEnums.Side.LEFT else -90))
+                check_direction = mazeEnums.absDirection(
+                    self.frontDirection.value
+                    + (90 if s == deviceEnums.Side.LEFT else -90)
+                )
                 if self.getTileType(check_direction) == mazeEnums.tileType.UNKNOWN:
                     return [check_direction]
-                
+
         path = dijkstra(
             self.mazeAsGraph,
             (x, y, z),
