@@ -16,9 +16,10 @@ def main():
         while True:
             pts = LiDAR.getLiDARScan(lidarInstance)
             # dist = LiDAR.getCertainAngleDist(0,pts)
-            detection = LiDAR.judgeWallCertainAngle(0, pts)
+            detection = LiDAR.judgeWallCertainAngle(270, pts)
             print(detection)
-            # LiDAR.exportPointCloudImg(pts)
+            LiDAR.exportPointCloudImg(pts)
+            time.sleep(2)
     except KeyboardInterrupt:
         LiDAR.liDARShutdown(lidarInstance)
 

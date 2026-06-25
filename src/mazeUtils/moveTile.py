@@ -564,7 +564,7 @@ def detectWall(
             or enableOverwrite
         ):
             if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
-                detectedWallStatus = LiDAR.judgeWallCertainAngle(points, angle)
+                detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
                     if angle == 0: # 正面に壁がある時は坂道判定を入れる
                         logger.debug(
@@ -624,7 +624,7 @@ def detectWall(
                         )
         else:
             if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
-                detectedWallStatus = LiDAR.judgeWallCertainAngle(points, angle)
+                detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
                     if angle == 0: # 正面に壁がある時は坂道判定を入れる
                         logger.debug(

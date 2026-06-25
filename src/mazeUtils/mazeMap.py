@@ -701,13 +701,15 @@ class mazeMap:
 
         ### もし右か左に未探索タイルがあれば、そちらを優先する
         if mazeConstraints.PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT:
-            for s in deviceEnums.Side:
+            for s in [deviceEnums.Side.RIGHT, deviceEnums.Side.LEFT]:
                 check_direction = mazeEnums.absDirection(
-                    self.frontDirection.value
-                    + (90 if s == deviceEnums.Side.LEFT else -90)
+                    (self.frontDirection.value
+                    + (90 if s == deviceEnums.Side.LEFT else -90) + 360) % 360
                 )
-                if self.getTileType(check_direction) == mazeEnums.tileType.UNKNOWN:
-                    return [check_direction]
+                neighbor = self.mazeAsGraph[z][y][x][check_direction]
+                if neighbor is not None:
+                    if self.tileTypes[neighbor[2]][neighbor[1]][neighbor[0]] == mazeEnums.tileType.UNKNOWN:
+                        return [check_direction]
 
         path = dijkstra(
             self.mazeAsGraph,

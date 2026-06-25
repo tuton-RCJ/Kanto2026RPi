@@ -47,7 +47,7 @@ CAR_HEIGHT: int = 10  # 車の高さ
 
 WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: int = 15  # 坂検出をする、LiDAR距離とTSD10距離の差の閾値
 
-USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL: bool = True  # 壁検出時に障害物検出モードを使用するかどうか
+USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL: bool = False  # 壁検出時に障害物検出モードを使用するかどうか
 
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
@@ -194,4 +194,4 @@ RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 420.0  # 現在の時刻 + 帰�
 
 ###### 探索モード
 
-PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT: bool = True  # 未探索タイルが右か左にある場合、優先的に右か左に進むかどうか
+PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT: bool = True # 未探索タイルが右か左にある場合、優先的に右か左に進むかどうか
