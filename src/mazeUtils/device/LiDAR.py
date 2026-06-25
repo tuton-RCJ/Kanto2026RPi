@@ -149,7 +149,7 @@ def isWallAheadTile(points: list[Point], side: deviceEnums.Side) -> bool:
     return res
 
 
-def judgeWallCertainAngle(points: list[Point], angle: int) -> int:
+def judgeWallCertainAngle(points: list[Point], angle: int) -> deviceEnums.judgeWallResult:
     """
     @brief 指定した角度について、中央障害物・左障害物・右障害物・壁・壁なしのいずれかを判定する
     @param points: LiDAR のスキャンデータのリスト
@@ -160,7 +160,7 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> int:
 
     # 連結成分を判定
     # angleから±45度の範囲を探索し、連結成分の長さを計算する
-    CONNECTED_COMPONENT_THRESHOLD_CM = 4  # 連結成分の閾値(cm)
+
     pre_left_point = Point(range=center_dist, angle=angle)
     pre_right_point = Point(range=center_dist, angle=angle)
     continue_left = True
@@ -175,7 +175,7 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> int:
         )
         if abs(
             left_point.range - pre_left_point.range
-        ) > CONNECTED_COMPONENT_THRESHOLD_CM or (not continue_left):
+        ) > deviceConstraints.CONNECTED_COMPONENT_THRESHOLD_CM or (not continue_left):
             continue_left = False
         else:
             connected_component_length += math.sqrt(
@@ -190,7 +190,7 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> int:
 
         if abs(
             right_point.range - pre_right_point.range
-        ) > CONNECTED_COMPONENT_THRESHOLD_CM or (not continue_right):
+        ) > deviceConstraints.CONNECTED_COMPONENT_THRESHOLD_CM or (not continue_right):
             continue_right = False
         else:
             connected_component_length += math.sqrt(
@@ -209,14 +209,14 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> int:
 
     if (
         center_dist < deviceConstraints.WALL_DETECTION_THRESHOLD_CM
-        and connected_component_length_horizontal > 20
+        and connected_component_length_horizontal > deviceConstraints.WALL_DETECTION_CONNECTED_COMPONENT_THRESHOLD_CM
     ):
-        return 1  # 壁
+        return deviceEnums.judgeWallResult.WALL  # 壁
     elif (
         center_dist < deviceConstraints.WALL_DETECTION_THRESHOLD_CM
-        and connected_component_length_horizontal <= 20
+        and connected_component_length_horizontal <= deviceConstraints.WALL_DETECTION_CONNECTED_COMPONENT_THRESHOLD_CM
     ):
-        return 2  # 中央障害物
+        return deviceEnums.judgeWallResult.CENTER_OBSTACLE  # 中央障害物
 
     obstacle_left_flag = False
     obstacle_right_flag = False
@@ -228,25 +228,25 @@ def judgeWallCertainAngle(points: list[Point], angle: int) -> int:
             range=getCertainAngleDist(angle + dp, points), angle=angle + dp
         )
 
-        if left_point.range < 15 and abs(left_point.range * np.sin(np.deg2rad(dp))) < 8:
+        if left_point.range < deviceConstraints.SIDE_OBSTACLE_DETECTION_THRESHOLD_CM and abs(left_point.range * np.sin(np.deg2rad(dp))) < deviceConstraints.SIDE_OBSTACLE_DETECTION_X_LIMIT_CM:
             obstacle_left_flag = True
         if (
-            right_point.range < 15
-            and abs(right_point.range * np.sin(np.deg2rad(dp))) < 8
+            right_point.range < deviceConstraints.SIDE_OBSTACLE_DETECTION_THRESHOLD_CM
+            and abs(right_point.range * np.sin(np.deg2rad(dp))) < deviceConstraints.SIDE_OBSTACLE_DETECTION_X_LIMIT_CM
         ):
             obstacle_right_flag = True
 
     if obstacle_left_flag and not obstacle_right_flag:
-        return 3  # 左障害物
+        return deviceEnums.judgeWallResult.LEFT_OBSTACLE  # 左障害物
     elif not obstacle_left_flag and obstacle_right_flag:
-        return 4  # 右障害物
+        return deviceEnums.judgeWallResult.RIGHT_OBSTACLE  # 右障害物
     elif obstacle_left_flag and obstacle_right_flag:
         logger.warning(
             "Both left and right obstacles detected, returning central obstacle"
         )
-        return 2  # 中央障害物
+        return deviceEnums.judgeWallResult.CENTER_OBSTACLE  # 中央障害物
     else:
-        return 0  # 壁なし
+        return deviceEnums.judgeWallResult.NO_WALL  # 壁なし
 
 
 def liDARShutdown(lidar: ydlidar.CYdLidar):

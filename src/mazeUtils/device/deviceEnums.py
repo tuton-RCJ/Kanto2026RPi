@@ -42,3 +42,11 @@ class ActuatorControlType(Enum):
         elif self == ActuatorControlType.UNITV_45_MODE:
             return 1
         return -1
+
+
+class judgeWallResult(Enum):
+    NO_WALL = 0
+    WALL = 1
+    CENTER_OBSTACLE = 2
+    LEFT_OBSTACLE = 3
+    RIGHT_OBSTACLE = 4
