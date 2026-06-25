@@ -987,8 +987,8 @@ class mazeMap:
             self.layerInfo[current_z].y_offset,
         )
         self.startPosAfterBreakingMapData = (
-            old_start_x - offset_x,
-            old_start_y - offset_y,
+            int(old_start_x - offset_x),
+            int(old_start_y - offset_y),
         )
         self.currentPosition = (current_x, current_y, 0)
 
