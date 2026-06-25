@@ -1479,6 +1479,8 @@ def moveTile(
     detectWall(lidar, mapInstance, stmInstance, pts)
     if mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.NO_WALL:
         return False, False, False
+    
+
 
     ###### 移動前、真後ろが壁であれば位置調整 ######
     if (
@@ -1519,6 +1521,21 @@ def moveTile(
 
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
+
+
+    #### 左右の障害物対策
+    
+    _judge_front_wall_result = LiDAR.judgeWallCertainAngle(0,pts)
+    steer_gain_correction_due_to_obstacle : float  = 1.0
+    time_correction_due_to_obstacle : float = 0.0
+    if _judge_front_wall_result == deviceEnums.judgeWallResult.LEFT_OBSTACLE:
+        turnToCertainDirection((mapInstance.frontDirection.value - 25) % 360, stmInstance)
+        steer_gain_correction_due_to_obstacle = 0.7
+        time_correction_due_to_obstacle = 0.12
+    elif _judge_front_wall_result == deviceEnums.judgeWallResult.RIGHT_OBSTACLE:
+        turnToCertainDirection((mapInstance.frontDirection.value + 25) % 360, stmInstance)
+        steer_gain_correction_due_to_obstacle = 0.7
+        time_correction_due_to_obstacle = 0.12
 
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
@@ -1623,6 +1640,7 @@ def moveTile(
         baseRight = mazeConstraints.GO_STRAIGHT_MAX_SPEED[deviceEnums.Side.RIGHT]
 
         steer = gyroSteer + wallSteer
+        steer *= steer_gain_correction_due_to_obstacle
         leftSpeed = int(max(min(100, baseLeft + steer), -100))
         rightSpeed = int(max(min(100, baseRight - steer), -100))
         timing_start = debugTimingPrint(
@@ -1722,7 +1740,7 @@ def moveTile(
         )
         stmInstance.update()
         ###### 1マス移動完了判定（時間制御） ######
-        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps:
+        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps + time_correction_due_to_obstacle:
             if isUnknownTileAhead and isBigRamp:
                 targetSteps += 1
                 RollonRamp.append(stmInstance.gyro.getValue().roll)
@@ -1771,7 +1789,6 @@ def moveTile(
         ### 坂道で前方の壁を検知したら、引き返す処理
         if mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP and isBigRamp:
             detectFlag = False
-
             if (
                 practicalMoveTime
                 > mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP_ENABLE_TIME_SEC
@@ -1784,7 +1801,7 @@ def moveTile(
                         stmInstance.sts3032.stop()
                         logger.info("Front wall detected on up ramp, stopping movement")
                         detectFlag = True
-                        practicalMoveTime -= 0.2
+                        practicalMoveTime -= 0.14
                 else:
                     if (
                         stmInstance.tof.getDistance()[0]
@@ -1915,7 +1932,7 @@ def moveTile(
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
             if (
-                time.time() - _startTime > 3.0
+                time.time() - _startTime > 2.0
             ):  # 3秒以上経っても距離が縮まらない場合は坂か階段か何かだったと判断し、引き返す
                 backwardTime = time.time() - _startTime
                 logger.warning("Final forward adjustment timeout, stopping adjustment")
