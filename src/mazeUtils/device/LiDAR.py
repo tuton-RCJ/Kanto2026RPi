@@ -340,6 +340,137 @@ def liDARShutdown(lidar: ydlidar.CYdLidar):
     lidar.turnOff()
     lidar.disconnecting()
 
+def detectUshapedTile_conn(points: ScanMap, angle: int) -> bool:
+    """
+    @brief コの字型（3辺が壁で囲まれている形状）のマスを検出する
+    @param points: LiDAR のスキャンデータのリスト
+    @param angle: 探す方向の角度
+    @return U字型のタイルが検出された場合は True, それ以外は False
+    """
+    
+    """
+    方針
+    1. 指定した角度の正面に壁があるかを判定する
+    2. 正面から±40°の範囲で、正面の点と連続している点を追っていく
+    3. 左右の端点がともに、正面方向と平行な方向と垂直な平行のしきい値を満たしている時、コの字と判定
+    
+    """
+    
+    dir_rad = math.radians(angle)
+    dir_x = math.cos(dir_rad)
+    dir_y = math.sin(dir_rad)
+    
+    center_dist = points.ranges[angle]
+    
+    if not (30< center_dist < 60):
+        return False  # 正面壁が条件を満たさない
+    
+    pre_left_idx = angle
+    pre_right_idx = angle
+    continue_left = True
+    continue_right = True
+    
+    left_condition_met = False
+    right_condition_met = False
+    
+    for dp in range(0, 41, 1):
+        l_idx = (angle + dp) % 360
+        r_idx = (angle - dp) % 360
+        
+        if continue_left and points.valid[l_idx] and points.valid[pre_left_idx]:
+            dist_diff = math.hypot(
+                points.x[l_idx] - points.x[pre_left_idx],
+                points.y[l_idx] - points.y[pre_left_idx]
+            )
+            
+            if dist_diff > deviceConstraints.CONNECTED_COMPONENT_THRESHOLD_CM:
+                continue_left = False
+            else:
+                pre_left_idx = l_idx
+                
+                # 左の端点が、正面方向と平行な方向と垂直な平行のしきい値を満たしているかを判定
+                left_y_dist = abs(points.x[l_idx] * dir_y - points.y[l_idx] * dir_x)
+                left_x_dist = abs(points.x[l_idx] * dir_x + points.y[l_idx] * dir_y)
+                if 0 < left_y_dist < 30 and 0 < left_x_dist < 20:
+                    left_condition_met = True
+                    continue_left = False  # 条件を満たしたら探索終了
+        else:
+            continue_left = False
+        
+        if continue_right and points.valid[r_idx] and points.valid[pre_right_idx]:
+            dist_diff = math.hypot(
+                points.x[r_idx] - points.x[pre_right_idx],
+                points.y[r_idx] - points.y[pre_right_idx]
+            )
+            
+            if dist_diff > deviceConstraints.CONNECTED_COMPONENT_THRESHOLD_CM:
+                continue_right = False
+            else:
+                pre_right_idx = r_idx
+                # 右の端点が、正面方向と平行な方向と垂直な平行のしきい値を満たしているかを判定
+                right_y_dist = abs(points.x[r_idx] * dir_y - points.y[r_idx] * dir_x)
+                right_x_dist = abs(points.x[r_idx] * dir_x + points.y[r_idx] * dir_y)
+                if 0 < right_y_dist < 30 and 0 < right_x_dist < 20:
+                    right_condition_met = True
+                    continue_right = False  # 条件を満たしたら探索終了
+        else:
+            continue_right = False
+    
+    return left_condition_met and right_condition_met
+    
+    
+def detectUshapedTile_ROI(scan_map: 'ScanMap', angle: int) -> bool:
+    """
+    @brief コの字型（3辺が壁で囲まれている形状）のマスを検出する
+    @param scan_map: 前処理済みのLiDARデータマップ
+    @param angle: 探す方向の角度 (0: 前, 90: 左, 180: 後ろ, 270: 右 など)
+    @return コの字型のタイルが検出された場合は True, それ以外は False
+    """
+    
+    # 1. 探す方向の基準ベクトル
+    dir_rad = math.radians(angle)
+    dir_x = math.cos(dir_rad)
+    dir_y = math.sin(dir_rad)
+    
+    # 2. 正面方向の距離がそもそも遠すぎる/近すぎる場合は早期リターン
+    # コの字の中央付近を向いている角度の距離を見る
+    center_dist = scan_map.ranges[int(angle) % 360]
+    if not (30 < center_dist < 60):
+        return False
+        
+    # 3. 探索する範囲のインデックスだけを切り出す (正面方向の ±45度)
+    target_deg = int(angle) % 360
+    idx_range = (target_deg + np.arange(-45, 46)) % 360
+    valid_mask = scan_map.valid[idx_range]
+    valid_indices = idx_range[valid_mask]
+    
+    if len(valid_indices) == 0:
+        return False
+
+    # 4. 対象となる点のグローバルX, Y座標を取得
+    x_vals = scan_map.x[valid_indices]
+    y_vals = scan_map.y[valid_indices]
+    
+    # 5. 指定した angle 方向を X軸、その直角方向を Y軸 とする「ローカル座標」に回転・変換
+    local_x = x_vals * dir_x + y_vals * dir_y
+    local_y = -x_vals * dir_y + y_vals * dir_x
+    
+    # --- 領域判定 ---
+    # ロボットから見た隣のマスの想定エリア (1マス30cm)
+    # 奥の壁：X方向 35cm〜55cm, Y方向 -12cm〜12cm
+    front_wall_points = np.sum((35 < local_x) & (local_x < 55) & (-12 < local_y) & (local_y < 12))
+    
+    # 左の壁：X方向 15cm〜40cm, Y方向 10cm〜25cm
+    left_wall_points = np.sum((15 < local_x) & (local_x < 40) & (10 < local_y) & (local_y < 25))
+    
+    # 右の壁：X方向 15cm〜40cm, Y方向 -25cm〜-10cm
+    right_wall_points = np.sum((15 < local_x) & (local_x < 40) & (-25 < local_y) & (local_y < -10))
+    
+    REQUIRED_POINTS = 8
+    
+    return bool(front_wall_points >= REQUIRED_POINTS and 
+            left_wall_points >= REQUIRED_POINTS and 
+            right_wall_points >= REQUIRED_POINTS)
 
 def exportPointCloudImg_Fast(scan_map: 'ScanMap', output_path: str = "map.png"):
     """LiDARの点群データからマップ画像を生成し保存する。

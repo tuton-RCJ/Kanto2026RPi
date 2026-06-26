@@ -197,3 +197,4 @@ RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 420.0  # 現在の時刻 + 帰�
 ###### 探索モード
 
 PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT: bool = False # 未探索タイルが右か左にある場合、優先的に右か左に進むかどうか
+PRIORITIZE_UNEXPLORED_U_SHAPED_TILE: bool = True # コの字型（3辺が壁で囲まれている形状）の未探索タイルがある場合、優先的にコの字型のタイルに進むかどうか
