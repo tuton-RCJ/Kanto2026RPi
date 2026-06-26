@@ -4,7 +4,7 @@ from .device import deviceEnums
 TILE_SIZE_CM: int = 30  # タイル1枚のサイズ
 
 STRAIGHT_GYRO_P_GAIN: float = 4
-STRAIGHT_TOF_P_GAIN: float = 4
+STRAIGHT_TOF_P_GAIN: float = 8
 
 # USE_TURN_METHOD: mazeEnums.turnMethod = (
 #     mazeEnums.turnMethod.ONLY_GYRO
@@ -34,6 +34,7 @@ GO_BACKWARD_LOW_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.RIGHT: -30,
 }  # ゆっくり後退時のスピード
 
+#### 壁検知のパラメータ
 
 MOVE_THRESHOLD_CM: int = (
     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
@@ -43,14 +44,18 @@ MOVE_STRAIGHT_THRESHOLD_CM: int = (
 )
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
-USE_P_GAIN_FOR_TOF_DIST: int = 10  # tof を両側の壁距離制御に使用する際の閾値
+
 WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: int = 15  # 坂検出をする、LiDAR距離とTSD10距離の差の閾値
+
+USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL: bool = True  # 壁検出時に障害物検出モードを使用するかどうか
+USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT: bool = True # 正面のみで使用
+
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
 WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
 WALL_FOLLOW_TARGET_DIST_CM: float = 14  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
-WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
+WALL_FOLLOW_MAX_STEER: float = 20.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
 WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
 
 RAMP_END_THRESHOLD_CM: int = 28
@@ -126,7 +131,6 @@ STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下
 
 ##### 坂道例外処理
 
-
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = True # 坂道の途中で前に壁を検出した時に引き返すか
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 20.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 12.0 # 下り坂道の途中で前に壁を検出した時に引き返すかのしきい値
@@ -168,6 +172,7 @@ TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
 
 ###### エラーハンドリング
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = True  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
+DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT: bool = True # 壁検出エラーを正面でのみ出すようにする
 
 
 
@@ -187,3 +192,9 @@ GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 RETURN_TIME_THRESHOLD_SEC: float = 360.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
 RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 420.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
+
+
+###### 探索モード
+
+PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT: bool = False # 未探索タイルが右か左にある場合、優先的に右か左に進むかどうか
+PRIORITIZE_UNEXPLORED_U_SHAPED_TILE: bool = True # コの字型（3辺が壁で囲まれている形状）の未探索タイルがある場合、優先的にコの字型のタイルに進むかどうか

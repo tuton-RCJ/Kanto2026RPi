@@ -60,14 +60,16 @@ def main():
     stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     gameStartTime = time.time()
     time.sleep(1)
-
+    mapBroken = False
     try:
         while True:
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
             logger.info("Initial Map:")
             logger.info(mapInstance.renderKnownTileAndWall())
-            mapInstance.saveCache()
+            if not mapBroken:
+                mapInstance.saveCache()
+            mapBroken = False
 
             nextDirection = mapInstance.getNearestUnexploredTile()
             logger.info(f"Next Direction: {nextDirection}")
@@ -96,6 +98,7 @@ def main():
                 if nextDirection is None:
                     continue
                 for direction in nextDirection:
+                    before_movement_pos = mapInstance.currentPosition
                     isBlack, stopped, resetMapData = moveTile.moveNextTile(
                         direction, mapInstance, stmInstance, lidarInstance
                     )
@@ -110,9 +113,27 @@ def main():
                         _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                         isLoP = True
                         break
+                    if before_movement_pos == mapInstance.currentPosition:
+                        logger.warning("Position did not change after movement. Possible error in movement or wall detection.")
+                        break
                     # moveTile.turnOffLED(stmInstance)
-                nextDirection = mapInstance.getNearestUnexploredTile()
-                # nextDirection = [mazeEnums.absDirection.NORTH]  # 常に北を目指す戦略に変更
+                    
+                # 周囲にU字型の未探索タイルがある場合、優先的にU字型のタイルに進む
+                detectedUshapedTile = False
+                if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE:
+                    for direction in mazeEnums.absDirection:
+                        next_tile = mapInstance.getTileType(direction)
+                        if next_tile is None:
+                            continue
+                        pts = LiDAR.getLiDARScan(lidarInstance)
+                        isUshaped = LiDAR.detectUshapedTile_ROI(direction.value, pts)
+                        if next_tile == mazeEnums.tileType.UNKNOWN and isUshaped:
+                            logger.info(f"U-shaped unexplored tile detected in direction {direction}. Prioritizing this tile.")
+                            nextDirection = [mazeEnums.absDirection((direction.value + mapInstance.frontDirection.value) % 360)]
+                            detectedUshapedTile = True
+                            break
+                if not detectedUshapedTile:
+                    nextDirection = mapInstance.getNearestUnexploredTile()
             if isLoP:
                 isLoP = False
                 continue
@@ -132,6 +153,8 @@ def main():
 
                     if resetMapData:
                         logger.warning("Map data reset due to wall detection error.")
+                        mapBroken = True
+                        isLop = True
                         break
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
