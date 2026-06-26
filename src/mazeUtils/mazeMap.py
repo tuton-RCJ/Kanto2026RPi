@@ -320,7 +320,7 @@ class mazeMap:
 
     def getTileType(
         self, direction: mazeEnums.absDirection | None = None
-    ) -> mazeEnums.tileType:
+    ) -> mazeEnums.tileType | None:
         """
         @brief 現在位置のタイルタイプを取得する
         @return: 現在位置のタイルタイプ
@@ -329,7 +329,7 @@ class mazeMap:
         if direction is not None:
             neighbor = self.mazeAsGraph[z][y][x][direction]
             if neighbor is None:
-                return mazeEnums.tileType.UNKNOWN
+                return None
             nx, ny, nz, _ = neighbor
             return self.tileTypes[nz][ny][nx]
         return self.tileTypes[z][y][x]

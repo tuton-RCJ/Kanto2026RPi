@@ -461,10 +461,10 @@ def detectUshapedTile_ROI(angle:int, scan_map:ScanMap) -> bool:
     front_wall_points = np.sum((35 < local_x) & (local_x < 55) & (-12 < local_y) & (local_y < 12))
     
     # 左の壁：X方向 15cm〜40cm, Y方向 10cm〜25cm
-    left_wall_points = np.sum((15 < local_x) & (local_x < 40) & (10 < local_y) & (local_y < 25))
+    left_wall_points = np.sum((15 < local_x) & (local_x < 45) & (5 < local_y) & (local_y < 25))
     
     # 右の壁：X方向 15cm〜40cm, Y方向 -25cm〜-10cm
-    right_wall_points = np.sum((15 < local_x) & (local_x < 40) & (-25 < local_y) & (local_y < -10))
+    right_wall_points = np.sum((15 < local_x) & (local_x < 45) & (-25 < local_y) & (local_y < -5))
     
     REQUIRED_POINTS = 8
     

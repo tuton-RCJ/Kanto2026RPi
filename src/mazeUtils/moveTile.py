@@ -803,6 +803,9 @@ def dropRescueKit(
                 % 360,
                 stmInstance,
             )
+            if stmInstance.switch.getToggleSwitch1():
+                stmInstance.sts3032.stop()
+                return
             mapInstance.dropRescueKit(side if not oppositeFlag else side.opposite(), 1)
             stmInstance.rescuekitservo.dropRescueKit(
                 1, side if not oppositeFlag else side.opposite()
@@ -833,6 +836,9 @@ def dropRescueKit(
             # mapInstance.updateFrontDirection(
             #     mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
             # )
+            if stmInstance.switch.getToggleSwitch1():
+                stmInstance.sts3032.stop()
+                return
             mapInstance.dropRescueKit(side.opposite() if not oppositeFlag else side, 1)
             stmInstance.rescuekitservo.dropRescueKit(
                 1, side.opposite() if not oppositeFlag else side

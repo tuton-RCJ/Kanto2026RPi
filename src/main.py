@@ -123,6 +123,8 @@ def main():
                 if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE:
                     for direction in mazeEnums.absDirection:
                         next_tile = mapInstance.getTileType(direction)
+                        if next_tile is None:
+                            continue
                         pts = LiDAR.getLiDARScan(lidarInstance)
                         isUshaped = LiDAR.detectUshapedTile_ROI(direction.value, pts)
                         if next_tile == mazeEnums.tileType.UNKNOWN and isUshaped:

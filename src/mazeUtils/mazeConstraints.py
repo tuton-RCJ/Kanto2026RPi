@@ -4,7 +4,7 @@ from .device import deviceEnums
 TILE_SIZE_CM: int = 30  # タイル1枚のサイズ
 
 STRAIGHT_GYRO_P_GAIN: float = 4
-STRAIGHT_TOF_P_GAIN: float = 4
+STRAIGHT_TOF_P_GAIN: float = 8
 
 # USE_TURN_METHOD: mazeEnums.turnMethod = (
 #     mazeEnums.turnMethod.ONLY_GYRO
@@ -55,7 +55,7 @@ USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT: bool = True # 正面
 WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
 WALL_FOLLOW_TARGET_DIST_CM: float = 14  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
-WALL_FOLLOW_MAX_STEER: float = 10.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
+WALL_FOLLOW_MAX_STEER: float = 20.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
 WALL_FOLLOW_GYRO_ERR_MAX_DEG: float = 5.0  # この角度誤差以内なら壁距離制御も併用
 
 RAMP_END_THRESHOLD_CM: int = 28

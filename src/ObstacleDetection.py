@@ -17,9 +17,9 @@ def main():
             pts = LiDAR.getLiDARScan(lidarInstance)
             # print(pts)
             # dist = LiDAR.getCertainAngleDist(0,pts)
-            for deg in [0,90,180,270]:
-                isushape = LiDAR.detectUshapedTile_ROI(deg, pts)
-                print(f"U-shaped tile detection at {deg} degrees: {isushape}")
+            # for deg in [0,90,180,270]:
+            #     isushape = LiDAR.detectUshapedTile_ROI(deg, pts)
+            #     print(f"U-shaped tile detection at {deg} degrees: {isushape}")
             # print("---------")
             # for deg in [0,90,180,270]:
             #     dist = LiDAR.getCertainAngleDist(deg, pts)
@@ -27,8 +27,8 @@ def main():
             #     # detection = LiDAR.judgeWallCertainAngle(0, pts)
             #     # print(detection)
             # LiDAR.exportPointCloudImg_Fast(pts)
-            # detection = LiDAR.judgeWallCertainAngle(0, pts)
-            # print(detection)
+            detection = LiDAR.judgeWallCertainAngle(0, pts)
+            print(detection)
             # time.sleep(2)
     except KeyboardInterrupt:
         LiDAR.liDARShutdown(lidarInstance)
