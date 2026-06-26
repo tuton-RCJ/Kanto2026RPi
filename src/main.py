@@ -60,14 +60,16 @@ def main():
     stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     gameStartTime = time.time()
     time.sleep(1)
-
+    mapBroken = False
     try:
         while True:
             stmInstance.update()
             moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
             logger.info("Initial Map:")
             logger.info(mapInstance.renderKnownTileAndWall())
-            mapInstance.saveCache()
+            if not mapBroken:
+                mapInstance.saveCache()
+            mapBroken = False
 
             nextDirection = mapInstance.getNearestUnexploredTile()
             logger.info(f"Next Direction: {nextDirection}")
@@ -136,6 +138,8 @@ def main():
 
                     if resetMapData:
                         logger.warning("Map data reset due to wall detection error.")
+                        mapBroken = True
+                        isLop = True
                         break
 
                     if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
