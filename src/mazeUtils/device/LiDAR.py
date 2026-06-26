@@ -217,19 +217,42 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
     dir_x = math.cos(center_rad)
     dir_y = math.sin(center_rad)
     
+    # LiDARの正面±ANGLE_LIMITの範囲で中央障害物の測定開始点を探索
+    start_angle = angle
+    for dp in range(0, deviceConstraints.CENTER_OBSTACLE_DETECTION_ANGLE_LIMIT_DEG + 1, 1):
+        l_idx = (start_angle + dp) % 360
+        r_idx = (start_angle - dp) % 360
+        
+        if points.valid[l_idx]:
+            l_range = points.ranges[l_idx]
+            l_y_dist = abs(points.x[l_idx] * dir_y - points.y[l_idx] * dir_x)
+            if l_range < deviceConstraints.WALL_DETECTION_THRESHOLD_CM and l_y_dist < deviceConstraints.CENTER_OBSTACLE_DETECTION_X_LIMIT_CM:
+                center_dist = l_range
+                start_angle = l_idx
+                break
+        if points.valid[r_idx]:
+            r_range = points.ranges[r_idx]
+            r_y_dist = abs(points.x[r_idx] * dir_y - points.y[r_idx] * dir_x)
+            if r_range < deviceConstraints.WALL_DETECTION_THRESHOLD_CM and r_y_dist < deviceConstraints.CENTER_OBSTACLE_DETECTION_X_LIMIT_CM:
+                center_dist = r_range
+                start_angle = r_idx
+                break
+
+    
 
     # 連結成分を判定
     # angleから±45度の範囲を探索し、連結成分の長さを計算する
-    pre_left_idx = angle
-    pre_right_idx = angle
+    pre_left_idx = start_angle
+    pre_right_idx = start_angle
     continue_left = True
     continue_right = True
     connected_component_length = 0  # 連結成分の長さ(cm) 曲線の長さ
+    connected_component_length_horizontal = 0   # 連結成分の長さ(cm) 見ている方向に垂直な成分を見る
     
     
     for dp in range(0, 46, 1):
-        l_idx = (angle + dp) % 360
-        r_idx = (angle - dp) % 360
+        l_idx = (start_angle + dp) % 360
+        r_idx = (start_angle - dp) % 360
         
         if continue_left and points.valid[l_idx] and points.valid[pre_left_idx]:
             dist_diff = math.hypot(
@@ -241,6 +264,7 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
                 continue_left = False
             else:
                 connected_component_length += dist_diff
+                connected_component_length_horizontal += abs(abs(points.x[l_idx] * dir_y - points.y[l_idx] * dir_x) - abs(points.x[pre_left_idx] * dir_y - points.y[pre_left_idx] * dir_x))
                 pre_left_idx = l_idx
         else:
             continue_left = False
@@ -255,13 +279,11 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
                 continue_right = False
             else:
                 connected_component_length += dist_diff
+                connected_component_length_horizontal += abs(abs(points.x[r_idx] * dir_y - points.y[r_idx] * dir_x) - abs(points.x[pre_right_idx] * dir_y - points.y[pre_right_idx] * dir_x))
                 pre_right_idx = r_idx
         else:
             continue_right = False
             
-    left_cross = abs(points.x[pre_left_idx] * dir_y - points.y[pre_left_idx] * dir_x)
-    right_cross = abs(points.x[pre_right_idx] * dir_y - points.y[pre_right_idx] * dir_x)
-    connected_component_length_horizontal = left_cross + right_cross  # 連結成分の長さ(cm) 見ている方向に垂直な成分を見る
     
     print(f"angle: {angle}, center_dist: {center_dist}, connected_component_length_horizontal: {connected_component_length_horizontal}")
 
