@@ -1547,13 +1547,12 @@ def moveTile(
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
         return False, True, False
-    # points = LiDAR.getLiDARScan(lidar)
-    # last_scan_points = points
-    # dist0, dist180 = LiDAR.getCertainAngleDist([0, 180], points)
+
+    # dist0, dist180 = LiDAR.getCertainAngleDist([0, 180], pts)
     # nearestLiDARAngle = 0 if dist0 < dist180 else 180
     heading = stmInstance.gyro.getValue().heading
     # oldDist = LiDAR.getCertainAngleDist(
-    #     nearestLiDARAngle - heading + direction.value, points
+    #     nearestLiDARAngle - heading + direction.value, pts
     # )
     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
     littleFowardFlag = False
