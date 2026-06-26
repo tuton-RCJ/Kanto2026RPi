@@ -117,8 +117,21 @@ def main():
                         logger.warning("Position did not change after movement. Possible error in movement or wall detection.")
                         break
                     # moveTile.turnOffLED(stmInstance)
-                nextDirection = mapInstance.getNearestUnexploredTile()
-                # nextDirection = [mazeEnums.absDirection.NORTH]  # 常に北を目指す戦略に変更
+                    
+                # 周囲にU字型の未探索タイルがある場合、優先的にU字型のタイルに進む
+                detectedUshapedTile = False
+                if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE:
+                    for direction in mazeEnums.absDirection:
+                        next_tile = mapInstance.getTileType(direction)
+                        pts = LiDAR.getLiDARScan(lidarInstance)
+                        isUshaped = LiDAR.detectUshapedTile_ROI(pts, direction.value)
+                        if next_tile == mazeEnums.tileType.UNKNOWN and isUshaped:
+                            logger.info(f"U-shaped unexplored tile detected in direction {direction}. Prioritizing this tile.")
+                            nextDirection = [direction]
+                            detectedUshapedTile = True
+                            break
+                if not detectedUshapedTile:
+                    nextDirection = mapInstance.getNearestUnexploredTile()
             if isLoP:
                 isLoP = False
                 continue
