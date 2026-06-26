@@ -299,6 +299,7 @@ def turnToCertainDirection(
     rescueVictim: bool = False,
     mapInstance: mazeMap.mazeMap | None = None,
     normalTurnSpeed: int = mazeConstraints.TURN_SPD,
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None,
 ) -> None:
     """
     @brief 指定した絶対方向に向く
@@ -380,7 +381,7 @@ def turnToCertainDirection(
                                 f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during turn: {victimInfo[s]}"
                             )
 
-                            dropRescueKit(stmInstance, mapInstance, victimInfo, s) # type: ignore
+                            dropRescueKit(stmInstance, mapInstance, victimInfo, s, detectedVictimDuringMove) # type: ignore
                             mapInstance.addSeenVictimType( # type: ignore
                                 getQuantizedDir(
                                     stmInstance.gyro.getValue().heading
@@ -704,6 +705,7 @@ def dropRescueKit(
     mapInstance: mazeMap.mazeMap,
     victimInfo: dict[deviceEnums.Side, deviceEnums.UnitVStatus],
     side: deviceEnums.Side,
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None,
 ) -> None:
     """
     @brief 指定した側に救助キットを投下する
@@ -725,35 +727,38 @@ def dropRescueKit(
         )
 
     # キット2つ必要な被災者を救助するとき、もしもキット1つの被災者を先に検出していた場合は、LEDを光らせず、キットを1つだけ落とす。
-    currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
+    # currentPosX, currentPosY, currentPosZ = mapInstance.currentPosition
 
-    avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
-        s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
-            mazeEnums.absDirection(
-                (
-                    mapInstance.frontDirection.value
-                    + (90 if s == deviceEnums.Side.LEFT else 270)
-                )
-                % 360
-            )
-        ]
-        for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
-    }
-    if len(avoidVictim[side]) > 0:
+    # avoidVictim: dict[deviceEnums.Side, set[deviceEnums.UnitVStatus]] = {
+    #     s: mapInstance.getSeenVictimType(currentPosX, currentPosY, currentPosZ)[
+    #         mazeEnums.absDirection(
+    #             (
+    #                 mapInstance.frontDirection.value
+    #                 + (90 if s == deviceEnums.Side.LEFT else 270)
+    #             )
+    #             % 360
+    #         )
+    #     ]
+    #     for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
+    # }
+    if detectedVictimDuringMove is not None and len(detectedVictimDuringMove) > 0:
         maxDroppedKit = max(
             [
                 (v.value - 1) % 3
-                for v in avoidVictim[side]
+                for v in detectedVictimDuringMove
                 if v != deviceEnums.UnitVStatus.NOTHING
             ],
             default=0,
         )
         logger.info(
-            f"Detected previously seen victims on {side} side: {avoidVictim[side]}, max dropped kits: {maxDroppedKit}. Adjusting needRescueKitCount accordingly."
+            f"Detected previously seen victims: {detectedVictimDuringMove}, max dropped kits: {maxDroppedKit}. Adjusting needRescueKitCount accordingly."
         )
         needRescueKitCount = max(needRescueKitCount - maxDroppedKit, 0)
         flashLED_flag = False
-
+    if detectedVictimDuringMove is not None:
+        detectedVictimDuringMove.add(victimInfo[side])
+        
+    
     ############################
 
     if flashLED_flag:
@@ -868,6 +873,7 @@ def findVictimDuringMove(
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None],
     getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]],
     practicalMoveTime: float,
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None
 ) -> bool:
     direction = mapInstance.frontDirection
     dx = mazeEnums.directionToDelta[direction][0]
@@ -923,7 +929,7 @@ def findVictimDuringMove(
                 t = time.time()
 
                 logger.info(f"Detected victim info ahead: {victimInfo}")
-                dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                dropRescueKit(stmInstance, mapInstance, victimInfo, side, detectedVictimDuringMove)
                 consequentSearchRes[side] = victimInfo[side]
                 mapInstance.setWallType(
                     mazeEnums.absDirection(
@@ -1012,7 +1018,7 @@ def findVictimDuringMove(
                         )
                         time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                         stmInstance.sts3032.stop()
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side)
+                    dropRescueKit(stmInstance, mapInstance, victimInfo, side, detectedVictimDuringMove)
                     mapInstance.addSeenVictimType(
                         [
                             mazeEnums.absDirection(
@@ -1040,6 +1046,7 @@ def turnWith45VictimCheck(
     targetDir: mazeEnums.absDirection,
     stmInstance: stm.STM,
     mapInstance: mazeMap.mazeMap,
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None
 ):
     """
     @brief 回転する際に45度で止まって被災者を確認する関数
@@ -1209,7 +1216,7 @@ def turnWith45VictimCheck(
                         logger.info(
                             f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during 45-degree turn check: {victimInfo[s]}"
                         )
-                        dropRescueKit(stmInstance, mapInstance, victimInfo, s)
+                        dropRescueKit(stmInstance, mapInstance, victimInfo, s, detectedVictimDuringMove)
                         mapInstance.addSeenVictimType(
                             [
                                 mazeEnums.absDirection(
@@ -1420,6 +1427,10 @@ def moveTile(
     if direction != mapInstance.frontDirection:
         mapInstance.resetMovedVerticalDistance()
 
+    
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] = set()  # 移動中に検出した被災者の種類を記録するセット
+    
+    
     ###### 移動方向へ旋回 ######
     timing_start = debugTimingPrint(
         f"moveTile start heading change target={direction.value}", timing_start
@@ -1428,12 +1439,12 @@ def moveTile(
         mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK
         and direction != mapInstance.frontDirection
     ):
-        turnWith45VictimCheck(direction, stmInstance, mapInstance)
+        turnWith45VictimCheck(direction, stmInstance, mapInstance,detectedVictimDuringMove)
     elif (
         mazeConstraints.USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING
         and direction != mapInstance.frontDirection
     ):
-        turnWithSlowVictimCheck(direction, stmInstance, mapInstance)
+        turnWithSlowVictimCheck(direction, stmInstance, mapInstance, detectedVictimDuringMove)
     else:
         turnToCertainDirection(
             direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
@@ -1598,6 +1609,7 @@ def moveTile(
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None] = {
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
+
 
     # beforeDist = oldDist
     while True:
@@ -1862,6 +1874,7 @@ def moveTile(
                 consequentSearchRes,
                 getVictimDict,
                 practicalMoveTime,
+                detectedVictimDuringMove
             )
         else:
             ######## 坂道上の被災者検知 ######
@@ -2229,7 +2242,7 @@ def moveTile(
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                 stmInstance.sts3032.stop()
 
-            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side)
+            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side, detectedVictimDuringMove)
 
             if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
