@@ -1518,11 +1518,13 @@ def moveTile(
                 behind_wall_dist < target_behind_dist
             ):
                 break
+        stmInstance.sts3032.stop()
         timing_start = debugTimingPrint(
             "moveTile finished backward adjustment", timing_start
         )
+        pts = LiDAR.getLiDARScan(lidar)  # 再度点群を取得しておく
 
-    stmInstance.sts3032.stop()
+        
     timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
 
 
@@ -1540,18 +1542,19 @@ def moveTile(
         steer_gain_correction_due_to_obstacle = 0.7
         time_correction_due_to_obstacle = 0.1
 
+
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
         stmInstance.sts3032.stop()
         return False, True, False
-    points = LiDAR.getLiDARScan(lidar)
-    last_scan_points = points
-    dist0, dist180 = LiDAR.getCertainAngleDist([0, 180], points)
-    nearestLiDARAngle = 0 if dist0 < dist180 else 180
+    # points = LiDAR.getLiDARScan(lidar)
+    # last_scan_points = points
+    # dist0, dist180 = LiDAR.getCertainAngleDist([0, 180], points)
+    # nearestLiDARAngle = 0 if dist0 < dist180 else 180
     heading = stmInstance.gyro.getValue().heading
-    oldDist = LiDAR.getCertainAngleDist(
-        nearestLiDARAngle - heading + direction.value, points
-    )
+    # oldDist = LiDAR.getCertainAngleDist(
+    #     nearestLiDARAngle - heading + direction.value, points
+    # )
     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_MAX_SPEED)
     littleFowardFlag = False
     isBigRamp = False
@@ -1589,7 +1592,7 @@ def moveTile(
     getTileColorDict: defaultdict[mazeEnums.tileType, int] = defaultdict(int)
     cameraBlackTileDetected = False
     isWallAhead: dict[deviceEnums.Side, bool] = {
-        s: LiDAR.isWallAheadTile(points, s)
+        s: LiDAR.isWallAheadTile(pts, s)
         for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
 
@@ -1597,7 +1600,7 @@ def moveTile(
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
 
-    beforeDist = oldDist
+    # beforeDist = oldDist
     while True:
         loop_start_time = time.time()
         timing_start = debugTimingPrint("moveTile loop start", timing_start)
