@@ -419,7 +419,7 @@ def detectUshapedTile_conn(points: ScanMap, angle: int) -> bool:
     return left_condition_met and right_condition_met
     
     
-def detectUshapedTile_ROI(scan_map: 'ScanMap', angle: int) -> bool:
+def detectUshapedTile_ROI(angle:int, scan_map:ScanMap) -> bool:
     """
     @brief コの字型（3辺が壁で囲まれている形状）のマスを検出する
     @param scan_map: 前処理済みのLiDARデータマップ

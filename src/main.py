@@ -124,10 +124,10 @@ def main():
                     for direction in mazeEnums.absDirection:
                         next_tile = mapInstance.getTileType(direction)
                         pts = LiDAR.getLiDARScan(lidarInstance)
-                        isUshaped = LiDAR.detectUshapedTile_ROI(pts, direction.value)
+                        isUshaped = LiDAR.detectUshapedTile_ROI(direction.value, pts)
                         if next_tile == mazeEnums.tileType.UNKNOWN and isUshaped:
                             logger.info(f"U-shaped unexplored tile detected in direction {direction}. Prioritizing this tile.")
-                            nextDirection = [direction]
+                            nextDirection = [mazeEnums.absDirection((direction.value + mapInstance.frontDirection.value) % 360)]
                             detectedUshapedTile = True
                             break
                 if not detectedUshapedTile:

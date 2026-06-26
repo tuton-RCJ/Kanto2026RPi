@@ -1145,6 +1145,7 @@ def turnWith45VictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
+                            detectedVictimDuringMove=detectedVictimDuringMove
                         )
                         cnt2_45_skip = True
                         continue
@@ -1156,6 +1157,7 @@ def turnWith45VictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
+                            detectedVictimDuringMove = detectedVictimDuringMove
                         )
                         return
                 else:
@@ -1164,6 +1166,7 @@ def turnWith45VictimCheck(
                         stmInstance,
                         rescueVictim=False,
                         mapInstance=mapInstance,
+                        detectedVictimDuringMove = detectedVictimDuringMove
                     )
                 continue
 
@@ -1175,6 +1178,7 @@ def turnWith45VictimCheck(
                     stmInstance,
                     rescueVictim=True,
                     mapInstance=mapInstance,
+                    detectedVictimDuringMove = detectedVictimDuringMove
                 )
 
             # 被災者を確認する
@@ -1254,6 +1258,7 @@ def turnWith45VictimCheck(
                 stmInstance,
                 rescueVictim=True,
                 mapInstance=mapInstance,
+                detectedVictimDuringMove = detectedVictimDuringMove
             )
 
 
@@ -1261,6 +1266,7 @@ def turnWithSlowVictimCheck(
     targetDir: mazeEnums.absDirection,
     stmInstance: stm.STM,
     mapInstance: mazeMap.mazeMap,
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None
 ):
     """
     @brief 回転する際にゆっくり回って被災者を確認する関数
@@ -1353,6 +1359,8 @@ def turnWithSlowVictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
+                            detectedVictimDuringMove = detectedVictimDuringMove
+                            
                         )
                         continue
                     else:
@@ -1363,6 +1371,7 @@ def turnWithSlowVictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
+                            detectedVictimDuringMove = detectedVictimDuringMove
                         )
                         return
                 else:
@@ -1371,6 +1380,7 @@ def turnWithSlowVictimCheck(
                         stmInstance,
                         rescueVictim=False,
                         mapInstance=mapInstance,
+                        detectedVictimDuringMove = detectedVictimDuringMove
                     )
                 continue
 
@@ -1381,6 +1391,7 @@ def turnWithSlowVictimCheck(
                 rescueVictim=True,
                 mapInstance=mapInstance,
                 normalTurnSpeed=mazeConstraints.SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED,
+                detectedVictimDuringMove = detectedVictimDuringMove
             )
 
 
@@ -1447,7 +1458,7 @@ def moveTile(
         turnWithSlowVictimCheck(direction, stmInstance, mapInstance, detectedVictimDuringMove)
     else:
         turnToCertainDirection(
-            direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance
+            direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance, detectedVictimDuringMove=detectedVictimDuringMove
         )
 
     timing_start = debugTimingPrint("moveTile finished heading change", timing_start)
@@ -1468,7 +1479,7 @@ def moveTile(
     ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
     behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
-    target_behind_dist = 20
+    target_behind_dist = 18
 
     # DangerousZone内、未探索タイルへの移動で、坂道を検出したら壁と判断。
     if (
