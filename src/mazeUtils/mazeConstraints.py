@@ -149,6 +149,12 @@ SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE: bool = False # Dangerous Zone内の坂道�
 SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO: float = 0.5 # Dangerous Zone内の坂道で速度を落とす場合の速度の補正率（スピードにこれをかけた値にする）
 
 
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH: bool = True # 坂道を上りor下り終わった後に、pitchが傾いている場合に位置の微調整を行うかどうか
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_THRESHOLD_DEG: float = 3.0 # 坂道を上りor下り終わった後に、pitchがこの角度以上傾いている場合に位置の微調整を行う
+ADJUSTMENT_AFTER_UP_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.5 # 坂道を上り終わった後に、pitchが傾いている場合に前進する時間
+ADJUSTMENT_AFTER_DOWN_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.3 # 坂道を下り終わった後に、pitchが傾いている場合に前進する時間
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED: int = 50 # 坂道を上りor下り終わった後に、pitchが傾いている場合に回転する際の回転速度
+
 ## ↓　使わないほうがいい
 USE_ADJUSTMENT_AFTER_RAMP: bool = False # 坂道を上りor下り終わった時に、平らになってからの時間を利用して位置の微調整を行うかどうか
 ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD: float = 1.0 # ±この角度の範囲内になったら、平らになったと判断し、時間の計測開始

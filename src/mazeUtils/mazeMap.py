@@ -218,6 +218,8 @@ class mazeMap:
         }  # スタートタイル周辺の壁の情報。スタート位置推定に使用。
 
         self.saveCache()
+        
+        self.isLastMovementOnRamp: int = 0  # 直前の移動が坂道上で行われたかどうかを保持するフラグ。0: 坂道上でない, 1: 上り坂, -1: 下り坂
 
     def setWallType(
         self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType
@@ -620,33 +622,6 @@ class mazeMap:
             (0, False) for _ in range(self.movedVerticalDistanceNUM)
         ]
 
-    # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
-    #     """
-    #     @brief 現在位置の周囲のタイルタイプを取得する
-    #     @return: 周囲のタイルタイプの辞書
-    #     """
-    #     x, y = self.currentPosition
-    #     aroundTiles = {d: mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection}
-
-    #     if y > 0:
-    #         aroundTiles[mazeEnums.absDirection.NORTH] = self.tileTypes[y-1][x]
-    #     if x < self.maxSize - 1:
-    #         aroundTiles[mazeEnums.absDirection.EAST] = self.tileTypes[y][x+1]
-    #     if y < self.maxSize - 1:
-    #         aroundTiles[mazeEnums.absDirection.SOUTH] = self.tileTypes[y+1][x]
-    #     if x > 0:
-    #         aroundTiles[mazeEnums.absDirection.WEST] = self.tileTypes[y][x-1]
-
-    #     return aroundTiles
-
-    # def getCurrentTileType(self) -> mazeEnums.tileType:
-    #     """
-    #     @brief 現在位置のタイルタイプを取得する
-    #     @return: 現在位置のタイルタイプ
-    #     """
-    #     x, y = self.currentPosition
-    #     return self.tileTypes[y][x]
-
     # 前後の壁までのマス数を取得する
     def getDistanceToWall(self) -> tuple[int | None, int | None]:
         """
@@ -873,16 +848,25 @@ class mazeMap:
         ):
             self.isStartedDangerousZone = True
 
-        # if direction == mazeEnums.absDirection.NORTH:
-        #     self.currentPosition = (x, y - 1, z)
-        # elif direction == mazeEnums.absDirection.EAST:
-        #     self.currentPosition = (x + 1, y, z)
-        # elif direction == mazeEnums.absDirection.SOUTH:
-        #     self.currentPosition = (x, y + 1, z)
-        # elif direction == mazeEnums.absDirection.WEST:
-        #     self.currentPosition = (x - 1, y, z)
         self.updateFrontDirection(direction)
+        
+        # 直前の移動が坂道上で行われたかどうかを保持するフラグを更新
+        lastLayerAltitude = self.layerInfo[z].altitude
+        currentLayerAltitude = self.layerInfo[self.currentPosition[2]].altitude
+        if z == self.currentPosition[2]:
+            self.isLastMovementOnRamp = 0  # 坂道上でない
+        elif currentLayerAltitude >= lastLayerAltitude:
+            self.isLastMovementOnRamp = 1  # 上り坂
+        else:
+            self.isLastMovementOnRamp = -1  # 下り坂
 
+    def getIsLastMovementOnRamp(self) -> int:
+        """
+        @brief 直前の移動が坂道上で行われたかどうかを取得する
+        @return: 0: 坂道上でない, 1: 上り坂, -1: 下り坂
+        """
+        return self.isLastMovementOnRamp
+    
     def updateFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         """
         @brief 前方方向を設定

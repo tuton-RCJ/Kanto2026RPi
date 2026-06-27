@@ -242,7 +242,7 @@ def escapeFromBlackTile(
             {deviceEnums.Side.LEFT: -100, deviceEnums.Side.RIGHT: -100}
         )
         startEscapeTime = time.time()
-        while time.time() - startEscapeTime < practicalMoveTime + 0.16: # 0.16は補正値
+        while time.time() - startEscapeTime < practicalMoveTime + 0.16:  # 0.16は補正値
             stmInstance.update()
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
@@ -348,7 +348,7 @@ def turnToCertainDirection(
                     tiletype = detectTileColor()
                     if (
                         victimInfo[s] != deviceEnums.UnitVStatus.NOTHING
-                        and mapInstance.isSeenVictimType( # type: ignore
+                        and mapInstance.isSeenVictimType(  # type: ignore
                             getQuantizedDir(
                                 stmInstance.gyro.getValue().heading
                                 + (90 if s == deviceEnums.Side.LEFT else 270)
@@ -356,14 +356,14 @@ def turnToCertainDirection(
                             victimInfo[s],
                         )
                         == False
-                        and mapInstance.getWallType()[ # type: ignore
+                        and mapInstance.getWallType()[  # type: ignore
                             getQuantizedDir(
                                 stmInstance.gyro.getValue().heading
                                 + (90 if s == deviceEnums.Side.LEFT else 270)
                             )[0]
                         ]
                         == mazeEnums.wallType.WALL
-                        and mapInstance.getWallType()[ # type: ignore
+                        and mapInstance.getWallType()[  # type: ignore
                             getQuantizedDir(
                                 stmInstance.gyro.getValue().heading
                                 + (90 if s == deviceEnums.Side.LEFT else 270)
@@ -381,8 +381,8 @@ def turnToCertainDirection(
                                 f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during turn: {victimInfo[s]}"
                             )
 
-                            dropRescueKit(stmInstance, mapInstance, victimInfo, s, detectedVictimDuringMove) # type: ignore
-                            mapInstance.addSeenVictimType( # type: ignore
+                            dropRescueKit(stmInstance, mapInstance, victimInfo, s, detectedVictimDuringMove)  # type: ignore
+                            mapInstance.addSeenVictimType(  # type: ignore
                                 getQuantizedDir(
                                     stmInstance.gyro.getValue().heading
                                     + (90 if s == deviceEnums.Side.LEFT else 270)
@@ -566,36 +566,45 @@ def detectWall(
             mapInstance.getWallType()[direction] == mazeEnums.wallType.UNKNOWN
             or enableOverwrite
         ):
-            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (angle == 0 or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT):
+            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (
+                angle == 0
+                or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT
+            ):
                 detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
                 logger.info(f"angle: {angle}, result: {detectedWallStatus}")
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
-                    if angle == 0: # 正面に壁がある時は坂道判定を入れる
+                    if angle == 0:  # 正面に壁がある時は坂道判定を入れる
                         logger.debug(
                             f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
                         )
-                        if ((dist - stmInstance.frontTSD10.get_distance() / 10)
-                            > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
-                        ):
-                            mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
+                        if (
+                            dist - stmInstance.frontTSD10.get_distance() / 10
+                        ) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM:
+                            mapInstance.setWallType(
+                                direction, mazeEnums.wallType.NO_WALL
+                            )
                             logger.debug(
                                 f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
                             )
                             continue
                     mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
                 elif detectedWallStatus == deviceEnums.judgeWallResult.CENTER_OBSTACLE:
-                    if (dist - stmInstance.frontTSD10.get_distance() / 10) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM:   
+                    if (
+                        dist - stmInstance.frontTSD10.get_distance() / 10
+                    ) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM:
                         # 階段は測定結果が荒れてCENTER_OBSTACLEと判断してしまうが、ToFの値の差で坂と判断できる
                         mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
                     else:
-                        mapInstance.setWallType(direction, mazeEnums.wallType.OBSTACLE_WALL)
+                        mapInstance.setWallType(
+                            direction, mazeEnums.wallType.OBSTACLE_WALL
+                        )
                         logger.debug(
                             f"Detected center obstacle at {direction}, distance: {dist} cm"
                         )
                 else:
                     mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
             else:
-                if ( # 坂道上では前の壁は検出しない
+                if (  # 坂道上では前の壁は検出しない
                     min(
                         stmInstance.gyro.getValue().roll,
                         360 - stmInstance.gyro.getValue().roll,
@@ -629,10 +638,13 @@ def detectWall(
                             f"Detected ramp at {direction} due to TSD10 distance: {stmInstance.frontTSD10.get_distance()} mm"
                         )
         else:
-            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (angle == 0 or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT):
+            if mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL and (
+                angle == 0
+                or not mazeConstraints.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT
+            ):
                 detectedWallStatus = LiDAR.judgeWallCertainAngle(angle, points)
                 if detectedWallStatus == deviceEnums.judgeWallResult.WALL:
-                    if angle == 0: # 正面に壁がある時は坂道判定を入れる
+                    if angle == 0:  # 正面に壁がある時は坂道判定を入れる
                         logger.debug(
                             f"Front LiDAR distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
                         )
@@ -641,46 +653,88 @@ def detectWall(
                             and (dist - stmInstance.frontTSD10.get_distance() / 10)
                             > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
                         ):
-                            if mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
-                                logger.warning(f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm")
+                            if (
+                                mapInstance.getWallType()[direction]
+                                != mazeEnums.wallType.NO_WALL
+                            ):
+                                logger.warning(
+                                    f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
+                                )
                                 return False
                             continue
-                    if mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL:
-                        logger.warning(f"inconsistent wall detection: LiDAR indicates wall, but map indicates no wall. distance: {dist} cm")
+                    if (
+                        mapInstance.getWallType()[direction]
+                        == mazeEnums.wallType.NO_WALL
+                    ):
+                        logger.warning(
+                            f"inconsistent wall detection: LiDAR indicates wall, but map indicates no wall. distance: {dist} cm"
+                        )
                         return False
                 #### CENTER_OBSTACLEとNO_WALLは判定が変わる可能性があるので、その差は許容
                 elif detectedWallStatus == deviceEnums.judgeWallResult.CENTER_OBSTACLE:
                     # 坂でないか判断
-                    if (dist - stmInstance.frontTSD10.get_distance() / 10) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: # このとき坂です
-                        if mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
-                            logger.warning(f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm")
+                    if (
+                        dist - stmInstance.frontTSD10.get_distance() / 10
+                    ) > mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM:  # このとき坂です
+                        if (
+                            mapInstance.getWallType()[direction]
+                            != mazeEnums.wallType.NO_WALL
+                        ):
+                            logger.warning(
+                                f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
+                            )
                             return False
-                    if mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL:
-                        logger.warning(f"inconsistent wall detection: LiDAR indicates center obstacle, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm")
+                    if (
+                        mapInstance.getWallType()[direction]
+                        != mazeEnums.wallType.OBSTACLE_WALL
+                        and mapInstance.getWallType()[direction]
+                        != mazeEnums.wallType.NO_WALL
+                    ):
+                        logger.warning(
+                            f"inconsistent wall detection: LiDAR indicates center obstacle, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm"
+                        )
                         return False
                     mapInstance.setWallType(direction, mazeEnums.wallType.OBSTACLE_WALL)
                     logger.debug(
                         f"Detected center obstacle at {direction}, distance: {dist} cm"
                     )
                 else:
-                    if mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL:
-                        logger.warning(f"inconsistent wall detection: LiDAR indicates no wall, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm")
+                    if (
+                        mapInstance.getWallType()[direction]
+                        != mazeEnums.wallType.NO_WALL
+                        and mapInstance.getWallType()[direction]
+                        != mazeEnums.wallType.OBSTACLE_WALL
+                    ):
+                        logger.warning(
+                            f"inconsistent wall detection: LiDAR indicates no wall, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm"
+                        )
                         return False
             else:
                 # 壁情報が一致してなかったらエラーとしてログに出す
                 if (
                     (dist < mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
-                    and (not (direction == mapInstance.frontDirection and (dist - stmInstance.frontTSD10.get_distance() / 10)
-                    < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM))
-                    and mapInstance.getWallType()[direction] == mazeEnums.wallType.NO_WALL
+                    and (
+                        not (
+                            direction == mapInstance.frontDirection
+                            and (dist - stmInstance.frontTSD10.get_distance() / 10)
+                            < mazeConstraints.WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM
+                        )
+                    )
+                    and mapInstance.getWallType()[direction]
+                    == mazeEnums.wallType.NO_WALL
                 ) or (
                     (dist >= mazeConstraints.WALL_DETECTION_THRESHOLD_CM)
-                    and mapInstance.getWallType()[direction] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[direction] != mazeEnums.wallType.OBSTACLE_WALL
+                    and mapInstance.getWallType()[direction]
+                    != mazeEnums.wallType.NO_WALL
+                    and mapInstance.getWallType()[direction]
+                    != mazeEnums.wallType.OBSTACLE_WALL
                 ):
                     logger.warning(
                         f"Inconsistent wall detection at {direction}: distance={dist} cm, map wall type={mapInstance.getWallType()[direction]}"
                     )
-                    if not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT:
+                    if (
+                        not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT
+                    ):
                         return False
                     elif direction == mapInstance.frontDirection:
                         return False
@@ -757,8 +811,7 @@ def dropRescueKit(
         flashLED_flag = False
     if detectedVictimDuringMove is not None:
         detectedVictimDuringMove.add(victimInfo[side])
-        
-    
+
     ############################
 
     if flashLED_flag:
@@ -939,7 +992,9 @@ def findVictimDuringMove(
                 t = time.time()
 
                 logger.info(f"Detected victim info ahead: {victimInfo}")
-                dropRescueKit(stmInstance, mapInstance, victimInfo, side, detectedVictimDuringMove)
+                dropRescueKit(
+                    stmInstance, mapInstance, victimInfo, side, detectedVictimDuringMove
+                )
                 consequentSearchRes[side] = victimInfo[side]
                 mapInstance.setWallType(
                     mazeEnums.absDirection(
@@ -949,7 +1004,7 @@ def findVictimDuringMove(
                         )
                         % 360
                     ),
-                    victimToWallType(consequentSearchRes[side]), # type: ignore
+                    victimToWallType(consequentSearchRes[side]),  # type: ignore
                 )
                 mapInstance.addSeenVictimType(
                     [
@@ -961,7 +1016,7 @@ def findVictimDuringMove(
                             % 360
                         )
                     ],
-                    consequentSearchRes[side], # type: ignore
+                    consequentSearchRes[side],  # type: ignore
                 )
 
                 # 下がった分前進して元の位置に戻る
@@ -985,7 +1040,7 @@ def findVictimDuringMove(
                     logger.debug(f"Detected victim info during movement: {victimInfo}")
 
             if (
-                practicalMoveTime - lastUpdateTime / 1000 # type: ignore
+                practicalMoveTime - lastUpdateTime / 1000  # type: ignore
             ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:  # 移動開始直後ならば
                 victimInfo = stmInstance.unitv.getStatus()
                 if (  # 発見した方向に壁があり、すでに見たことのある被災者でもない　ならば
@@ -1028,7 +1083,13 @@ def findVictimDuringMove(
                         )
                         time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                         stmInstance.sts3032.stop()
-                    dropRescueKit(stmInstance, mapInstance, victimInfo, side, detectedVictimDuringMove)
+                    dropRescueKit(
+                        stmInstance,
+                        mapInstance,
+                        victimInfo,
+                        side,
+                        detectedVictimDuringMove,
+                    )
                     mapInstance.addSeenVictimType(
                         [
                             mazeEnums.absDirection(
@@ -1056,7 +1117,7 @@ def turnWith45VictimCheck(
     targetDir: mazeEnums.absDirection,
     stmInstance: stm.STM,
     mapInstance: mazeMap.mazeMap,
-    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None,
 ):
     """
     @brief 回転する際に45度で止まって被災者を確認する関数
@@ -1155,7 +1216,7 @@ def turnWith45VictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
-                            detectedVictimDuringMove=detectedVictimDuringMove
+                            detectedVictimDuringMove=detectedVictimDuringMove,
                         )
                         cnt2_45_skip = True
                         continue
@@ -1167,7 +1228,7 @@ def turnWith45VictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
-                            detectedVictimDuringMove = detectedVictimDuringMove
+                            detectedVictimDuringMove=detectedVictimDuringMove,
                         )
                         return
                 else:
@@ -1176,7 +1237,7 @@ def turnWith45VictimCheck(
                         stmInstance,
                         rescueVictim=False,
                         mapInstance=mapInstance,
-                        detectedVictimDuringMove = detectedVictimDuringMove
+                        detectedVictimDuringMove=detectedVictimDuringMove,
                     )
                 continue
 
@@ -1188,7 +1249,7 @@ def turnWith45VictimCheck(
                     stmInstance,
                     rescueVictim=True,
                     mapInstance=mapInstance,
-                    detectedVictimDuringMove = detectedVictimDuringMove
+                    detectedVictimDuringMove=detectedVictimDuringMove,
                 )
 
             # 被災者を確認する
@@ -1230,7 +1291,13 @@ def turnWith45VictimCheck(
                         logger.info(
                             f"Find victim on {'LEFT' if s == deviceEnums.Side.LEFT else 'RIGHT'} side during 45-degree turn check: {victimInfo[s]}"
                         )
-                        dropRescueKit(stmInstance, mapInstance, victimInfo, s, detectedVictimDuringMove)
+                        dropRescueKit(
+                            stmInstance,
+                            mapInstance,
+                            victimInfo,
+                            s,
+                            detectedVictimDuringMove,
+                        )
                         mapInstance.addSeenVictimType(
                             [
                                 mazeEnums.absDirection(
@@ -1268,7 +1335,7 @@ def turnWith45VictimCheck(
                 stmInstance,
                 rescueVictim=True,
                 mapInstance=mapInstance,
-                detectedVictimDuringMove = detectedVictimDuringMove
+                detectedVictimDuringMove=detectedVictimDuringMove,
             )
 
 
@@ -1276,7 +1343,7 @@ def turnWithSlowVictimCheck(
     targetDir: mazeEnums.absDirection,
     stmInstance: stm.STM,
     mapInstance: mazeMap.mazeMap,
-    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None,
 ):
     """
     @brief 回転する際にゆっくり回って被災者を確認する関数
@@ -1369,8 +1436,7 @@ def turnWithSlowVictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
-                            detectedVictimDuringMove = detectedVictimDuringMove
-                            
+                            detectedVictimDuringMove=detectedVictimDuringMove,
                         )
                         continue
                     else:
@@ -1381,7 +1447,7 @@ def turnWithSlowVictimCheck(
                             stmInstance,
                             rescueVictim=False,
                             mapInstance=mapInstance,
-                            detectedVictimDuringMove = detectedVictimDuringMove
+                            detectedVictimDuringMove=detectedVictimDuringMove,
                         )
                         return
                 else:
@@ -1390,7 +1456,7 @@ def turnWithSlowVictimCheck(
                         stmInstance,
                         rescueVictim=False,
                         mapInstance=mapInstance,
-                        detectedVictimDuringMove = detectedVictimDuringMove
+                        detectedVictimDuringMove=detectedVictimDuringMove,
                     )
                 continue
 
@@ -1401,7 +1467,7 @@ def turnWithSlowVictimCheck(
                 rescueVictim=True,
                 mapInstance=mapInstance,
                 normalTurnSpeed=mazeConstraints.SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED,
-                detectedVictimDuringMove = detectedVictimDuringMove
+                detectedVictimDuringMove=detectedVictimDuringMove,
             )
 
 
@@ -1448,10 +1514,10 @@ def moveTile(
     if direction != mapInstance.frontDirection:
         mapInstance.resetMovedVerticalDistance()
 
-    
-    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] = set()  # 移動中に検出した被災者の種類を記録するセット
-    
-    
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] = (
+        set()
+    )  # 移動中に検出した被災者の種類を記録するセット
+
     ###### 移動方向へ旋回 ######
     timing_start = debugTimingPrint(
         f"moveTile start heading change target={direction.value}", timing_start
@@ -1460,18 +1526,60 @@ def moveTile(
         mazeConstraints.USE_45_TURN_WITH_VICTIM_CHECK
         and direction != mapInstance.frontDirection
     ):
-        turnWith45VictimCheck(direction, stmInstance, mapInstance,detectedVictimDuringMove)
+        turnWith45VictimCheck(
+            direction, stmInstance, mapInstance, detectedVictimDuringMove
+        )
     elif (
         mazeConstraints.USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING
         and direction != mapInstance.frontDirection
     ):
-        turnWithSlowVictimCheck(direction, stmInstance, mapInstance, detectedVictimDuringMove)
+        turnWithSlowVictimCheck(
+            direction, stmInstance, mapInstance, detectedVictimDuringMove
+        )
     else:
         turnToCertainDirection(
-            direction.value, stmInstance, rescueVictim=True, mapInstance=mapInstance, detectedVictimDuringMove=detectedVictimDuringMove
+            direction.value,
+            stmInstance,
+            rescueVictim=True,
+            mapInstance=mapInstance,
+            detectedVictimDuringMove=detectedVictimDuringMove,
         )
 
     timing_start = debugTimingPrint("moveTile finished heading change", timing_start)
+
+    # 坂道後、PITCHが傾いていたら調整
+    if mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH:
+        if (
+            abs(stmInstance.gyro.getValue().pitch)
+            > mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_THRESHOLD_DEG
+        ):
+            if mapInstance.getIsLastMovementOnRamp() != 0:
+                debugPrint(
+                    "Adjusting after ramp: moving forward slightly due to pitch tilt"
+                )
+                turnToCertainDirection(
+                    mapInstance.frontDirection.value,
+                    stmInstance,
+                    rescueVictim=False,
+                    mapInstance=mapInstance,
+                    normalTurnSpeed=mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED,
+                    detectedVictimDuringMove=detectedVictimDuringMove,
+                )
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                time.sleep(
+                    mazeConstraints.ADJUSTMENT_AFTER_UP_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC
+                    if mapInstance.getIsLastMovementOnRamp() == 1
+                    else mazeConstraints.ADJUSTMENT_AFTER_DOWN_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC
+                )
+                stmInstance.sts3032.stop()
+                turnToCertainDirection(
+                    direction.value,
+                    stmInstance,
+                    rescueVictim=False,
+                    mapInstance=mapInstance,
+                    normalTurnSpeed=mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED,
+                    detectedVictimDuringMove=detectedVictimDuringMove,
+                )
 
     mapInstance.updateFrontDirection(direction)
     timing_start = debugTimingPrint("moveTile updated front direction", timing_start)
@@ -1488,8 +1596,6 @@ def moveTile(
 
     ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
-    
-   
 
     # DangerousZone内、未探索タイルへの移動で、坂道を検出したら壁と判断。
     if (
@@ -1509,44 +1615,45 @@ def moveTile(
         ):
             mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
             return False, False, False
-        
+
     ##### 回転後、正面に障害物がないか確認
     detectWall(lidar, mapInstance, stmInstance, pts)
-    if mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.NO_WALL:
+    if (
+        mapInstance.getWallType()[mapInstance.frontDirection]
+        != mazeEnums.wallType.NO_WALL
+    ):
         return False, False, False
-    
-
 
     ###### 移動前、真後ろが壁であれば位置調整 ######
     _distance_to_wall = mapInstance.getDistanceToWall()
-    _position_adjustment_loop_list = [0,1]
+    _position_adjustment_loop_list = [0, 1]
     if _distance_to_wall[0] is not None and _distance_to_wall[1] is not None:
         if _distance_to_wall[0] < _distance_to_wall[1]:
-            _position_adjustment_loop_list = [0,1]
+            _position_adjustment_loop_list = [0, 1]
         else:
-            _position_adjustment_loop_list = [1,0]
+            _position_adjustment_loop_list = [1, 0]
     for i in _position_adjustment_loop_list:
         if _distance_to_wall[i] is None:
             continue
-        if _distance_to_wall[i] <= mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT: # type: ignore
+        if _distance_to_wall[i] <= mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT:  # type: ignore
             timing_start = debugTimingPrint(
                 f"moveTile start position adjustment using LiDAR for {'front' if i==0 else 'back'} wall.",
                 timing_start,
             )
-            behind_wall_dist = LiDAR.getCertainAngleDist(0 if i==0 else 180, pts)
-            target_behind_dist = (mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM if i==0 else mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM) + ( # type: ignore
-                mazeConstraints.TILE_SIZE_CM
-                * _distance_to_wall[i]
+            behind_wall_dist = LiDAR.getCertainAngleDist(0 if i == 0 else 180, pts)
+            target_behind_dist = (mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM if i == 0 else mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM) + (  # type: ignore
+                mazeConstraints.TILE_SIZE_CM * _distance_to_wall[i]
             )
             # 差が大きすぎたら、怖いので調整しない
-            if abs(behind_wall_dist - target_behind_dist) > mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_MAX_ADJUSTMENT_CM: # type: ignore
+            if abs(behind_wall_dist - target_behind_dist) > mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_MAX_ADJUSTMENT_CM:  # type: ignore
                 debugPrint(
                     f"Position adjustment skipped due to large distance difference: behind_wall_dist={behind_wall_dist}, target_behind_dist={target_behind_dist}"
                 )
                 continue
             stmInstance.sts3032.setMotorSpeed(
                 mazeConstraints.GO_STRAIGHT_LOW_SPEED
-                if (behind_wall_dist < target_behind_dist and i==1) or (behind_wall_dist > target_behind_dist and i==0)
+                if (behind_wall_dist < target_behind_dist and i == 1)
+                or (behind_wall_dist > target_behind_dist and i == 0)
                 else mazeConstraints.GO_BACKWARD_LOW_SPEED
             )
             debugPrint("Little backward to adjust position")
@@ -1557,7 +1664,9 @@ def moveTile(
                     return False, True, False
                 scanPoints = LiDAR.getLiDARScan(lidar)
                 heading = stmInstance.gyro.getValue().heading
-                currentDist = LiDAR.getCertainAngleDist(0 if i==0 else 180, scanPoints)
+                currentDist = LiDAR.getCertainAngleDist(
+                    0 if i == 0 else 180, scanPoints
+                )
                 if (currentDist > target_behind_dist) == (
                     behind_wall_dist < target_behind_dist
                 ):
@@ -1569,24 +1678,25 @@ def moveTile(
             pts = LiDAR.getLiDARScan(lidar)  # 再度点群を取得しておく
             break
 
-            
     timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
 
-
     #### 左右の障害物対策
-    
-    _judge_front_wall_result = LiDAR.judgeWallCertainAngle(0,pts)
-    steer_gain_correction_due_to_obstacle : float  = 1.0
-    time_correction_due_to_obstacle : float = 0.0
+
+    _judge_front_wall_result = LiDAR.judgeWallCertainAngle(0, pts)
+    steer_gain_correction_due_to_obstacle: float = 1.0
+    time_correction_due_to_obstacle: float = 0.0
     if _judge_front_wall_result == deviceEnums.judgeWallResult.LEFT_OBSTACLE:
-        turnToCertainDirection((mapInstance.frontDirection.value - 25) % 360, stmInstance)
+        turnToCertainDirection(
+            (mapInstance.frontDirection.value - 25) % 360, stmInstance
+        )
         steer_gain_correction_due_to_obstacle = 0.7
         time_correction_due_to_obstacle = 0.1
     elif _judge_front_wall_result == deviceEnums.judgeWallResult.RIGHT_OBSTACLE:
-        turnToCertainDirection((mapInstance.frontDirection.value + 25) % 360, stmInstance)
+        turnToCertainDirection(
+            (mapInstance.frontDirection.value + 25) % 360, stmInstance
+        )
         steer_gain_correction_due_to_obstacle = 0.7
         time_correction_due_to_obstacle = 0.1
-
 
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():
@@ -1625,11 +1735,13 @@ def moveTile(
     practicalVerticalMoveTime = 0.0  # practicalMoveTimeにtanθをかけた値。鉛直方向の移動距離を見積もるために使用。
 
     oldTime = startTime
-    getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus,int]] = {
+    getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]] = {
         deviceEnums.Side.LEFT: defaultdict(int),
         deviceEnums.Side.RIGHT: defaultdict(int),
     }
-    getVictimDict_AfterRamp: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]] = {
+    getVictimDict_AfterRamp: dict[
+        deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]
+    ] = {
         deviceEnums.Side.LEFT: defaultdict(int),
         deviceEnums.Side.RIGHT: defaultdict(int),
     }
@@ -1643,7 +1755,6 @@ def moveTile(
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None] = {
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
-
 
     # beforeDist = oldDist
     while True:
@@ -1791,7 +1902,11 @@ def moveTile(
         )
         stmInstance.update()
         ###### 1マス移動完了判定（時間制御） ######
-        if practicalMoveTime > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps + time_correction_due_to_obstacle:
+        if (
+            practicalMoveTime
+            > mazeConstraints.MOVE_STRAIGHT_SEC * targetSteps
+            + time_correction_due_to_obstacle
+        ):
             if isUnknownTileAhead and isBigRamp:
                 targetSteps += 1
                 RollonRamp.append(stmInstance.gyro.getValue().roll)
@@ -1831,7 +1946,10 @@ def moveTile(
             and not isBigRamp
         ):
             stmInstance.frontTSD10.update()
-            if ((stmInstance.tof.getDistance()[0] - stmInstance.frontTSD10.get_distance() /10 ) < 12):
+            if (
+                stmInstance.tof.getDistance()[0]
+                - stmInstance.frontTSD10.get_distance() / 10
+            ) < 12:
                 # 前方に坂がないときで
                 # 前方の壁までの距離が小さくなったときは止める。
                 stmInstance.sts3032.stop()
@@ -1866,7 +1984,7 @@ def moveTile(
                             "Front wall detected on down ramp, stopping movement"
                         )
                         detectFlag = True
-                        practicalMoveTime += 0.4 # 補正
+                        practicalMoveTime += 0.4  # 補正
             if detectFlag:
                 # 下がる
                 _practicalMoveTime = 0
@@ -1904,7 +2022,9 @@ def moveTile(
         if (
             min(roll, 360 - roll) < mazeConstraints.RAMP_DEG_THRESHOLD
         ):  # 坂道でない場合のみ被災者検知を行う
-            _useBackwardMove = not ( targetSteps > 1 and roll < 180)  # 坂道で上り坂の場合は後退移動を使用しない
+            _useBackwardMove = not (
+                targetSteps > 1 and roll < 180
+            )  # 坂道で上り坂の場合は後退移動を使用しない
             victimRescueFlag = findVictimDuringMove(
                 mapInstance,
                 stmInstance,
@@ -1913,7 +2033,7 @@ def moveTile(
                 getVictimDict,
                 practicalMoveTime,
                 detectedVictimDuringMove,
-                useBackwardMove=_useBackwardMove
+                useBackwardMove=_useBackwardMove,
             )
         else:
             ######## 坂道上の被災者検知 ######
@@ -2052,10 +2172,14 @@ def moveTile(
                 mapInstance.resetMovedVerticalDistance()
 
             # 1マスの階段を坂と誤検知したときの例外処理
-            if abs( practicalVerticalMoveTime
+            if (
+                abs(
+                    practicalVerticalMoveTime
                     * mazeConstraints.TILE_SIZE_CM
                     / mazeConstraints.MOVE_STRAIGHT_SEC
-                ) < mazeConstraints.STAIR_THRESHOLD_CM:
+                )
+                < mazeConstraints.STAIR_THRESHOLD_CM
+            ):
                 logger.info(
                     f"Detected one-tile ramp but regarded it as stairs on one tile, set height-0 slope. Vertical Movement: {practicalVerticalMoveTime  * mazeConstraints.TILE_SIZE_CM   / mazeConstraints.MOVE_STRAIGHT_SEC} cm"
                 )
@@ -2183,8 +2307,10 @@ def moveTile(
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
     # 進んだ距離があまりにも短すぎたら壁を置いて進まなかったことにする
     elif practicalMoveTime < 0.3:
-        logger.info(f"Moved distance is too small, treating as wall. practicalMoveTime: {practicalMoveTime}")
-        mapInstance.setWallType(direction,mazeEnums.wallType.WALL)
+        logger.info(
+            f"Moved distance is too small, treating as wall. practicalMoveTime: {practicalMoveTime}"
+        )
+        mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
     else:
         mapInstance.moveTo(direction)
 
@@ -2248,7 +2374,7 @@ def moveTile(
                         % 360
                     )
                 ],
-                consequentSearchRes[side], # type: ignore
+                consequentSearchRes[side],  # type: ignore
             )
         elif (  # 見たことがない、被災者を発見した、壁がある　ならばレスキューキットを落とす
             mapInstance.isSeenVictimType(
@@ -2285,7 +2411,9 @@ def moveTile(
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                 stmInstance.sts3032.stop()
 
-            dropRescueKit(stmInstance, mapInstance, maxVictimInfo, side, detectedVictimDuringMove)
+            dropRescueKit(
+                stmInstance, mapInstance, maxVictimInfo, side, detectedVictimDuringMove
+            )
 
             if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
@@ -2348,7 +2476,7 @@ def moveNextTile(
     mapInstance: mazeMap.mazeMap,
     stmInstance: stm.STM,
     lidar: ydlidar.CYdLidar,
-) -> tuple[bool, bool,bool]:
+) -> tuple[bool, bool, bool]:
     """
     @brief direction の方向のタイルへ一マス移動する
     @param direction: 移動方向
@@ -2363,7 +2491,7 @@ def moveNextTile(
 
     if not isBlack:
         stmInstance.sts3032.stop()
-        
+
     logger.info(mapInstance.getDistanceToWall())
 
     stmInstance.update()
