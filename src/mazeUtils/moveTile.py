@@ -1530,7 +1530,7 @@ def moveTile(
                 timing_start,
             )
             behind_wall_dist = LiDAR.getCertainAngleDist(0 if i==0 else 180, pts)
-            target_behind_dist = mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM if i==0 else mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM + ( # type: ignore
+            target_behind_dist = (mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM if i==0 else mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM) + ( # type: ignore
                 mazeConstraints.TILE_SIZE_CM
                 * _distance_to_wall[i]
             )
@@ -1547,7 +1547,7 @@ def moveTile(
                     return False, True, False
                 scanPoints = LiDAR.getLiDARScan(lidar)
                 heading = stmInstance.gyro.getValue().heading
-                currentDist = LiDAR.getCertainAngleDist(180, scanPoints)
+                currentDist = LiDAR.getCertainAngleDist(0 if i==0 else 180, scanPoints)
                 if (currentDist > target_behind_dist) == (
                     behind_wall_dist < target_behind_dist
                 ):
@@ -1557,6 +1557,7 @@ def moveTile(
                 "moveTile finished backward adjustment", timing_start
             )
             pts = LiDAR.getLiDARScan(lidar)  # 再度点群を取得しておく
+            break
 
             
     timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
