@@ -820,6 +820,9 @@ def dropRescueKit(
             mapInstance.nowRescueKitCount[side.opposite() if not oppositeFlag else side]
             >= 1
         ):
+            if not mazeConstraints.TURN_180_WHEN_LACK_OF_KIT:
+                debugPrint("Lack of rescue kits and 180-degree turn disabled.")
+                continue
             turnToCertainDirection(
                 (
                     stmInstance.gyro.getValue().heading
