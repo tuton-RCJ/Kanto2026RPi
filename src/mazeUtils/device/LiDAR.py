@@ -30,6 +30,8 @@ class ScanMap:
     y: np.ndarray       # 長さ360の配列 (indexが角度、値がY座標)
     valid: np.ndarray   # 長さ360のboolean配列 (有効な点かどうかのフラグ)
 
+pre_scan_map: ScanMap | None = None  # 前回のLiDARデータマップを保持するグローバル変数
+
 def processLiDARScanToMap(scan_points: list[tuple[int, int]]) -> ScanMap:
     """
     スキャン生データを360度のルックアップテーブルに変換する前処理 (O(N))
@@ -112,7 +114,10 @@ def getLiDARScan(lidar: ydlidar.CYdLidar) -> ScanMap:
                     % 360
                 )
             )  # LiDAR の角度補正 4 度
-        return processLiDARScanToMap(res)  # 前処理して返す
+        _scanMap = processLiDARScanToMap(res) 
+        global pre_scan_map
+        pre_scan_map = _scanMap  # グローバル変数に保存
+        return _scanMap
     else:
         raise Exception("Failed to get LiDAR scan")
 
@@ -419,13 +424,18 @@ def detectUshapedTile_conn(points: ScanMap, angle: int) -> bool:
     return left_condition_met and right_condition_met
     
     
-def detectUshapedTile_ROI(angle:int, scan_map:ScanMap) -> bool:
+def detectUshapedTile_ROI(angle:int, scan_map:ScanMap  | None = None) -> bool:
     """
     @brief コの字型（3辺が壁で囲まれている形状）のマスを検出する
     @param scan_map: 前処理済みのLiDARデータマップ
     @param angle: 探す方向の角度 (0: 前, 90: 左, 180: 後ろ, 270: 右 など)
     @return コの字型のタイルが検出された場合は True, それ以外は False
     """
+    if scan_map is None:
+        global pre_scan_map
+        if pre_scan_map is None:
+            raise ValueError("No preprocessed LiDAR data available. Please provide scan_map.")
+        scan_map = pre_scan_map
     
     # 1. 探す方向の基準ベクトル
     dir_rad = math.radians(angle)
