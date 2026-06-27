@@ -104,6 +104,7 @@ def main():
                     )
                     if resetMapData:
                         logger.warning("Map data reset due to wall detection error.")
+                        stmInstance.rearSTM.playMusic(buzzerSongs.mappingError)
                         break
                     logger.info(mapInstance.renderKnownTileAndWall())
 

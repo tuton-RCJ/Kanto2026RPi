@@ -1550,7 +1550,7 @@ def moveTile(
     ###### 坂道後、PITCHが傾いていたら調整
     if mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH:
         if (
-            abs(stmInstance.gyro.getValue().pitch)
+            min(stmInstance.gyro.getValue().pitch, 360-stmInstance.gyro.getValue().pitch)
             > mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_THRESHOLD_DEG
         ):
             if mapInstance.getIsLastMovementOnRamp() != 0:
@@ -1951,12 +1951,12 @@ def moveTile(
             if (
                 stmInstance.tof.getDistance()[0]
                 - stmInstance.frontTSD10.get_distance() / 10
-            ) < 12:
+            ) < 10:
                 # 前方に坂がないときで
                 # 前方の壁までの距離が小さくなったときは止める。
                 stmInstance.sts3032.stop()
                 debugTimingPrint(
-                    "moveTile finished by front distance control", timing_start
+                    f"moveTile finished by front distance control. Tof: {stmInstance.tof.getDistance()[0]}, TSD10 : {stmInstance.frontTSD10.get_distance() / 10}", timing_start
                 )
                 break
 
@@ -1973,7 +1973,7 @@ def moveTile(
                         < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM
                     ):
                         stmInstance.sts3032.stop()
-                        logger.info("Front wall detected on up ramp, stopping movement")
+                        logger.info(f"Front wall detected on up ramp, stopping movement. Tof: {stmInstance.tof.getDistance()[0]}")
                         detectFlag = True
                         practicalMoveTime -= 0.14
                 else:
@@ -1982,9 +1982,7 @@ def moveTile(
                         < mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM
                     ):
                         stmInstance.sts3032.stop()
-                        logger.info(
-                            "Front wall detected on down ramp, stopping movement"
-                        )
+                        logger.info(f"Front wall detected on down ramp, stopping movement. Tof: {stmInstance.tof.getDistance()[0]}")
                         detectFlag = True
                         practicalMoveTime += 0.4  # 補正
             if detectFlag:
@@ -2093,7 +2091,8 @@ def moveTile(
     )
 
     pts = LiDAR.getLiDARScan(lidar)
-    if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
+    if LiDAR.judgeWallCertainAngle(0, pts) == deviceEnums.judgeWallResult.WALL:
+    # if 15 < LiDAR.getCertainAngleDist(-heading + direction.value, pts) < 27:
         stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
         debugPrint("Little forward to adjust position")
         _startTime = time.time()

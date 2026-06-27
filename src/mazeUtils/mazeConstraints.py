@@ -140,7 +140,7 @@ STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下
 
 ##### 坂道例外処理
 
-TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = True # 坂道の途中で前に壁を検出した時に引き返すか
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = False # 坂道の途中で前に壁を検出した時に引き返すか  memo: やや誤検知が多い（特に上り）
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 15.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 12.0 # 下り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP_ENABLE_TIME_SEC: float = 0.6 # 坂道壁検出を有効にする時間
@@ -150,8 +150,8 @@ SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO: float = 0.5 # Dangerous Zone内の坂
 
 
 ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH: bool = True # 坂道を上りor下り終わった後に、pitchが傾いている場合に位置の微調整を行うかどうか
-ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_THRESHOLD_DEG: float = 3.0 # 坂道を上りor下り終わった後に、pitchがこの角度以上傾いている場合に位置の微調整を行う
-ADJUSTMENT_AFTER_UP_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.5 # 坂道を上り終わった後に、pitchが傾いている場合に前進する時間
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_THRESHOLD_DEG: float = 7.0 # 坂道を上りor下り終わった後に、pitchがこの角度以上傾いている場合に位置の微調整を行う
+ADJUSTMENT_AFTER_UP_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.9 # 坂道を上り終わった後に、pitchが傾いている場合に前進する時間
 ADJUSTMENT_AFTER_DOWN_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.3 # 坂道を下り終わった後に、pitchが傾いている場合に前進する時間
 ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED: int = 50 # 坂道を上りor下り終わった後に、pitchが傾いている場合に回転する際の回転速度
 
@@ -185,7 +185,7 @@ TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
     0  # 複数の救助キットを投下する際に回転する角度
 )
 
-TURN_180_WHEN_LACK_OF_KIT: bool = True  # 救助キットがない場合に180度回転するかどうか
+TURN_180_WHEN_LACK_OF_KIT: bool = False  # 救助キットがない場合に180度回転するかどうか
 
 ###### エラーハンドリング
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = True  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
