@@ -882,7 +882,8 @@ def findVictimDuringMove(
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None],
     getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]],
     practicalMoveTime: float,
-    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None
+    detectedVictimDuringMove: set[deviceEnums.UnitVStatus] | None = None,
+    useBackwardMove: bool = True,
 ) -> bool:
     direction = mapInstance.frontDirection
     dx = mazeEnums.directionToDelta[direction][0]
@@ -927,7 +928,7 @@ def findVictimDuringMove(
                 stmInstance.sts3032.stop()
 
                 # 行き過ぎてしまうことが多いので、少し下がる
-                if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
                     logger.info("Moving backward before dropping rescue kit")
                     stmInstance.sts3032.setMotorSpeed(
                         mazeConstraints.GO_BACKWARD_LOW_SPEED
@@ -964,7 +965,7 @@ def findVictimDuringMove(
                 )
 
                 # 下がった分前進して元の位置に戻る
-                if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
                     stmInstance.sts3032.setMotorSpeed(
                         mazeConstraints.GO_STRAIGHT_LOW_SPEED
                     )
@@ -1020,7 +1021,7 @@ def findVictimDuringMove(
                     logger.info(
                         f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
                     )
-                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
                         logger.info("Moving backward before dropping rescue kit")
                         stmInstance.sts3032.setMotorSpeed(
                             mazeConstraints.GO_BACKWARD_LOW_SPEED
@@ -1040,7 +1041,7 @@ def findVictimDuringMove(
                         ],
                         victimInfo[side],
                     )
-                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
                         stmInstance.sts3032.setMotorSpeed(
                             mazeConstraints.GO_STRAIGHT_LOW_SPEED
                         )
@@ -1903,6 +1904,7 @@ def moveTile(
         if (
             min(roll, 360 - roll) < mazeConstraints.RAMP_DEG_THRESHOLD
         ):  # 坂道でない場合のみ被災者検知を行う
+            _useBackwardMove = not ( targetSteps > 1 and roll < 180)  # 坂道で上り坂の場合は後退移動を使用しない
             victimRescueFlag = findVictimDuringMove(
                 mapInstance,
                 stmInstance,
@@ -1910,7 +1912,8 @@ def moveTile(
                 consequentSearchRes,
                 getVictimDict,
                 practicalMoveTime,
-                detectedVictimDuringMove
+                detectedVictimDuringMove,
+                useBackwardMove=_useBackwardMove
             )
         else:
             ######## 坂道上の被災者検知 ######
