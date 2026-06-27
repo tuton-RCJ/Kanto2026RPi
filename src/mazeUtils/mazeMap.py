@@ -444,7 +444,7 @@ class mazeMap:
             self.saveCache()
 
     def existsLayerWithinAltitude(
-        self, altitude: float, tolerance: float = 7.0
+        self, altitude: float, tolerance: float = 7.4
     ) -> int | None:
         """
         @brief 指定した高度に近いレイヤーが存在するか確認する

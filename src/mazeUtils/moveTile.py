@@ -1820,12 +1820,15 @@ def moveTile(
             < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM
             and not isBigRamp
         ):
-            # 坂でなく、前方の壁までの距離が小さくなったときは止める。
-            stmInstance.sts3032.stop()
-            debugTimingPrint(
-                "moveTile finished by front distance control", timing_start
-            )
-            break
+            stmInstance.frontTSD10.update()
+            if ((stmInstance.tof.getDistance()[0] - stmInstance.frontTSD10.get_distance() /10 ) < 12):
+                # 前方に坂がないときで
+                # 前方の壁までの距離が小さくなったときは止める。
+                stmInstance.sts3032.stop()
+                debugTimingPrint(
+                    "moveTile finished by front distance control", timing_start
+                )
+                break
 
         ### 坂道で前方の壁を検知したら、引き返す処理
         if mazeConstraints.TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP and isBigRamp:
