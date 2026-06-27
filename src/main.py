@@ -1,98 +1,204 @@
+from config import setup_logging, get_logger
 from mazeUtils import mazeMap
 from mazeUtils import moveTile
 from mazeUtils.device import stm
 from mazeUtils.device import LiDAR
+from mazeUtils.device import buzzerSongs
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
 from mazeUtils.device import deviceEnums
 import ydlidar
 import time
 
+# ロギング設定
+setup_logging()
+logger = get_logger(__name__)
+
+
+def _detect_and_wait_for_lop(stmInstance) -> bool:
+    """
+    @brief LoPを検出して、再開するまで待機する
+    @param stmInstance: STMのインスタンス
+    @return LoPが発生した場合は再開するまで待機してからTrueを返す。そうでない場合はFalseを返す。
+    """
+    toggleswitchFlag = False
+    stmInstance.update()
+    while stmInstance.switch.getToggleSwitch1():
+        # 進行停止中の待機
+        stmInstance.update()
+        toggleswitchFlag = True
+    return toggleswitchFlag
+
+
+def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
+    nowAngle = stmInstance.gyro.getValue().heading
+    nowDirection = mazeEnums.absDirection.NORTH
+    error = 1e9
+    for direction in mazeEnums.absDirection:
+        diff = abs(nowAngle - direction.value)
+        if diff > 180:
+            diff = 360 - diff
+        if diff < error:
+            error = diff
+            nowDirection = direction
+
+    mapInstance.loadCache(nowDirection=nowDirection)
+    time.sleep(1)
+    stmInstance.update()
+    moveTile.turnOffLED(stmInstance)
+
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
-    lidarInstance = LiDAR.initializeLidar()    
+    stmInstance.rearSTM.camled((255, 255, 255))
+    lidarInstance = LiDAR.initializeLidar()
+    stmInstance.rearSTM.playMusic(buzzerSongs.start)
     stmInstance.update()
     while stmInstance.switch.getToggleSwitch1():
-        stmInstance.update()    
+        stmInstance.update()
     stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
-    time.sleep(1) 
+    gameStartTime = time.time()
+    time.sleep(1)
+    mapBroken = False
     try:
         while True:
             stmInstance.update()
-            moveTile.detectWall(lidarInstance, mapInstance)
-            tileType = moveTile.detectTileColor()
-            mapInstance.setTileType(tileType)
-            moveTile.rescueVictim(mapInstance, stmInstance)
+            moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
+            logger.info("Initial Map:")
+            logger.info(mapInstance.renderKnownTileAndWall())
+            if not mapBroken:
+                mapInstance.saveCache()
+            mapBroken = False
 
-            print("Initial Map:")
-            print(mapInstance.renderKnownTileAndWall())
-            
             nextDirection = mapInstance.getNearestUnexploredTile()
-            print(f"Next Direction: {nextDirection}")
-            
+            logger.info(f"Next Direction: {nextDirection}")
+            logger.info("Exploration started.")
+            isLoP = False
+            while nextDirection is not None and not isLoP:
 
-            print("Exploration started.")
-            stopped = False
-            while nextDirection is not None or stopped:
-                nextDirection = mapInstance.getNearestUnexploredTile()
-                for direction in nextDirection:
-                    isBlack, stopped = moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                    print(mapInstance.renderKnownTileAndWall())
-                    toggleswitchFlag = False
-                    stmInstance.update()
-
-                    if stmInstance.switch.getToggleSwitch1():
-                        print("Exploration paused. Toggle switch 1 to resume.")
-
-                    while stmInstance.switch.getToggleSwitch1():
-                        stmInstance.update()
-                        toggleswitchFlag = True
-                    
-                    if toggleswitchFlag:
-                        print("Exploration resumed.")
-                        toggleswitchFlag = False
-                        nowAngle = stmInstance.gyro.getValue().heading
-                        nowDirection = None
-                        error = 1e9
-                        for direction in mazeEnums.absDirection:
-                            diff = abs(nowAngle - direction.value)
-                            if diff > 180:
-                                diff = 360 - diff
-                            if diff < error:
-                                error = diff
-                                nowDirection = direction
-                        mapInstance.loadCache(nowDirection=nowDirection)
-                        mapInstance.renderKnownTileAndWall()
-                        time.sleep(1)  # Allow time for stabilization after resuming
-                        stmInstance.update()
-                        moveTile.detectWall(lidarInstance, mapInstance)
-                        tileType = moveTile.detectTileColor()
-                        mapInstance.setTileType(tileType)
-                        moveTile.rescueVictim(mapInstance, stmInstance)
+                if (
+                    mazeConstraints.RETURN_JUDGE_MODE
+                    == mazeEnums.returnJudgeMode.ONLY_TIME_BASED
+                ):
+                    if time.time() - gameStartTime > mazeConstraints.RETURN_TIME_THRESHOLD_SEC:
+                        logger.info("Time's up! Starting return to the starting point.")
                         break
-                    moveTile.flashLED(stmInstance, loopCount=1, intervalSec=0, color=[0,0,0]) 
+                if (mazeConstraints.RETURN_JUDGE_MODE
+                    == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
+                    _costToStart = mapInstance.getCostToStartTile()
+                    if _costToStart >= 0:
+                        estReturnTime = time.time() + _costToStart
+                        if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
+                            logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
+                            break
 
-                nextDirection = mapInstance.getNearestUnexploredTile()
+                # nextDirection = mapInstance.getNearestUnexploredTile()
+
+                if nextDirection is None:
+                    continue
+                for direction in nextDirection:
+                    before_movement_pos = mapInstance.currentPosition
+                    isBlack, stopped, resetMapData = moveTile.moveNextTile(
+                        direction, mapInstance, stmInstance, lidarInstance
+                    )
+                    if resetMapData:
+                        logger.warning("Map data reset due to wall detection error.")
+                        break
+                    logger.info(mapInstance.renderKnownTileAndWall())
+
+                    if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                        logger.info("Exploration resumed.")
+
+                        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+                        isLoP = True
+                        break
+                    if before_movement_pos == mapInstance.currentPosition:
+                        logger.warning("Position did not change after movement. Possible error in movement or wall detection.")
+                        break
+                    # moveTile.turnOffLED(stmInstance)
                     
-            returnPath = mapInstance.getPathTo((20, 20))
-            print(f"Return Path: {returnPath}")
-            
+                # 周囲にU字型の未探索タイルがある場合、優先的にU字型のタイルに進む
+                detectedUshapedTile = False
+                if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE:
+                    for direction in mazeEnums.absDirection:
+                        next_tile = mapInstance.getTileType(direction)
+                        if next_tile is None:
+                            continue
+                        pts = LiDAR.getLiDARScan(lidarInstance)
+                        isUshaped = LiDAR.detectUshapedTile_ROI(direction.value, pts)
+                        if next_tile == mazeEnums.tileType.UNKNOWN and isUshaped:
+                            logger.info(f"U-shaped unexplored tile detected in direction {direction}. Prioritizing this tile.")
+                            nextDirection = [mazeEnums.absDirection((direction.value + mapInstance.frontDirection.value) % 360)]
+                            detectedUshapedTile = True
+                            break
+                if not detectedUshapedTile:
+                    nextDirection = mapInstance.getNearestUnexploredTile()
+            if isLoP:
+                isLoP = False
+                continue
+
+            ##### 帰還開始 #####
+
+            stmInstance.rearSTM.playMusic(buzzerSongs.hotaru)
+            returnPath = mapInstance.getPathTo((20, 20, 0))
+            logger.info(f"Return Path: {returnPath}")
+
+            isLop = False
             if returnPath:
                 for direction in returnPath:
-                    moveTile.moveNextTile(direction, mapInstance, stmInstance, lidarInstance)
-                    print(mapInstance.renderKnownTileAndWall())
-            print("Robot now at the starting position, Congratulations!")
-            moveTile.flashLED(stmInstance, loopCount=5, intervalSec=1, color=[255,255,255])  # Flash white LED to indicate completion
-            LiDAR.liDARShutdown(lidarInstance)
+                    isBlack, stopped, resetMapData = moveTile.moveNextTile(
+                        direction, mapInstance, stmInstance, lidarInstance
+                    )
+
+                    if resetMapData:
+                        logger.warning("Map data reset due to wall detection error.")
+                        mapBroken = True
+                        isLop = True
+                        break
+
+                    if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                        logger.info("Exploration resumed.")
+                        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+                        isLop = True
+                        break
+
+                    logger.info(mapInstance.renderKnownTileAndWall())
+            if isLop:
+                continue
+
+            logger.info("Robot now at the starting position, Congratulations!")
+            stmInstance.rearSTM.playMusic(buzzerSongs.matuken)
+            moveTile.flashLED(
+                stmInstance,
+                mapInstance,
+                loopCount=5,
+                intervalSec=1,
+                color=(255, 255, 255),
+            )  # Flash white LED to indicate completion
             stmInstance.sts3032.stop()
-            print(mapInstance.renderKnownTileAndWall())
-            exit(0)
-    except:
-        import traceback
-        traceback.print_exc()
+            logger.info(mapInstance.renderKnownTileAndWall())
+
+            ### LoP検出後の再開処理
+            while not stmInstance.switch.getToggleSwitch1():
+                stmInstance.update()
+            logger.warning("detect LoP. back to last check point.")
+
+            if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                logger.info("Exploration resumed.")
+                _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+            continue
+
+    except KeyboardInterrupt:
+        logger.info("Program interrupted by user.")
+        raise
+    except Exception:
+        logger.exception("An unexpected error occurred:")
+    finally:
         LiDAR.liDARShutdown(lidarInstance)
-        stmInstance.sts3032.stop()               
+        stmInstance.sts3032.stop()
+        moveTile.turnOffLED(stmInstance)
+
+
 if __name__ == "__main__":
     main()

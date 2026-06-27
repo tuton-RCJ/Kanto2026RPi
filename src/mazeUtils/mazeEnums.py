@@ -47,6 +47,8 @@ class absDirection(Enum):
             return absDirection.NORTH
         elif self == absDirection.WEST:
             return absDirection.EAST
+        else:
+            raise ValueError("Invalid absDirection: {}".format(self))
         
 class wallType(Enum):
     UNKNOWN = 0
@@ -58,6 +60,7 @@ class wallType(Enum):
     G_VICTIM = 6
     Y_VICTIM = 7
     R_VICTIM = 8
+    OBSTACLE_WALL = 9
 
 class tileType(Enum):
     UNKNOWN = "U"
@@ -83,3 +86,14 @@ class moveMethod(Enum):
     SEE_CORNER = 0
     SEE_FRONT = 1
 
+class returnJudgeMode(Enum):
+    ONLY_TIME_BASED = 0 # 制限時間のみで帰還開始を判断する
+    ALL_TILES_EXPLORED = 1 # 全てのタイルが探索されたら帰還開始
+    TIME_BASED_WITH_DISTANCE = 2 # スタートタイルに帰還するのにかかる時間が制限時間を超えると判断したら帰還開始
+
+directionToDelta = {
+    absDirection.NORTH: (0, -1),
+    absDirection.EAST: (1, 0),
+    absDirection.SOUTH: (0, 1),
+    absDirection.WEST: (-1, 0)
+}

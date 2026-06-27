@@ -1,0 +1,34 @@
+2026-06-25 18:38:58,525 - root - [logging_config.py:61] - INFO - Logging initialized. Log file: /home/tuton/Kanto2026RPi/src/config/../logs/robot_20260625_183856.log
+2026-06-25 18:39:00,521 - mazeUtils.device.LiDAR - [LiDAR.py:38] - INFO - Available ports: <ydlidar.Str2strMap; proxy of <Swig Object of type 'std::map< std::string,std::string > *' at 0x7f7d9f10e0> >
+2026-06-25 18:39:04,481 - mazeUtils.moveTile - [moveTile.py:547] - DEBUG - overwrite the wall data
+2026-06-25 18:39:04,514 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 133.98568790761482 cm
+2026-06-25 18:39:04,617 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 67.32472935542553 cm
+2026-06-25 18:39:04,718 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 49.598121439151086 cm
+2026-06-25 18:39:04,823 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.858777690547395 cm
+2026-06-25 18:39:04,885 - __main__ - [main.py:68] - INFO - Initial Map:
+2026-06-25 18:39:04,930 - __main__ - [main.py:69] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @  
++   +
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: (21, 20, 0, 30), absDirection.SOUTH: (20, 21, 0, 30), absDirection.WEST: None}
+2026-06-25 18:39:05,900 - __main__ - [main.py:173] - ERROR - An unexpected error occurred:
+Traceback (most recent call last):
+  File "/home/tuton/Kanto2026RPi/./src/main.py", line 72, in main
+    nextDirection = mapInstance.getNearestUnexploredTile()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tuton/Kanto2026RPi/src/mazeUtils/mazeMap.py", line 705, in getNearestUnexploredTile
+    check_direction = mazeEnums.absDirection(
+                      ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/enum.py", line 717, in __call__
+    return cls.__new__(cls, value)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/enum.py", line 1133, in __new__
+    raise ve_exc
+ValueError: -90 is not a valid absDirection
+2026-06-25 18:39:07,030 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f935f6e90>
+2026-06-25 18:39:07,046 - picamera2.picamera2 - [picamera2.py:1323] - INFO - Camera stopped
+2026-06-25 18:39:07,047 - picamera2.picamera2 - [picamera2.py:1329] - DEBUG - Camera was not started
+2026-06-25 18:39:07,248 - picamera2.picamera2 - [picamera2.py:723] - INFO - Camera closed successfully.
+2026-06-25 18:39:07,378 - picamera2.picamera2 - [picamera2.py:500] - DEBUG - Resources now free: <picamera2.picamera2.Picamera2 object at 0x7f84a8ae10>

@@ -1,5 +1,8 @@
 import serial
 import time
+from config import get_logger
+
+logger = get_logger(__name__)
 
 
 class ColorSensor:
@@ -13,19 +16,23 @@ class ColorSensor:
         setLEDColor(r: int, g: int, b: int) -> bool:
             LEDの色を設定する
     """
+
     def __init__(self, port: str = "/dev/ttyAMA5"):
         self.port = port
 
         self._serial = serial.Serial(port=self.port, baudrate=115200)
 
         self._colorRGB = (0, 0, 0)
+        self._reflectance = (0, 0)
         self._seq: int = 0
-        self._timeout = 0.5
+        self._timeout = 0.05
 
     def update(self) -> bool:
+        # return True
         data = self._requestSensorValues()
         if data is not None:
             self._colorRGB = (data[0], data[1], data[2])
+            self._reflectance = (data[3], data[4])
             return True
         else:
             return False
@@ -40,23 +47,24 @@ class ColorSensor:
 
         # レスポンス待機
         start_time = time.time()
-        while self._serial.in_waiting < 6:
+        while self._serial.in_waiting < 8:
             if time.time() - start_time > self._timeout:
-                print("STM UART timeout")
+                logger.warning("STM UART timeout")
                 return None
 
-        data: bytes = self._serial.read(6)
-        for i in range(6):
-            #print(f"data[{i}]: {data[i]}")
+        data: bytes = self._serial.read(8)
+        for i in range(8):
+            # print(f"data[{i}]: {data[i]}")
             pass
         # データのチェック
         if data[0] == 0x00 and data[1] == self._seq:
             checkDigit = 0
-            for b in data[0:5]:
+            for b in data[0:7]:
                 checkDigit ^= b
-            if checkDigit == data[5]:
-                return data[2:5]
-        print("STM UART data error")
+            if checkDigit == data[7]:
+                return data[2:7]
+        logger.warning("STM UART data error")
+        logger.warning(f"data: {[b for b in data]}")
         return None
 
     def setLEDColor(self, r: int, g: int, b: int):
@@ -76,7 +84,7 @@ class ColorSensor:
         start_time = time.time()
         while self._serial.in_waiting < 3:
             if time.time() - start_time > self._timeout:
-                print("STM UART timeout")
+                logger.warning("STM UART timeout")
                 return False
 
         response: bytes = self._serial.read(3)
@@ -86,7 +94,7 @@ class ColorSensor:
             checkDigit = 0x01 ^ self._seq
             if checkDigit == response[2]:
                 return True
-        print("STM UART response error")
+        logger.warning("STM UART response error")
         return False
 
     def _updateSeq(self):
@@ -94,5 +102,3 @@ class ColorSensor:
         if self._seq > 255:
             self._seq = 0
         return self._seq
-
-            

@@ -27,15 +27,26 @@ class ActuatorControlType(Enum):
     RESCUE_KIT = bytes([2])
     LED = bytes([3])
     BUZZER = bytes([4])
-
+    CAMLED = bytes([5])
+    UNITV_45_MODE = bytes([6])
     def dataLength(self):
         if self == ActuatorControlType.STS_MOTOR:
             return 2
         elif self == ActuatorControlType.RESCUE_KIT:
             return 2
-        elif self == ActuatorControlType.LED:
+        elif self == ActuatorControlType.LED or self == ActuatorControlType.CAMLED:
             return 3
         elif self == ActuatorControlType.BUZZER:
             # 可変長: 音符数(1byte) + 各音符(周波数2byte, 長さ2byte) * N
             return -1
+        elif self == ActuatorControlType.UNITV_45_MODE:
+            return 1
         return -1
+
+
+class judgeWallResult(Enum):
+    NO_WALL = 0
+    WALL = 1
+    CENTER_OBSTACLE = 2
+    LEFT_OBSTACLE = 3
+    RIGHT_OBSTACLE = 4

@@ -1,0 +1,507 @@
+2026-06-26 00:23:35,179 - root - [logging_config.py:61] - INFO - Logging initialized. Log file: /home/tuton/Kanto2026RPi/src/config/../logs/robot_20260626_002330.log
+2026-06-26 00:23:37,142 - mazeUtils.device.LiDAR - [LiDAR.py:78] - INFO - Available ports: <ydlidar.Str2strMap; proxy of <Swig Object of type 'std::map< std::string,std::string > *' at 0x7f8056d950> >
+2026-06-26 00:23:41,138 - mazeUtils.moveTile - [moveTile.py:547] - DEBUG - overwrite the wall data
+2026-06-26 00:23:41,169 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.275263940944 cm
+2026-06-26 00:23:41,171 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.27663880313994 cm
+2026-06-26 00:23:41,173 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.824139478888853 cm
+2026-06-26 00:23:41,175 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.774029584112032 cm
+2026-06-26 00:23:41,176 - __main__ - [main.py:68] - INFO - Initial Map:
+2026-06-26 00:23:41,223 - __main__ - [main.py:69] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:42,269 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:42,271 - __main__ - [main.py:73] - INFO - Next Direction: [<absDirection.NORTH: 0>]
+2026-06-26 00:23:42,273 - __main__ - [main.py:74] - INFO - Exploration started.
+2026-06-26 00:23:42,274 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:42,276 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2838.256656] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:42,282 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.262932] moveTile after initial toggle check (+6.3 ms)
+2026-06-26 00:23:42,285 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.266054] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+3.1 ms)
+2026-06-26 00:23:42,286 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:42,286 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.267212] moveTile start heading change target=0 (+1.2 ms)
+2026-06-26 00:23:42,310 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.060000000000002274 target: 0
+2026-06-26 00:23:42,332 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.060000000000002274, diff: 0.060000000000002274
+2026-06-26 00:23:42,382 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.060000000000002274 deg
+2026-06-26 00:23:42,383 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.364408] moveTile finished heading change (+97.2 ms)
+2026-06-26 00:23:42,384 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.365095] moveTile updated front direction (+0.7 ms)
+2026-06-26 00:23:42,405 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.385463] moveTile stopped motors before alignment (+20.4 ms)
+2026-06-26 00:23:42,560 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 134.9566181664347 cm
+2026-06-26 00:23:42,563 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.17847571033412 cm
+2026-06-26 00:23:42,565 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.759165857691407 cm
+2026-06-26 00:23:42,568 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.636502799343802 cm
+2026-06-26 00:23:42,639 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:42,652 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:42,653 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:42,654 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2838.635320] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:42,661 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.641478] moveTile after initial toggle check (+6.2 ms)
+2026-06-26 00:23:42,664 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.644854] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+3.4 ms)
+2026-06-26 00:23:42,665 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:42,666 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.646577] moveTile start heading change target=0 (+1.7 ms)
+2026-06-26 00:23:42,691 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.12 target: 0
+2026-06-26 00:23:42,713 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.12, diff: 0.8799999999999955
+2026-06-26 00:23:42,761 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.13 deg
+2026-06-26 00:23:42,762 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.742888] moveTile finished heading change (+96.3 ms)
+2026-06-26 00:23:42,763 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.743826] moveTile updated front direction (+0.9 ms)
+2026-06-26 00:23:42,784 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2838.764525] moveTile stopped motors before alignment (+20.7 ms)
+2026-06-26 00:23:42,944 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 144.8023788605007 cm
+2026-06-26 00:23:42,947 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.32969120297748 cm
+2026-06-26 00:23:42,949 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.75916585769141 cm
+2026-06-26 00:23:42,953 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.790701790117343 cm
+2026-06-26 00:23:43,024 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:43,033 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:43,035 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:43,036 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2839.017105] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:43,041 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.021856] moveTile after initial toggle check (+4.8 ms)
+2026-06-26 00:23:43,044 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.024482] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.6 ms)
+2026-06-26 00:23:43,044 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:43,045 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.025744] moveTile start heading change target=0 (+1.3 ms)
+2026-06-26 00:23:43,077 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.69 target: 0
+2026-06-26 00:23:43,101 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.69, diff: 0.3100000000000023
+2026-06-26 00:23:43,145 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.72 deg
+2026-06-26 00:23:43,145 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.126378] moveTile finished heading change (+100.6 ms)
+2026-06-26 00:23:43,146 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.126853] moveTile updated front direction (+0.5 ms)
+2026-06-26 00:23:43,165 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.146444] moveTile stopped motors before alignment (+19.6 ms)
+2026-06-26 00:23:43,328 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.35924483880535 cm
+2026-06-26 00:23:43,329 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.369557653723138 cm
+2026-06-26 00:23:43,331 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.785825211416107 cm
+2026-06-26 00:23:43,333 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.608514514510176 cm
+2026-06-26 00:23:43,403 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:43,410 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:43,411 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:43,412 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2839.393353] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:43,421 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.401473] moveTile after initial toggle check (+8.1 ms)
+2026-06-26 00:23:43,423 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.403785] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.3 ms)
+2026-06-26 00:23:43,424 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:43,424 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.404992] moveTile start heading change target=0 (+1.2 ms)
+2026-06-26 00:23:43,448 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.5100000000000051 target: 0
+2026-06-26 00:23:43,468 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.5100000000000051, diff: 0.5100000000000051
+2026-06-26 00:23:43,519 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.519999999999996 deg
+2026-06-26 00:23:43,519 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.500226] moveTile finished heading change (+95.2 ms)
+2026-06-26 00:23:43,519 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.500494] moveTile updated front direction (+0.3 ms)
+2026-06-26 00:23:43,540 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.521317] moveTile stopped motors before alignment (+20.8 ms)
+2026-06-26 00:23:43,711 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 131.87359422071316 cm
+2026-06-26 00:23:43,712 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.234135677713642 cm
+2026-06-26 00:23:43,712 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.57551959653115 cm
+2026-06-26 00:23:43,713 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.530694079267615 cm
+2026-06-26 00:23:43,752 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:43,756 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:43,757 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:43,757 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2839.738340] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:43,768 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.748676] moveTile after initial toggle check (+10.3 ms)
+2026-06-26 00:23:43,769 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.750459] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+1.8 ms)
+2026-06-26 00:23:43,770 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:43,770 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.750872] moveTile start heading change target=0 (+0.4 ms)
+2026-06-26 00:23:43,797 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.10999999999999943 target: 0
+2026-06-26 00:23:43,816 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.10999999999999943, diff: 0.10999999999999943
+2026-06-26 00:23:43,861 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.09999999999999432 deg
+2026-06-26 00:23:43,862 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.843051] moveTile finished heading change (+92.2 ms)
+2026-06-26 00:23:43,863 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.843824] moveTile updated front direction (+0.8 ms)
+2026-06-26 00:23:43,884 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2839.864690] moveTile stopped motors before alignment (+20.9 ms)
+2026-06-26 00:23:44,048 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.47279859487743 cm
+2026-06-26 00:23:44,049 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 16.980175209829937 cm
+2026-06-26 00:23:44,052 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.628509212474697 cm
+2026-06-26 00:23:44,054 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.4598068292871 cm
+2026-06-26 00:23:44,124 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:44,133 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:44,135 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:44,135 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2840.116483] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:44,142 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.122596] moveTile after initial toggle check (+6.1 ms)
+2026-06-26 00:23:44,146 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.127412] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+4.8 ms)
+2026-06-26 00:23:44,147 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:44,148 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.128707] moveTile start heading change target=0 (+1.3 ms)
+2026-06-26 00:23:44,172 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.31 target: 0
+2026-06-26 00:23:44,194 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.31, diff: 0.6899999999999977
+2026-06-26 00:23:44,242 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.28999999999996 deg
+2026-06-26 00:23:44,243 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.224076] moveTile finished heading change (+95.4 ms)
+2026-06-26 00:23:44,244 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.224673] moveTile updated front direction (+0.6 ms)
+2026-06-26 00:23:44,265 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.246394] moveTile stopped motors before alignment (+21.7 ms)
+2026-06-26 00:23:44,417 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 104.88203320928704 cm
+2026-06-26 00:23:44,419 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.17847571033412 cm
+2026-06-26 00:23:44,421 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.68908723222403 cm
+2026-06-26 00:23:44,423 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.608514514510176 cm
+2026-06-26 00:23:44,494 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:44,501 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:44,502 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:44,503 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2840.483501] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:44,509 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.489738] moveTile after initial toggle check (+6.2 ms)
+2026-06-26 00:23:44,511 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.492283] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.5 ms)
+2026-06-26 00:23:44,512 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:44,513 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.493516] moveTile start heading change target=0 (+1.2 ms)
+2026-06-26 00:23:44,544 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.95 target: 0
+2026-06-26 00:23:44,568 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.95, diff: 0.05000000000001137
+2026-06-26 00:23:44,618 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.01999999999999602 deg
+2026-06-26 00:23:44,619 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.599588] moveTile finished heading change (+106.1 ms)
+2026-06-26 00:23:44,619 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.600342] moveTile updated front direction (+0.8 ms)
+2026-06-26 00:23:44,640 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.621193] moveTile stopped motors before alignment (+20.9 ms)
+2026-06-26 00:23:44,800 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 132.10788369642856 cm
+2026-06-26 00:23:44,801 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.193480813359802 cm
+2026-06-26 00:23:44,803 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.589499025804468 cm
+2026-06-26 00:23:44,806 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.592057289457983 cm
+2026-06-26 00:23:44,881 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:44,887 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:44,888 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:44,890 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2840.870616] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:44,896 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.876962] moveTile after initial toggle check (+6.3 ms)
+2026-06-26 00:23:44,899 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.880043] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+3.1 ms)
+2026-06-26 00:23:44,900 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:44,901 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.881868] moveTile start heading change target=0 (+1.8 ms)
+2026-06-26 00:23:44,926 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.7999999999999972 target: 0
+2026-06-26 00:23:44,946 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.7999999999999972, diff: 0.7999999999999972
+2026-06-26 00:23:44,995 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.789999999999992 deg
+2026-06-26 00:23:44,996 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.976712] moveTile finished heading change (+94.8 ms)
+2026-06-26 00:23:44,996 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.977265] moveTile updated front direction (+0.6 ms)
+2026-06-26 00:23:45,017 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2840.997586] moveTile stopped motors before alignment (+20.3 ms)
+2026-06-26 00:23:45,183 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 132.37085516839727 cm
+2026-06-26 00:23:45,184 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.230664018346033 cm
+2026-06-26 00:23:45,186 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.636502799343802 cm
+2026-06-26 00:23:45,187 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.47626460274071 cm
+2026-06-26 00:23:45,259 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:45,267 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:45,269 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:45,271 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2841.251582] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:45,278 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.258884] moveTile after initial toggle check (+7.3 ms)
+2026-06-26 00:23:45,280 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.261173] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.3 ms)
+2026-06-26 00:23:45,281 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:45,281 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.262197] moveTile start heading change target=0 (+1.0 ms)
+2026-06-26 00:23:45,314 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.2600000000000051 target: 0
+2026-06-26 00:23:45,338 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.2600000000000051, diff: 0.2600000000000051
+2026-06-26 00:23:45,384 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.14000000000000057 deg
+2026-06-26 00:23:45,384 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.365332] moveTile finished heading change (+103.1 ms)
+2026-06-26 00:23:45,385 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.365937] moveTile updated front direction (+0.6 ms)
+2026-06-26 00:23:45,407 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.387565] moveTile stopped motors before alignment (+21.6 ms)
+2026-06-26 00:23:45,567 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 125.25932130812437 cm
+2026-06-26 00:23:45,568 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.019334360787703 cm
+2026-06-26 00:23:45,570 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.59316336845191 cm
+2026-06-26 00:23:45,571 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.759075283284076 cm
+2026-06-26 00:23:45,643 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:45,653 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:45,654 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:45,654 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2841.635457] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:45,659 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.639957] moveTile after initial toggle check (+4.5 ms)
+2026-06-26 00:23:45,663 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.643501] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+3.5 ms)
+2026-06-26 00:23:45,663 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:45,664 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.644844] moveTile start heading change target=0 (+1.3 ms)
+2026-06-26 00:23:45,691 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.77 target: 0
+2026-06-26 00:23:45,712 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.77, diff: 0.2300000000000182
+2026-06-26 00:23:45,761 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.74 deg
+2026-06-26 00:23:45,762 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.742817] moveTile finished heading change (+98.0 ms)
+2026-06-26 00:23:45,762 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.743282] moveTile updated front direction (+0.5 ms)
+2026-06-26 00:23:45,783 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2841.763695] moveTile stopped motors before alignment (+20.4 ms)
+2026-06-26 00:23:45,935 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.57157345730816 cm
+2026-06-26 00:23:45,938 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.369557653723138 cm
+2026-06-26 00:23:45,941 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.71051605785796 cm
+2026-06-26 00:23:45,944 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.73552998397525 cm
+2026-06-26 00:23:46,017 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:46,028 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:46,030 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:46,032 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2842.012569] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:46,039 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.019945] moveTile after initial toggle check (+7.4 ms)
+2026-06-26 00:23:46,043 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.024286] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+4.3 ms)
+2026-06-26 00:23:46,044 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:46,045 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.025673] moveTile start heading change target=0 (+1.4 ms)
+2026-06-26 00:23:46,070 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.83 target: 0
+2026-06-26 00:23:46,094 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.83, diff: 0.17000000000001592
+2026-06-26 00:23:46,142 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.83 deg
+2026-06-26 00:23:46,143 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.123976] moveTile finished heading change (+98.3 ms)
+2026-06-26 00:23:46,145 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.126054] moveTile updated front direction (+2.1 ms)
+2026-06-26 00:23:46,165 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.146155] moveTile stopped motors before alignment (+20.1 ms)
+2026-06-26 00:23:46,319 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 104.19265576059948 cm
+2026-06-26 00:23:46,321 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.32969120297748 cm
+2026-06-26 00:23:46,323 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.824139478888853 cm
+2026-06-26 00:23:46,326 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.741731801207536 cm
+2026-06-26 00:23:46,394 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:46,402 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:46,403 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:46,404 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2842.385325] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:46,416 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.396887] moveTile after initial toggle check (+11.6 ms)
+2026-06-26 00:23:46,418 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.399180] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.3 ms)
+2026-06-26 00:23:46,419 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:46,419 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.400305] moveTile start heading change target=0 (+1.1 ms)
+2026-06-26 00:23:46,446 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.7999999999999972 target: 0
+2026-06-26 00:23:46,469 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.7999999999999972, diff: 0.7999999999999972
+2026-06-26 00:23:46,514 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.789999999999992 deg
+2026-06-26 00:23:46,516 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.496489] moveTile finished heading change (+96.2 ms)
+2026-06-26 00:23:46,516 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.497053] moveTile updated front direction (+0.6 ms)
+2026-06-26 00:23:46,536 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.517069] moveTile stopped motors before alignment (+20.0 ms)
+2026-06-26 00:23:46,703 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 132.66921477204772 cm
+2026-06-26 00:23:46,705 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.213485607334636 cm
+2026-06-26 00:23:46,706 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.980175209829937 cm
+2026-06-26 00:23:46,708 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.790701790117343 cm
+2026-06-26 00:23:46,774 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:46,785 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:46,786 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:46,787 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2842.768089] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:46,793 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.773899] moveTile after initial toggle check (+5.8 ms)
+2026-06-26 00:23:46,795 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.776255] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.4 ms)
+2026-06-26 00:23:46,796 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:46,796 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.777355] moveTile start heading change target=0 (+1.1 ms)
+2026-06-26 00:23:46,821 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.8 target: 0
+2026-06-26 00:23:46,843 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.8, diff: 0.19999999999998863
+2026-06-26 00:23:46,888 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.8 deg
+2026-06-26 00:23:46,889 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.869942] moveTile finished heading change (+92.6 ms)
+2026-06-26 00:23:46,889 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.870384] moveTile updated front direction (+0.4 ms)
+2026-06-26 00:23:46,910 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2842.891054] moveTile stopped motors before alignment (+20.7 ms)
+2026-06-26 00:23:47,070 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.21206574256988 cm
+2026-06-26 00:23:47,072 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.230664018346033 cm
+2026-06-26 00:23:47,073 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.91820621520665 cm
+2026-06-26 00:23:47,075 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.661728479520203 cm
+2026-06-26 00:23:47,129 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:47,137 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:47,138 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:47,138 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2843.119202] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:47,144 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.125336] moveTile after initial toggle check (+6.1 ms)
+2026-06-26 00:23:47,146 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.127214] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+1.9 ms)
+2026-06-26 00:23:47,147 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:47,147 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.127729] moveTile start heading change target=0 (+0.5 ms)
+2026-06-26 00:23:47,171 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.8599999999999994 target: 0
+2026-06-26 00:23:47,191 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.8599999999999994, diff: 0.8599999999999994
+2026-06-26 00:23:47,234 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.8599999999999994 deg
+2026-06-26 00:23:47,235 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.215963] moveTile finished heading change (+88.2 ms)
+2026-06-26 00:23:47,236 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.217041] moveTile updated front direction (+1.1 ms)
+2026-06-26 00:23:47,258 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.238559] moveTile stopped motors before alignment (+21.5 ms)
+2026-06-26 00:23:47,422 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 140.42648859096022 cm
+2026-06-26 00:23:47,423 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.32969120297748 cm
+2026-06-26 00:23:47,425 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.790701790117343 cm
+2026-06-26 00:23:47,427 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.759075283284076 cm
+2026-06-26 00:23:47,500 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:47,508 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:47,509 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:47,510 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2843.490905] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:47,516 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.496869] moveTile after initial toggle check (+6.0 ms)
+2026-06-26 00:23:47,519 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.500113] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+3.2 ms)
+2026-06-26 00:23:47,520 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:47,521 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.502026] moveTile start heading change target=0 (+1.9 ms)
+2026-06-26 00:23:47,554 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.0 target: 0
+2026-06-26 00:23:47,578 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.0, diff: 0.0
+2026-06-26 00:23:47,625 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.0799999999999983 deg
+2026-06-26 00:23:47,626 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.606960] moveTile finished heading change (+104.9 ms)
+2026-06-26 00:23:47,627 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.607551] moveTile updated front direction (+0.6 ms)
+2026-06-26 00:23:47,648 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.628989] moveTile stopped motors before alignment (+21.4 ms)
+2026-06-26 00:23:47,822 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.31021947384937 cm
+2026-06-26 00:23:47,824 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.374801895945758 cm
+2026-06-26 00:23:47,826 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.741731801207536 cm
+2026-06-26 00:23:47,828 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.790701790117343 cm
+2026-06-26 00:23:47,896 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:47,903 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:47,906 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:47,907 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2843.887846] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:47,915 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.895847] moveTile after initial toggle check (+8.0 ms)
+2026-06-26 00:23:47,917 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.898133] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.3 ms)
+2026-06-26 00:23:47,918 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:47,918 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.899116] moveTile start heading change target=0 (+1.0 ms)
+2026-06-26 00:23:47,944 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.8900000000000006 target: 0
+2026-06-26 00:23:47,965 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.8900000000000006, diff: 0.8900000000000006
+2026-06-26 00:23:48,014 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.8999999999999915 deg
+2026-06-26 00:23:48,014 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.995457] moveTile finished heading change (+96.3 ms)
+2026-06-26 00:23:48,015 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2843.996394] moveTile updated front direction (+0.9 ms)
+2026-06-26 00:23:48,035 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.015765] moveTile stopped motors before alignment (+19.4 ms)
+2026-06-26 00:23:48,190 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.45771659792231 cm
+2026-06-26 00:23:48,191 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.28454596041491 cm
+2026-06-26 00:23:48,193 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.691932579284625 cm
+2026-06-26 00:23:48,195 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.75916585769141 cm
+2026-06-26 00:23:48,265 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:48,274 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:48,275 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:48,276 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2844.256905] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:48,282 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.262650] moveTile after initial toggle check (+5.7 ms)
+2026-06-26 00:23:48,284 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.265073] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.4 ms)
+2026-06-26 00:23:48,285 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:48,285 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.266343] moveTile start heading change target=0 (+1.3 ms)
+2026-06-26 00:23:48,310 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.99 target: 0
+2026-06-26 00:23:48,335 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.99, diff: 0.009999999999990905
+2026-06-26 00:23:48,389 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.18999999999999773 deg
+2026-06-26 00:23:48,390 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.371108] moveTile finished heading change (+104.8 ms)
+2026-06-26 00:23:48,391 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.371958] moveTile updated front direction (+0.8 ms)
+2026-06-26 00:23:48,410 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.391090] moveTile stopped motors before alignment (+19.1 ms)
+2026-06-26 00:23:48,574 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 143.54946074374092 cm
+2026-06-26 00:23:48,576 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.28454596041491 cm
+2026-06-26 00:23:48,579 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.807109008958328 cm
+2026-06-26 00:23:48,580 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.661728479520203 cm
+2026-06-26 00:23:48,650 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:48,658 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:48,660 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:48,660 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2844.641458] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:48,672 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.653030] moveTile after initial toggle check (+11.6 ms)
+2026-06-26 00:23:48,674 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.655364] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.3 ms)
+2026-06-26 00:23:48,675 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:48,676 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.657184] moveTile start heading change target=0 (+1.8 ms)
+2026-06-26 00:23:48,706 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.75 target: 0
+2026-06-26 00:23:48,730 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.75, diff: 0.75
+2026-06-26 00:23:48,780 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.6799999999999926 deg
+2026-06-26 00:23:48,781 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.761651] moveTile finished heading change (+104.5 ms)
+2026-06-26 00:23:48,782 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.762643] moveTile updated front direction (+1.0 ms)
+2026-06-26 00:23:48,802 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2844.782593] moveTile stopped motors before alignment (+19.9 ms)
+2026-06-26 00:23:48,957 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 106.35924483880535 cm
+2026-06-26 00:23:48,959 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.113884775600784 cm
+2026-06-26 00:23:48,962 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.589499025804468 cm
+2026-06-26 00:23:48,964 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.64325065023197 cm
+2026-06-26 00:23:49,033 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:49,041 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:49,042 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:49,043 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2845.023683] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:49,050 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.030738] moveTile after initial toggle check (+7.1 ms)
+2026-06-26 00:23:49,052 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.033115] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+2.4 ms)
+2026-06-26 00:23:49,053 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:49,053 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.034315] moveTile start heading change target=0 (+1.2 ms)
+2026-06-26 00:23:49,085 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 0.23000000000000398 target: 0
+2026-06-26 00:23:49,110 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 0.23000000000000398, diff: 0.23000000000000398
+2026-06-26 00:23:49,156 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 0.37000000000000455 deg
+2026-06-26 00:23:49,157 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.138109] moveTile finished heading change (+103.8 ms)
+2026-06-26 00:23:49,158 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.139272] moveTile updated front direction (+1.2 ms)
+2026-06-26 00:23:49,179 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.159682] moveTile stopped motors before alignment (+20.4 ms)
+2026-06-26 00:23:49,357 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 132.47031342801404 cm
+2026-06-26 00:23:49,360 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.246350890084027 cm
+2026-06-26 00:23:49,361 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.741731801207536 cm
+2026-06-26 00:23:49,364 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.68908723222403 cm
+2026-06-26 00:23:49,432 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:49,441 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:49,443 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:49,444 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2845.424876] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:49,452 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.432687] moveTile after initial toggle check (+7.8 ms)
+2026-06-26 00:23:49,455 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.435736] moveTile after tile checks isRedTile=False isUnknownTileAhead=True (+3.0 ms)
+2026-06-26 00:23:49,456 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Moving to absDirection.NORTH from (20, 20, 0) facing absDirection.NORTH
+2026-06-26 00:23:49,456 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.437169] moveTile start heading change target=0 (+1.4 ms)
+2026-06-26 00:23:49,488 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - current heading: 359.34000000000003 target: 0
+2026-06-26 00:23:49,512 - mazeUtils.moveTile - [moveTile.py:433] - DEBUG - stopped turning at heading: 359.34000000000003, diff: 0.6599999999999682
+2026-06-26 00:23:49,558 - mazeUtils.moveTile - [moveTile.py:79] - DEBUG - Turned to heading: 359.37 deg
+2026-06-26 00:23:49,559 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.539624] moveTile finished heading change (+102.5 ms)
+2026-06-26 00:23:49,559 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.540254] moveTile updated front direction (+0.6 ms)
+2026-06-26 00:23:49,580 - mazeUtils.moveTile - [moveTile.py:90] - DEBUG - [2845.560909] moveTile stopped motors before alignment (+20.7 ms)
+2026-06-26 00:23:49,757 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.NORTH, Angle: 0, Distance: 105.3863504627796 cm
+2026-06-26 00:23:49,759 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.EAST, Angle: 270, Distance: 17.30468060002796 cm
+2026-06-26 00:23:49,761 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.SOUTH, Angle: 180, Distance: 16.59316336845191 cm
+2026-06-26 00:23:49,763 - mazeUtils.moveTile - [moveTile.py:561] - DEBUG - Direction: absDirection.WEST, Angle: 90, Distance: 16.741731801207536 cm
+2026-06-26 00:23:49,833 - __main__ - [main.py:105] - INFO - Current position: (20, 20, 0), front direction: absDirection.NORTH
+Layer 0 (altitude=0.0cm, offset=(0.0cm, 0.0cm)):
+Known map area: x=20..20, y=20..20
++   +
+| @ |
++---+
+mazeAsGraph[0][20][20] = {absDirection.NORTH: (20, 19, 0, 30), absDirection.EAST: None, absDirection.SOUTH: None, absDirection.WEST: None}
+2026-06-26 00:23:49,843 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 19, 0)
+2026-06-26 00:23:49,844 - mazeUtils.mazeMap - [mazeMap.py:61] - INFO - next goal: (20, 20, 0)
+2026-06-26 00:23:49,845 - mazeUtils.moveTile - [moveTile.py:88] - DEBUG - [2845.826042] moveTile start direction=absDirection.NORTH position=(20, 20, 0) front=absDirection.NORTH
+2026-06-26 00:23:49,850 - __main__ - [main.py:170] - INFO - Program interrupted by user.
+2026-06-26 00:23:50,906 - mazeUtils.device.stm - [stm.py:216] - DEBUG - ACK resynchronized: type=STS_MOTOR dropped=24B seq=246
+2026-06-26 00:23:50,933 - picamera2.picamera2 - [picamera2.py:1391] - DEBUG - Execute job: <picamera2.job.Job object at 0x7f8ee58dd0>
+2026-06-26 00:23:50,955 - picamera2.picamera2 - [picamera2.py:1323] - INFO - Camera stopped
+2026-06-26 00:23:51,157 - picamera2.picamera2 - [picamera2.py:1329] - DEBUG - Camera was not started
+2026-06-26 00:23:51,362 - picamera2.picamera2 - [picamera2.py:723] - INFO - Camera closed successfully.
+2026-06-26 00:23:51,924 - picamera2.picamera2 - [picamera2.py:500] - DEBUG - Resources now free: <picamera2.picamera2.Picamera2 object at 0x7f804b2ed0>

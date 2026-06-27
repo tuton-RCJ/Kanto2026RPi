@@ -1,13 +1,18 @@
 import cv2
 import numpy as np
+import os
 from picamera2 import Picamera2, Preview
 from libcamera import controls
 import time
 import threading
 import atexit
+from config import get_logger
+
+logger = get_logger(__name__)
 
 current_frame = None
 save_requested = False
+CAMERA_DISABLED = False  # カメラを無効化する場合はTrueに設定
 
 
 class CameraColorDetector:
@@ -17,24 +22,25 @@ class CameraColorDetector:
         self.picam2.start()
         self.picam2.set_controls({"AfMode": controls.AfModeEnum.Continuous})
         self._configure_camera()
-        print("--- 設定完了 ---")
+        logger.info("Camera configuration completed")
 
     @staticmethod
     def judge_color(image_bgr):
         # すでにBGRに変換された画像を受け取って判定する
         h, w, _ = image_bgr.shape
         roi_h, roi_w = int(h * 0.2), int(w * 0.2)
-        start_y, start_x = (h // 2) -40 - (roi_h // 2), (w // 2) - (roi_w // 2)
-        roi = image_bgr[start_y:start_y+roi_h, start_x:start_x+roi_w]
+        start_y, start_x = (h // 2) - 40 - (roi_h // 2), (w // 2) - (roi_w // 2)
+        roi = image_bgr[start_y : start_y + roi_h, start_x : start_x + roi_w]
 
         # BGRからHSVへ
         hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         avg_hsv = cv2.mean(hsv_roi)
         avg_h, avg_s, avg_v = avg_hsv[0], avg_hsv[1], avg_hsv[2]
-        #print(avg_h,avg_s,avg_v)
+        logger.debug(f"Average HSV: H={avg_h:.1f}, S={avg_s:.1f}, V={avg_v:.1f}")
         if avg_h < 120:
-            if avg_v < 200:  return "BLACK"
-        
+            if avg_v < 180:
+                return "BLACK"
+
         return "UNKNOWN"
 
     def _configure_camera(self):
@@ -42,34 +48,29 @@ class CameraColorDetector:
         props = self.picam2.capture_metadata()
 
         # 1. 露出とゲインの固定
-        exp = props.get('ExposureTime')
-        gain = props.get('AnalogueGain')
+        exp = props.get("ExposureTime")
+        gain = props.get("AnalogueGain")
 
         if exp and gain:
-            exp=30000
-            gain=1.0
-            self.picam2.set_controls({
-                "AeEnable": False,
-                "ExposureTime": exp,
-                "AnalogueGain": gain
-            })
-            print(f"露出固定: {exp}us, ゲイン: {gain}")
+            exp = 10000
+            gain = 1.0
+            self.picam2.set_controls(
+                {"AeEnable": False, "ExposureTime": exp, "AnalogueGain": gain}
+            )
+            logger.debug(f"Exposure locked: {exp}us, Gain: {gain}")
 
         # 2. ホワイトバランスの固定 (ColourGains または ColorGains) 104, 233, 171
         # libcameraでは 'ColourGains' (uあり) が一般的です
-        awb_gains = props.get('ColourGains') or props.get('ColorGains')
+        awb_gains = props.get("ColourGains") or props.get("ColorGains")
 
         if awb_gains:
-            awb_gains=(1.2,3.8)
-            self.picam2.set_controls({
-                "AwbEnable": False,
-                "ColourGains": awb_gains
-            })
-            print(f"ホワイトバランス固定: {awb_gains}")
+            awb_gains = (1.2, 3.8)
+            self.picam2.set_controls({"AwbEnable": False, "ColourGains": awb_gains})
+            logger.debug(f"White balance locked: {awb_gains}")
         else:
-            # 万が一メタデータから取れない場合は、現在のAwbModeを固定するだけでも効果があります
+            # 万が一つウィットアルゴリズムから取れない場合は、現在のAwbModeを固定するだけでも効果があります
             self.picam2.set_controls({"AwbMode": controls.AwbModeEnum.Disabled})
-            print("ホワイトバランスを現在の状態でロックしました（Disabled）")
+            logger.debug("White balance locked (Disabled mode)")
 
     def detectTileColor(self):
         frame_rgb = self.picam2.capture_array()
@@ -78,6 +79,17 @@ class CameraColorDetector:
 
     def stop(self):
         self.picam2.stop()
+
+
+class NullCameraDetector:
+    def __init__(self):
+        logger.warning("Camera disabled mode is active")
+
+    def detectTileColor(self):
+        return "UNKNOWN"
+
+    def stop(self):
+        pass
 
 
 def judge_color(image_bgr):
@@ -90,10 +102,19 @@ _default_detector = None
 def _get_default_detector():
     global _default_detector
     if _default_detector is None:
-        _default_detector = CameraColorDetector()
+        if CAMERA_DISABLED:
+            _default_detector = NullCameraDetector()
+            return _default_detector
+        try:
+            _default_detector = CameraColorDetector()
+        except Exception as exc:
+            logger.error("Failed to initialize camera: %s", exc)
+            raise RuntimeError("Camera is not available or already in use") from exc
         atexit.register(_default_detector.stop)
     return _default_detector
 
 
 def detectTileColor():
     return _get_default_detector().detectTileColor()
+
+_get_default_detector()
