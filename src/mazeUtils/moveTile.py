@@ -1547,7 +1547,7 @@ def moveTile(
 
     timing_start = debugTimingPrint("moveTile finished heading change", timing_start)
 
-    # 坂道後、PITCHが傾いていたら調整
+    ###### 坂道後、PITCHが傾いていたら調整
     if mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH:
         if (
             abs(stmInstance.gyro.getValue().pitch)
@@ -1580,6 +1580,8 @@ def moveTile(
                     normalTurnSpeed=mazeConstraints.ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED,
                     detectedVictimDuringMove=detectedVictimDuringMove,
                 )
+                
+    timing_start = debugTimingPrint("Adjustment after ramp completed", timing_start)
 
     mapInstance.updateFrontDirection(direction)
     timing_start = debugTimingPrint("moveTile updated front direction", timing_start)
