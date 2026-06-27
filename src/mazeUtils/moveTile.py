@@ -2405,8 +2405,10 @@ def moveTile(
         ):
 
             logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+            
+            isUpRamp = targetSteps > 1 and RollonRamp[-1] < 180
 
-            if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp:
                 logger.info("Moving backward before dropping rescue kit")
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
@@ -2416,7 +2418,7 @@ def moveTile(
                 stmInstance, mapInstance, maxVictimInfo, side, detectedVictimDuringMove
             )
 
-            if mazeConstraints.BACKWARD_AFTER_DROP_KIT:
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp:
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                 stmInstance.sts3032.stop()
