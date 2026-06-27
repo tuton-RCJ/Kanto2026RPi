@@ -2159,6 +2159,10 @@ def moveTile(
     if mapInstance.isSlopeDetected and targetSteps == 1:
         logger.info(f"Ramp was detected but there was no ramp, treating as wall. ")
         mapInstance.setWallType(direction, mazeEnums.wallType.WALL)
+    # 進んだ距離があまりにも短すぎたら壁を置いて進まなかったことにする
+    elif practicalMoveTime < 0.3:
+        logger.info(f"Moved distance is too small, treating as wall. practicalMoveTime: {practicalMoveTime}")
+        mapInstance.setWallType(direction,mazeEnums.wallType.WALL)
     else:
         mapInstance.moveTo(direction)
 
