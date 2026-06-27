@@ -45,7 +45,7 @@ MOVE_STRAIGHT_THRESHOLD_CM: int = (
 
 
 
-POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT: int = 2  # LiDARを使った位置補正を行うタイル数の閾値。前後のタイル数がこの値以下のとき、LiDARを使った位置補正を行う。0にするとそのマスに壁がある時だけ。
+POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT: int = 1  # LiDARを使った位置補正を行うタイル数の閾値。前後のタイル数がこの値以下のとき、LiDARを使った位置補正を行う。0にするとそのマスに壁がある時だけ。
 POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM: int = 15  # LiDARを使った位置補正を行う際の前方距離の閾値。(前方の距離) mod 30 がこの値になるように調整
 POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM: int = 20  # LiDARを使った位置補正を行う際の後方距離の閾値。(後方の距離) mod 30 がこの値になるように調整
 
@@ -139,7 +139,7 @@ STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下
 ##### 坂道例外処理
 
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = True # 坂道の途中で前に壁を検出した時に引き返すか
-TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 20.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 15.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 12.0 # 下り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP_ENABLE_TIME_SEC: float = 0.6 # 坂道壁検出を有効にする時間
 
