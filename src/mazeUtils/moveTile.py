@@ -1534,6 +1534,12 @@ def moveTile(
                 mazeConstraints.TILE_SIZE_CM
                 * _distance_to_wall[i]
             )
+            # 差が大きすぎたら、怖いので調整しない
+            if abs(behind_wall_dist - target_behind_dist) > mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_MAX_ADJUSTMENT_CM: # type: ignore
+                debugPrint(
+                    f"Position adjustment skipped due to large distance difference: behind_wall_dist={behind_wall_dist}, target_behind_dist={target_behind_dist}"
+                )
+                continue
             stmInstance.sts3032.setMotorSpeed(
                 mazeConstraints.GO_STRAIGHT_LOW_SPEED
                 if (behind_wall_dist < target_behind_dist and i==1) or (behind_wall_dist > target_behind_dist and i==0)
