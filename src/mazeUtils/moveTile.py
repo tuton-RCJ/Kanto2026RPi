@@ -2110,14 +2110,17 @@ def moveTile(
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
             if (
-                time.time() - _startTime > 2.0
+                time.time() - _startTime > 3.0
             ):  # 3秒以上経っても距離が縮まらない場合は坂か階段か何かだったと判断し、引き返す
                 backwardTime = time.time() - _startTime
+                stmInstance.sts3032.stop()
                 logger.warning("Final forward adjustment timeout, stopping adjustment")
-                stmInstance.sts3032.stop()
-                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
-                time.sleep(backwardTime)
-                stmInstance.sts3032.stop()
+                
+                stmInstance.update()
+                if 10 < stmInstance.gyro.getValue().roll < 180:  # 上り坂
+                    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
+                    time.sleep(backwardTime)
+                    stmInstance.sts3032.stop()
                 break
 
     stmInstance.sts3032.stop()

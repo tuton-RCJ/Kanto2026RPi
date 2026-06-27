@@ -1125,6 +1125,8 @@ class mazeMap:
                         return (x, y, z)
 
         # 見つからない場合は現在位置を返す
+        logger.debug(
+            f"Could not estimate start tile based on wall information.")
         return None
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
@@ -1270,16 +1272,16 @@ class mazeMap:
                     sep.append("+")
                 lines.append("".join(sep))
         # 既知のすべてのマスについてmazeAsGraphの値を出力
-        for z in range(self.knownLayerCount):
-            for y in range(self.maxSize):
-                for x in range(self.maxSize):
-                    if self._is_known_cell(x, y, z):
-                        neighbors = self.mazeAsGraph[z][y][x]
-                        lines.append(
-                            f"mazeAsGraph[{z}][{y}][{x}] = {{"
-                            + ", ".join(
-                                f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
-                            )
-                            + "}"
-                        )
+        # for z in range(self.knownLayerCount):
+        #     for y in range(self.maxSize):
+        #         for x in range(self.maxSize):
+        #             if self._is_known_cell(x, y, z):
+        #                 neighbors = self.mazeAsGraph[z][y][x]
+        #                 lines.append(
+        #                     f"mazeAsGraph[{z}][{y}][{x}] = {{"
+        #                     + ", ".join(
+        #                         f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
+        #                     )
+        #                     + "}"
+        #                 )
         return "\n".join(lines)
