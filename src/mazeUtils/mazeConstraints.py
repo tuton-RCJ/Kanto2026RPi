@@ -36,12 +36,19 @@ GO_BACKWARD_LOW_SPEED: dict[deviceEnums.Side, int] = {
 
 #### 壁検知のパラメータ
 
-MOVE_THRESHOLD_CM: int = (
-    28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
-)
+# MOVE_THRESHOLD_CM: int = (
+#     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+# )
 MOVE_STRAIGHT_THRESHOLD_CM: int = (
     15  # 直進時に前方との距離がこの値以下になったら停止する
 )
+
+
+
+POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT: int = 2  # LiDARを使った位置補正を行うタイル数の閾値。前後のタイル数がこの値以下のとき、LiDARを使った位置補正を行う。0にするとそのマスに壁がある時だけ。
+POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM: int = 15  # LiDARを使った位置補正を行う際の前方距離の閾値。(前方の距離) mod 30 がこの値になるように調整
+POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM: int = 18  # LiDARを使った位置補正を行う際の後方距離の閾値。(後方の距離) mod 30 がこの値になるように調整
+
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
 

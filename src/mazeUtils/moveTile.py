@@ -1484,8 +1484,8 @@ def moveTile(
 
     ##### 移動前の静止時にLiDARの点群を取得。
     pts = LiDAR.getLiDARScan(lidar)
-    behind_wall_dist = LiDAR.getCertainAngleDist(180, pts)
-    target_behind_dist = 18
+    
+   
 
     # DangerousZone内、未探索タイルへの移動で、坂道を検出したら壁と判断。
     if (
@@ -1514,45 +1514,51 @@ def moveTile(
 
 
     ###### 移動前、真後ろが壁であれば位置調整 ######
-    if (
-        0 < behind_wall_dist < 30
-        and mapInstance.getWallType()[
-            mazeEnums.absDirection((direction.value + 180) % 360)
-        ]
-        != mazeEnums.wallType.NO_WALL
-    ):
-        timing_start = debugTimingPrint(
-            f"moveTile start backward adjustment behind_wall_dist={behind_wall_dist}",
-            timing_start,
-        )
-        stmInstance.sts3032.setMotorSpeed(
-            mazeConstraints.GO_STRAIGHT_LOW_SPEED
-            if behind_wall_dist < target_behind_dist
-            else {
-                deviceEnums.Side.LEFT: -30,
-                deviceEnums.Side.RIGHT: -30,
-            }
-        )
-        debugPrint("Little backward to adjust position")
-        while True:
-            stmInstance.update()
-            if stmInstance.switch.getToggleSwitch1():
-                stmInstance.sts3032.stop()
-                return False, True, False
-            scanPoints = LiDAR.getLiDARScan(lidar)
-            heading = stmInstance.gyro.getValue().heading
-            currentDist = LiDAR.getCertainAngleDist(180, scanPoints)
-            if (currentDist > target_behind_dist) == (
-                behind_wall_dist < target_behind_dist
-            ):
-                break
-        stmInstance.sts3032.stop()
-        timing_start = debugTimingPrint(
-            "moveTile finished backward adjustment", timing_start
-        )
-        pts = LiDAR.getLiDARScan(lidar)  # 再度点群を取得しておく
+    _distance_to_wall = mapInstance.getDistanceToWall()
+    _position_adjustment_loop_list = [0,1]
+    if _distance_to_wall[0] is not None and _distance_to_wall[1] is not None:
+        if _distance_to_wall[0] < _distance_to_wall[1]:
+            _position_adjustment_loop_list = [0,1]
+        else:
+            _position_adjustment_loop_list = [1,0]
+    for i in _position_adjustment_loop_list:
+        if _distance_to_wall[i] is None:
+            continue
+        if _distance_to_wall[i] <= mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT: # type: ignore
+            timing_start = debugTimingPrint(
+                f"moveTile start position adjustment using LiDAR for {'front' if i==0 else 'back'} wall.",
+                timing_start,
+            )
+            behind_wall_dist = LiDAR.getCertainAngleDist(0 if i==0 else 180, pts)
+            target_behind_dist = mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM if i==0 else mazeConstraints.POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM + ( # type: ignore
+                mazeConstraints.TILE_SIZE_CM
+                * _distance_to_wall[i]
+            )
+            stmInstance.sts3032.setMotorSpeed(
+                mazeConstraints.GO_STRAIGHT_LOW_SPEED
+                if (behind_wall_dist < target_behind_dist and i==1) or (behind_wall_dist > target_behind_dist and i==0)
+                else mazeConstraints.GO_BACKWARD_LOW_SPEED
+            )
+            debugPrint("Little backward to adjust position")
+            while True:
+                stmInstance.update()
+                if stmInstance.switch.getToggleSwitch1():
+                    stmInstance.sts3032.stop()
+                    return False, True, False
+                scanPoints = LiDAR.getLiDARScan(lidar)
+                heading = stmInstance.gyro.getValue().heading
+                currentDist = LiDAR.getCertainAngleDist(180, scanPoints)
+                if (currentDist > target_behind_dist) == (
+                    behind_wall_dist < target_behind_dist
+                ):
+                    break
+            stmInstance.sts3032.stop()
+            timing_start = debugTimingPrint(
+                "moveTile finished backward adjustment", timing_start
+            )
+            pts = LiDAR.getLiDARScan(lidar)  # 再度点群を取得しておく
 
-        
+            
     timing_start = debugTimingPrint("moveTile ready for forward move", timing_start)
 
 
