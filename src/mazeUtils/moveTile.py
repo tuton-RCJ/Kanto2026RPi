@@ -2341,6 +2341,8 @@ def moveNextTile(
 
     if not isBlack:
         stmInstance.sts3032.stop()
+        
+    logger.info(mapInstance.getDistanceToWall())
 
     stmInstance.update()
     if stmInstance.switch.getToggleSwitch1():

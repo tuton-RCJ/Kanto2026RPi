@@ -662,11 +662,14 @@ class mazeMap:
             if neighbor is None:
                 # 壁がOBSTACCL_WALLの場合はNone
                 if self.wallTypes[z][y][x][self.frontDirection] == mazeEnums.wallType.OBSTACLE_WALL:
+                # 壁がない(=黒タイル)の場合はNone
+                    front_distance = None
+                if self.wallTypes[z][y][x][self.frontDirection] == mazeEnums.wallType.NO_WALL:
                     front_distance = None
                 else:
                     front_distance = d - 1
                 break
-            nx, ny, nz, _ = neighbor
+            nx, ny, nz, nd = neighbor
             if z != nz:
                 # 坂道を上った場合は、前方の壁までの距離は取得できない
                 front_distance = None
@@ -675,6 +678,9 @@ class mazeMap:
                 front_distance = None
                 break
             if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                front_distance = None
+                break
+            if nd != mazeConstraints.TILE_SIZE_CM:
                 front_distance = None
                 break
             x, y, z = nx, ny, nz
@@ -689,10 +695,13 @@ class mazeMap:
                 # 壁がOBSTACCL_WALLの場合はNone
                 if self.wallTypes[z][y][x][back_direction] == mazeEnums.wallType.OBSTACLE_WALL:
                     back_distance = None
+                # 壁がない(=黒タイル)の場合はNone
+                elif self.wallTypes[z][y][x][back_direction] == mazeEnums.wallType.NO_WALL:
+                    back_distance = None
                 else:
                     back_distance = d - 1
                 break
-            nx, ny, nz, _ = neighbor
+            nx, ny, nz, nd = neighbor
             if z != nz:
                 # 坂道を下った場合は、後方の壁までの距離は取得できない
                 back_distance = None
@@ -703,6 +712,10 @@ class mazeMap:
             if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.UNKNOWN:
                 back_distance = None
                 break
+            if nd != mazeConstraints.TILE_SIZE_CM:
+                back_distance = None
+                break
+                
             x, y, z = nx, ny, nz
 
         return (front_distance, back_distance)
