@@ -647,6 +647,66 @@ class mazeMap:
     #     x, y = self.currentPosition
     #     return self.tileTypes[y][x]
 
+    # 前後の壁までのマス数を取得する
+    def getDistanceToWall(self) -> tuple[int | None, int | None]:
+        """
+        @brief 前後の壁までのマス数を取得する
+        @return: (前の壁までのマス数, 後ろの壁までのマス数)。壁がない or 未知の場合は None を返す。
+        """
+        x, y, z = self.currentPosition
+
+        # 前方の壁までの距離を取得
+        front_distance = None
+        for d in range(1, self.maxSize):
+            neighbor = self.mazeAsGraph[z][y][x][self.frontDirection]
+            if neighbor is None:
+                # 壁がOBSTACCL_WALLの場合はNone
+                if self.wallTypes[z][y][x][self.frontDirection] == mazeEnums.wallType.OBSTACLE_WALL:
+                    front_distance = None
+                else:
+                    front_distance = d - 1
+                break
+            nx, ny, nz, _ = neighbor
+            if z != nz:
+                # 坂道を上った場合は、前方の壁までの距離は取得できない
+                front_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.BLACK:
+                front_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                front_distance = None
+                break
+            x, y, z = nx, ny, nz
+
+        # 後方の壁までの距離を取得
+        back_direction = self.frontDirection.opposite()
+        x, y, z = self.currentPosition
+        back_distance = None
+        for d in range(1, self.maxSize):
+            neighbor = self.mazeAsGraph[z][y][x][back_direction]
+            if neighbor is None:
+                # 壁がOBSTACCL_WALLの場合はNone
+                if self.wallTypes[z][y][x][back_direction] == mazeEnums.wallType.OBSTACLE_WALL:
+                    back_distance = None
+                else:
+                    back_distance = d - 1
+                break
+            nx, ny, nz, _ = neighbor
+            if z != nz:
+                # 坂道を下った場合は、後方の壁までの距離は取得できない
+                back_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.BLACK:
+                back_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                back_distance = None
+                break
+            x, y, z = nx, ny, nz
+
+        return (front_distance, back_distance)
+
     def getCostToStartTile(self) -> float:
         """
         @brief スタートタイルまでのコストを取得する
