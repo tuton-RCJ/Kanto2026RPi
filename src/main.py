@@ -88,7 +88,7 @@ def main():
                     == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
                     _costToStart = mapInstance.getCostToStartTile()
                     if _costToStart >= 0:
-                        estReturnTime = time.time() + _costToStart
+                        estReturnTime = time.time() + _costToStart * 1.5
                         if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
                             logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
                             break
@@ -141,7 +141,14 @@ def main():
             ##### 帰還開始 #####
 
             stmInstance.rearSTM.playMusic(buzzerSongs.hotaru)
-            returnPath = mapInstance.getPathTo((20, 20, 0))
+            start_tile_position =  mapInstance.estimateStartTile()
+            if start_tile_position is None:
+                logger.error("Start tile position could not be estimated. Cannot return to start.")
+                mapInstance.resetMapData()
+                mapBroken = True
+                isLop = True
+                continue
+            returnPath = mapInstance.getPathTo(start_tile_position)
             logger.info(f"Return Path: {returnPath}")
 
             isLop = False
