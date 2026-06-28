@@ -155,10 +155,15 @@ ADJUSTMENT_AFTER_UP_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.9 # 坂�
 ADJUSTMENT_AFTER_DOWN_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.3 # 坂道を下り終わった後に、pitchが傾いている場合に前進する時間
 ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED: int = 50 # 坂道を上りor下り終わった後に、pitchが傾いている場合に回転する際の回転速度
 
+USE_JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF: bool = True # 坂道上のroll角度が一定でない場合に、坂道終了と判断するかどうか
+JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG: float = 5.0 # 前回のrollとの差がこの角度以上になったら、坂道判定の角度であっても坂道終了と判断する。（坂道上のroll角度は一定なはず）
+JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_LITTLE_FORWARD_TIME_SEC: float = 0.4 # 前進する秒数
+
 ## ↓　使わないほうがいい
 USE_ADJUSTMENT_AFTER_RAMP: bool = False # 坂道を上りor下り終わった時に、平らになってからの時間を利用して位置の微調整を行うかどうか
 ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD: float = 1.0 # ±この角度の範囲内になったら、平らになったと判断し、時間の計測開始
 ADJUSTMENT_AFTER_RAMP_TIME_SEC: float = 0.4 # 坂道を上りor下り終わった後、平らになってからこの時間経過するまで待って止まる
+ 
  
 
 ###### Dangerous Zone関連
@@ -206,9 +211,9 @@ RETURN_JUDGE_MODE: mazeEnums.returnJudgeMode = mazeEnums.returnJudgeMode.TIME_BA
 
 GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 
-RETURN_TIME_THRESHOLD_SEC: float = 360.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
+RETURN_TIME_THRESHOLD_SEC: float = 380.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
-RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 420.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
+RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 440.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
 
 
 ###### 探索モード

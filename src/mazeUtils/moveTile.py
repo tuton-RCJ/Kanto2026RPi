@@ -1838,14 +1838,7 @@ def moveTile(
             timing_start,
         )
 
-        ##### 坂道判定 #####
-        if min(roll, 360 - roll) > mazeConstraints.RAMP_DEG_THRESHOLD:
-            isBigRamp = True
-        else:
-            isBigRamp = False
-        timing_start = debugTimingPrint(
-            f"moveTile ramp check isBigRamp={isBigRamp}", timing_start
-        )
+
 
         if mazeConstraints.USE_ADJUSTMENT_AFTER_RAMP:
             if (
@@ -1855,7 +1848,7 @@ def moveTile(
                 and RampFinishTime == 0
             ):
                 stmInstance.sts3032.stop()
-                time.sleep(2)
+                time.sleep(0.5)
                 RampFinishTime = time.time()
                 print(f"Ramp finished, RampFinishTile : {RampFinishTime }")
 
@@ -1905,6 +1898,17 @@ def moveTile(
             f"moveTile obstacle check escapeFlag={escapeFlag}", timing_start
         )
         stmInstance.update()
+        
+        ##### 坂道判定 #####
+        roll = stmInstance.gyro.getValue().roll
+        if min(roll, 360 - roll) > mazeConstraints.RAMP_DEG_THRESHOLD:
+            isBigRamp = True
+        else:
+            isBigRamp = False
+        timing_start = debugTimingPrint(
+            f"moveTile ramp check isBigRamp={isBigRamp}", timing_start
+        )
+
         ###### 1マス移動完了判定（時間制御） ######
         if (
             practicalMoveTime
@@ -1912,13 +1916,29 @@ def moveTile(
             + time_correction_due_to_obstacle
         ):
             if isUnknownTileAhead and isBigRamp:
-                targetSteps += 1
-                RollonRamp.append(stmInstance.gyro.getValue().roll)
-                getVictimDict_AfterRamp = {
-                    deviceEnums.Side.LEFT: defaultdict(int),
-                    deviceEnums.Side.RIGHT: defaultdict(int),
-                }
-                continue
+                isContinueRampFlag = True
+                if mazeConstraints.USE_JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF:
+                    # roll角が変化してたら坂道の終わりと判断
+                    if RollonRamp[-1] < 180 and roll < 180:
+                        if (RollonRamp[-1] > roll) and (RollonRamp[-1] - roll) > mazeConstraints.JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG:
+                            isContinueRampFlag = False
+                    elif RollonRamp[-1] > 180 and roll > 180:
+                        if (RollonRamp[-1] < roll) and (roll - RollonRamp[-1]) > mazeConstraints.JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG:
+                            isContinueRampFlag = False
+                if isContinueRampFlag:
+                    targetSteps += 1
+                    RollonRamp.append(roll)
+                    getVictimDict_AfterRamp = {
+                        deviceEnums.Side.LEFT: defaultdict(int),
+                        deviceEnums.Side.RIGHT: defaultdict(int),
+                    }
+                    continue
+                else:
+                    logger.info(f"Ramp ended due to roll difference. last RollonRamp: {RollonRamp[-1]}, Current roll: {roll}")
+                    # まだ少し坂道にかぶってるってことだから少し直進しよう
+                    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                    time.sleep(mazeConstraints.JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_LITTLE_FORWARD_TIME_SEC)
+                    stmInstance.sts3032.stop()
             logger.info(
                 f"practicalVerticalMove: {practicalVerticalMoveTime*mazeConstraints.TILE_SIZE_CM/mazeConstraints.MOVE_STRAIGHT_SEC} CM"
             )
