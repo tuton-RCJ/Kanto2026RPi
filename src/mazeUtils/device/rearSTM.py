@@ -50,7 +50,7 @@ class RearSTM:
         while self._serial.in_waiting:
             self._serial.read(self._serial.in_waiting)
 
-    def request_tof_distance_mm(self) -> int | None:
+    def request_tof_distance_mm(self) -> tuple[int, int] | None:
         msg_type = 0
         self._update_seq()
         payload = [msg_type, self._seq]
@@ -220,6 +220,7 @@ class RearSTM:
             self._flush_input()
             logger.warning("Checksum mismatch for Buzzer command response")
             return False
+        return True
         
 
 
@@ -227,7 +228,7 @@ class _NullRearSTM:
     def __init__(self):
         pass
 
-    def request_tof_distance_mm(self) -> int | None:
+    def request_tof_distance_mm(self) -> tuple[int, int] | None:
         return None
 
     def camled(self, color: tuple[int, int, int]) -> bool:
