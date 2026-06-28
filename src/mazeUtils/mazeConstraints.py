@@ -143,7 +143,7 @@ SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE: bool = True  # 前が黒タイ
 # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
 
 SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT: bool = True  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
-SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.5  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.7  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
 
 STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断
 
@@ -167,7 +167,7 @@ ADJUSTMENT_AFTER_DOWN_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.3 # �
 ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED: int = 50 # 坂道を上りor下り終わった後に、pitchが傾いている場合に回転する際の回転速度
 
 USE_JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF: bool = True # 坂道上のroll角度が一定でない場合に、坂道終了と判断するかどうか
-JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG: float = 5.0 # 前回のrollとの差がこの角度以上になったら、坂道判定の角度であっても坂道終了と判断する。（坂道上のroll角度は一定なはず）
+JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG: float = 10.0 # 前回のrollとの差がこの角度以上になったら、坂道判定の角度であっても坂道終了と判断する。（坂道上のroll角度は一定なはず）
 JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_LITTLE_FORWARD_TIME_SEC: float = 0.4 # 前進する秒数
 
 ## ↓　使わないほうがいい

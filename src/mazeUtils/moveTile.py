@@ -1615,6 +1615,8 @@ def moveTile(
                                 victimInfo[s],
                             )
                         ):
+                            _before_drop_rescue_kit_time = time.time()
+                            stmInstance.sts3032.stop()
                             logger.info(
                                 f"Detected victim info after turning at wall: {victimInfo}"
                             )
@@ -1637,6 +1639,8 @@ def moveTile(
                                 ],
                                 victimInfo[s],
                             )
+                            _victim_check_start_time += time.time() - _before_drop_rescue_kit_time
+                            
                         if time.time() - _victim_check_start_time > mazeConstraints.SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC:
                             stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
                         else:
@@ -2037,7 +2041,7 @@ def moveTile(
         ):
             if isUnknownTileAhead and isBigRamp:
                 isContinueRampFlag = True
-                if mazeConstraints.USE_JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF:
+                if mazeConstraints.USE_JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF and targetSteps > 1:
                     # roll角が変化してたら坂道の終わりと判断
                     if RollonRamp[-1] < 180 and roll < 180:
                         if (RollonRamp[-1] > roll) and (RollonRamp[-1] - roll) > mazeConstraints.JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG:
