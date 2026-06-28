@@ -232,6 +232,7 @@ def escapeFromBlackTile(
     direction: mazeEnums.absDirection,
     practicalMoveTime: float,
     cameraBlackTileDetected: bool,
+    getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]]
 ) -> bool:
     tempTileColor = detectTileColor()
     if tempTileColor == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
@@ -244,6 +245,10 @@ def escapeFromBlackTile(
         startEscapeTime = time.time()
         while time.time() - startEscapeTime < practicalMoveTime + 0.16:  # 0.16は補正値
             stmInstance.update()
+            victimInfo = stmInstance.unitv.getStatus()
+            for side in deviceEnums.Side:
+                if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
+                    getVictimDict[side][victimInfo[side]] += 1
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
                 return True
@@ -1859,9 +1864,69 @@ def moveTile(
             direction,
             practicalMoveTime,
             cameraBlackTileDetected,
+            getVictimDict,
         )
         if escapeFromBlackTileRes:
             debugTimingPrint("moveTile escaped from black tile", timing_start)
+            if mazeConstraints.SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE:
+                maxVictimInfo = {
+                    side: (
+                        max(getVictimDict[side], key=lambda k: getVictimDict[side][k])
+                        if getVictimDict[side]
+                        else deviceEnums.UnitVStatus.NOTHING
+                    )
+                    for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
+                }
+                for side in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]:
+                    if (  # 見たことがない、被災者を発見した、壁がある　ならばレスキューキットを落とす
+                        mapInstance.isSeenVictimType(
+                            [
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + (90 if side == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ],
+                            maxVictimInfo[side],
+                        )
+                        == False
+                        and maxVictimInfo[side] != deviceEnums.UnitVStatus.NOTHING
+                        and mapInstance.getWallType()[
+                            mazeEnums.absDirection(
+                                (
+                                    mapInstance.frontDirection.value
+                                    + (90 if side == deviceEnums.Side.LEFT else 270)
+                                )
+                                % 360
+                            )
+                        ]
+                        == mazeEnums.wallType.WALL
+                    ):
+
+                        logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+                        
+                        isUpRamp = targetSteps > 1 and RollonRamp[-1] < 180
+
+                        dropRescueKit(
+                            stmInstance, mapInstance, maxVictimInfo, side, detectedVictimDuringMove
+                        )
+
+                        # SeenVictimTypeに追加。
+                        mapInstance.addSeenVictimType(
+                            [
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + (90 if side == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ],
+                            maxVictimInfo[side],
+                        )
+
             return True, False, False
         else:
             tempTileColor = detectTileColor()

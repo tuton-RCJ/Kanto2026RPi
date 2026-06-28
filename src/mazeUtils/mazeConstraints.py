@@ -127,12 +127,19 @@ STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_SPEED: dict[deviceEnums.Side, int] = {
 DEBUG_MODE: bool = True  # デバッグモードの有効化
 
 
+##### 被災者救助
+
 # 45度回転の時の被災者検出のパラメータ
-USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転の時に被災者検出をするかどうか
+USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転して被災者検出をするかどうか
 DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
 
 USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING: bool = True  # 回転中に被災者検出をする際に、回転速度を落とすかどうか, USE_45_TURN_WITH_VICTIM_CHECK が False の場合のみ有効
 SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED: int = 60  # 回転中に被災者検出をする際の回転速度, USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING が True の場合のみ有効
+
+
+# 前が黒タイルの時のでの被災者救助
+SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE: bool = True  # 前が黒タイルの時に、後退しながら被災者検出をするかどうか
+
 
 STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断。
 
