@@ -1588,6 +1588,61 @@ def moveTile(
                 
     timing_start = debugTimingPrint("Adjustment after ramp completed", timing_start)
 
+    if mazeConstraints.SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT:
+        # 回転前正面方向に壁があって、90°回転であって、90°回転後の後ろに壁がない場合、開店後に少し下がって被災者を確認する
+        if mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.NO_WALL:
+            if (direction.value - mapInstance.frontDirection.value + 360) % 360 in (90, 270):
+                if mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] == mazeEnums.wallType.NO_WALL:
+                    debugPrint("After turning, checking for victims due to wall presence.")
+                    _victim_check_start_time = time.time()
+                    stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
+                    s = deviceEnums.Side.RIGHT if (direction.value - mapInstance.frontDirection.value + 360) % 360 == 90 else deviceEnums.Side.LEFT
+                    while time.time() - _victim_check_start_time < mazeConstraints.SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC*2:
+                        stmInstance.update()
+                        victimInfo = getVictimInfo(stmInstance)
+                        if (
+                            victimInfo[s] != deviceEnums.UnitVStatus.NOTHING
+                            and not mapInstance.isSeenVictimType(
+                                [
+                                    mazeEnums.absDirection(
+                                        (
+                                            mapInstance.frontDirection.value
+                                            + (90 if s == deviceEnums.Side.LEFT else 270)
+                                        )
+                                        % 360
+                                    )
+                                ],
+                                victimInfo[s],
+                            )
+                        ):
+                            logger.info(
+                                f"Detected victim info after turning at wall: {victimInfo}"
+                            )
+                            dropRescueKit(
+                                stmInstance,
+                                mapInstance,
+                                victimInfo,
+                                s,
+                                detectedVictimDuringMove,
+                            )
+                            mapInstance.addSeenVictimType(
+                                [
+                                    mazeEnums.absDirection(
+                                        (
+                                            mapInstance.frontDirection.value
+                                            + (90 if s == deviceEnums.Side.LEFT else 270)
+                                        )
+                                        % 360
+                                    )
+                                ],
+                                victimInfo[s],
+                            )
+                        if time.time() - _victim_check_start_time > mazeConstraints.SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC:
+                            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                        else:
+                            stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
+                    stmInstance.sts3032.stop()
+                    
     mapInstance.updateFrontDirection(direction)
     timing_start = debugTimingPrint("moveTile updated front direction", timing_start)
 
@@ -1905,7 +1960,7 @@ def moveTile(
                         == mazeEnums.wallType.WALL
                     ):
 
-                        logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]}")
+                        logger.info(f"Decided victim on {side} side: {maxVictimInfo[side]} during black tile escape")
                         
                         isUpRamp = targetSteps > 1 and RollonRamp[-1] < 180
 

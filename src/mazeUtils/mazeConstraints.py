@@ -140,8 +140,12 @@ SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED: int = 60  # 回転中に被�
 # 前が黒タイルの時のでの被災者救助
 SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE: bool = True  # 前が黒タイルの時に、後退しながら被災者検出をするかどうか
 
+# コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
 
-STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断。
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT: bool = True  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.5  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
+
+STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断
 
 
 
