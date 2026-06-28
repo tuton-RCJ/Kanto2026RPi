@@ -1005,6 +1005,9 @@ class mazeMap:
             int(old_start_y - offset_y),
         )
         self.currentPosition = (current_x, current_y, 0)
+        
+        if mazeConstraints.PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT_WHEN_MAP_IS_BROKEN:
+            mazeConstraints.PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT = True
 
     def estimateStartTile(self) -> tuple[int, int, int] | None:
         """Startタイルの位置を推定する。マップが壊れていなければ初期位置（20,20,0）を返す。

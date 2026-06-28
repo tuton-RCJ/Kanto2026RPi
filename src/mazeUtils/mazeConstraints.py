@@ -191,10 +191,11 @@ GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 
 RETURN_TIME_THRESHOLD_SEC: float = 360.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
-RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 420.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
+RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 440.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
 
 
 ###### 探索モード
 
 PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT: bool = False # 未探索タイルが右か左にある場合、優先的に右か左に進むかどうか
+PRIORITIZE_UNEXPLORED_TILE_ON_RIGHT_OR_LEFT_WHEN_MAP_IS_BROKEN: bool = True # マップが破壊されたら右・左優先に切り替える
 PRIORITIZE_UNEXPLORED_U_SHAPED_TILE: bool = True # コの字型（3辺が壁で囲まれている形状）の未探索タイルがある場合、優先的にコの字型のタイルに進むかどうか
