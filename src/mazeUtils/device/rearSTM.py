@@ -50,26 +50,26 @@ class RearSTM:
         while self._serial.in_waiting:
             self._serial.read(self._serial.in_waiting)
 
-    def request_tof_distance_mm(self) -> int | None:
+    def request_tof_distance_mm(self) -> tuple[int, int] | None:
         msg_type = 0
         self._update_seq()
         payload = [msg_type, self._seq]
         check_digit = self._xor_check_digit(payload)
         self._serial.write(bytes(payload + [check_digit]))
 
-        response = self._read_exact(5)
+        response = self._read_exact(7)
         if response is None:
             return None
         if response[0] != msg_type or response[1] != self._seq:
             self._flush_input()
             return None
 
-        expected_cd = self._xor_check_digit(list(response[0:4]))
-        if expected_cd != response[4]:
+        expected_cd = self._xor_check_digit(list(response[0:6]))
+        if expected_cd != response[6]:
             self._flush_input()
             return None
 
-        return (response[2] << 8) | response[3]
+        return ((response[2] << 8) | response[3], response[4] << 8 | response[5])  # distance_mm, ambient_light
 
     def camled(self, color: tuple[int, int, int]) -> bool:
         if any(c < 0 or c > 255 for c in color):
@@ -220,6 +220,7 @@ class RearSTM:
             self._flush_input()
             logger.warning("Checksum mismatch for Buzzer command response")
             return False
+        return True
         
 
 
@@ -227,7 +228,7 @@ class _NullRearSTM:
     def __init__(self):
         pass
 
-    def request_tof_distance_mm(self) -> int | None:
+    def request_tof_distance_mm(self) -> tuple[int, int] | None:
         return None
 
     def camled(self, color: tuple[int, int, int]) -> bool:

@@ -12,7 +12,7 @@ class MusicData:
 
 
 
-jisinsokuhou = MusicData(
+mappingError = MusicData(
     musicID=1,
     notes=[
         [392, 80],

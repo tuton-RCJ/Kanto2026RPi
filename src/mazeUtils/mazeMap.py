@@ -218,6 +218,8 @@ class mazeMap:
         }  # スタートタイル周辺の壁の情報。スタート位置推定に使用。
 
         self.saveCache()
+        
+        self.isLastMovementOnRamp: int = 0  # 直前の移動が坂道上で行われたかどうかを保持するフラグ。0: 坂道上でない, 1: 上り坂, -1: 下り坂
 
     def setWallType(
         self, direction: mazeEnums.absDirection, wallType: mazeEnums.wallType
@@ -444,7 +446,7 @@ class mazeMap:
             self.saveCache()
 
     def existsLayerWithinAltitude(
-        self, altitude: float, tolerance: float = 7.0
+        self, altitude: float, tolerance: float = 7.4
     ) -> int | None:
         """
         @brief 指定した高度に近いレイヤーが存在するか確認する
@@ -620,32 +622,78 @@ class mazeMap:
             (0, False) for _ in range(self.movedVerticalDistanceNUM)
         ]
 
-    # def getAroundTileType(self) -> dict[mazeEnums.absDirection, mazeEnums.tileType]:
-    #     """
-    #     @brief 現在位置の周囲のタイルタイプを取得する
-    #     @return: 周囲のタイルタイプの辞書
-    #     """
-    #     x, y = self.currentPosition
-    #     aroundTiles = {d: mazeEnums.tileType.UNKNOWN for d in mazeEnums.absDirection}
+    # 前後の壁までのマス数を取得する
+    def getDistanceToWall(self) -> tuple[int | None, int | None]:
+        """
+        @brief 前後の壁までのマス数を取得する
+        @return: (前の壁までのマス数, 後ろの壁までのマス数)。壁がない or 未知の場合は None を返す。
+        """
+        x, y, z = self.currentPosition
 
-    #     if y > 0:
-    #         aroundTiles[mazeEnums.absDirection.NORTH] = self.tileTypes[y-1][x]
-    #     if x < self.maxSize - 1:
-    #         aroundTiles[mazeEnums.absDirection.EAST] = self.tileTypes[y][x+1]
-    #     if y < self.maxSize - 1:
-    #         aroundTiles[mazeEnums.absDirection.SOUTH] = self.tileTypes[y+1][x]
-    #     if x > 0:
-    #         aroundTiles[mazeEnums.absDirection.WEST] = self.tileTypes[y][x-1]
+        # 前方の壁までの距離を取得
+        front_distance = None
+        for d in range(1, self.maxSize):
+            neighbor = self.mazeAsGraph[z][y][x][self.frontDirection]
+            if neighbor is None:
+                # 壁がOBSTACCL_WALLの場合はNone
+                if self.wallTypes[z][y][x][self.frontDirection] == mazeEnums.wallType.OBSTACLE_WALL:
+                # 壁がない(=黒タイル)の場合はNone
+                    front_distance = None
+                if self.wallTypes[z][y][x][self.frontDirection] == mazeEnums.wallType.NO_WALL:
+                    front_distance = None
+                else:
+                    front_distance = d - 1
+                break
+            nx, ny, nz, nd = neighbor
+            if z != nz:
+                # 坂道を上った場合は、前方の壁までの距離は取得できない
+                front_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.BLACK:
+                front_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                front_distance = None
+                break
+            if nd != mazeConstraints.TILE_SIZE_CM:
+                front_distance = None
+                break
+            x, y, z = nx, ny, nz
 
-    #     return aroundTiles
+        # 後方の壁までの距離を取得
+        back_direction = self.frontDirection.opposite()
+        x, y, z = self.currentPosition
+        back_distance = None
+        for d in range(1, self.maxSize):
+            neighbor = self.mazeAsGraph[z][y][x][back_direction]
+            if neighbor is None:
+                # 壁がOBSTACCL_WALLの場合はNone
+                if self.wallTypes[z][y][x][back_direction] == mazeEnums.wallType.OBSTACLE_WALL:
+                    back_distance = None
+                # 壁がない(=黒タイル)の場合はNone
+                elif self.wallTypes[z][y][x][back_direction] == mazeEnums.wallType.NO_WALL:
+                    back_distance = None
+                else:
+                    back_distance = d - 1
+                break
+            nx, ny, nz, nd = neighbor
+            if z != nz:
+                # 坂道を下った場合は、後方の壁までの距離は取得できない
+                back_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.BLACK:
+                back_distance = None
+                break
+            if self.tileTypes[nz][ny][nx] == mazeEnums.tileType.UNKNOWN:
+                back_distance = None
+                break
+            if nd != mazeConstraints.TILE_SIZE_CM:
+                back_distance = None
+                break
+                
+            x, y, z = nx, ny, nz
 
-    # def getCurrentTileType(self) -> mazeEnums.tileType:
-    #     """
-    #     @brief 現在位置のタイルタイプを取得する
-    #     @return: 現在位置のタイルタイプ
-    #     """
-    #     x, y = self.currentPosition
-    #     return self.tileTypes[y][x]
+        return (front_distance, back_distance)
 
     def getCostToStartTile(self) -> float:
         """
@@ -800,16 +848,25 @@ class mazeMap:
         ):
             self.isStartedDangerousZone = True
 
-        # if direction == mazeEnums.absDirection.NORTH:
-        #     self.currentPosition = (x, y - 1, z)
-        # elif direction == mazeEnums.absDirection.EAST:
-        #     self.currentPosition = (x + 1, y, z)
-        # elif direction == mazeEnums.absDirection.SOUTH:
-        #     self.currentPosition = (x, y + 1, z)
-        # elif direction == mazeEnums.absDirection.WEST:
-        #     self.currentPosition = (x - 1, y, z)
         self.updateFrontDirection(direction)
+        
+        # 直前の移動が坂道上で行われたかどうかを保持するフラグを更新
+        lastLayerAltitude = self.layerInfo[z].altitude
+        currentLayerAltitude = self.layerInfo[self.currentPosition[2]].altitude
+        if z == self.currentPosition[2]:
+            self.isLastMovementOnRamp = 0  # 坂道上でない
+        elif currentLayerAltitude >= lastLayerAltitude:
+            self.isLastMovementOnRamp = 1  # 上り坂
+        else:
+            self.isLastMovementOnRamp = -1  # 下り坂
 
+    def getIsLastMovementOnRamp(self) -> int:
+        """
+        @brief 直前の移動が坂道上で行われたかどうかを取得する
+        @return: 0: 坂道上でない, 1: 上り坂, -1: 下り坂
+        """
+        return self.isLastMovementOnRamp
+    
     def updateFrontDirection(self, direction: mazeEnums.absDirection) -> None:
         """
         @brief 前方方向を設定
@@ -1071,6 +1128,8 @@ class mazeMap:
                         return (x, y, z)
 
         # 見つからない場合は現在位置を返す
+        logger.debug(
+            f"Could not estimate start tile based on wall information.")
         return None
 
     def _is_known_cell(self, x: int, y: int, z: int) -> bool:
@@ -1216,16 +1275,16 @@ class mazeMap:
                     sep.append("+")
                 lines.append("".join(sep))
         # 既知のすべてのマスについてmazeAsGraphの値を出力
-        for z in range(self.knownLayerCount):
-            for y in range(self.maxSize):
-                for x in range(self.maxSize):
-                    if self._is_known_cell(x, y, z):
-                        neighbors = self.mazeAsGraph[z][y][x]
-                        lines.append(
-                            f"mazeAsGraph[{z}][{y}][{x}] = {{"
-                            + ", ".join(
-                                f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
-                            )
-                            + "}"
-                        )
+        # for z in range(self.knownLayerCount):
+        #     for y in range(self.maxSize):
+        #         for x in range(self.maxSize):
+        #             if self._is_known_cell(x, y, z):
+        #                 neighbors = self.mazeAsGraph[z][y][x]
+        #                 lines.append(
+        #                     f"mazeAsGraph[{z}][{y}][{x}] = {{"
+        #                     + ", ".join(
+        #                         f"{d}: {neighbors[d]}" for d in mazeEnums.absDirection
+        #                     )
+        #                     + "}"
+        #                 )
         return "\n".join(lines)

@@ -25,23 +25,32 @@ GO_BACKWARD_MAX_SPEED: dict[deviceEnums.Side, int] = {
 }  # 後退時のスピード
 
 GO_STRAIGHT_LOW_SPEED: dict[deviceEnums.Side, int] = {
-    deviceEnums.Side.LEFT: 30,
-    deviceEnums.Side.RIGHT: 30,
+    deviceEnums.Side.LEFT: 50,
+    deviceEnums.Side.RIGHT: 50,
 }  # ゆっくり直進時のスピード
 
 GO_BACKWARD_LOW_SPEED: dict[deviceEnums.Side, int] = {
-    deviceEnums.Side.LEFT: -30,
-    deviceEnums.Side.RIGHT: -30,
+    deviceEnums.Side.LEFT: -50,
+    deviceEnums.Side.RIGHT: -50,
 }  # ゆっくり後退時のスピード
 
 #### 壁検知のパラメータ
 
-MOVE_THRESHOLD_CM: int = (
-    28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
-)
+# MOVE_THRESHOLD_CM: int = (
+#     28  # 直進時に　(前方との距離) mod 30 がこの値以上減少したら停止する
+# )
 MOVE_STRAIGHT_THRESHOLD_CM: int = (
     15  # 直進時に前方との距離がこの値以下になったら停止する
 )
+
+
+
+POSITION_ADJUSTMENT_USING_LIDAR_THRESHOLD_TILE_COUNT: int = 1  # LiDARを使った位置補正を行うタイル数の閾値。前後のタイル数がこの値以下のとき、LiDARを使った位置補正を行う。0にするとそのマスに壁がある時だけ。
+POSITION_ADJUSTMENT_USING_LIDAR_FRONT_DISTANCE_CM: int = 15  # LiDARを使った位置補正を行う際の前方距離の閾値。(前方の距離) mod 30 がこの値になるように調整
+POSITION_ADJUSTMENT_USING_LIDAR_BACK_DISTANCE_CM: int = 20  # LiDARを使った位置補正を行う際の後方距離の閾値。(後方の距離) mod 30 がこの値になるように調整
+POSITION_ADJUSTMENT_USING_LIDAR_MAX_ADJUSTMENT_CM: int = 18  # LiDARを使った位置補正を行う際の最大調整距離。前後の距離の差がこの値以上の場合は調整しない
+
+
 WALL_DETECTION_THRESHOLD_CM: int = 30  # LiDARで壁を検出する閾値
 CAR_HEIGHT: int = 10  # 車の高さ
 
@@ -118,21 +127,32 @@ STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_SPEED: dict[deviceEnums.Side, int] = {
 DEBUG_MODE: bool = True  # デバッグモードの有効化
 
 
+##### 被災者救助
+
 # 45度回転の時の被災者検出のパラメータ
-USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転の時に被災者検出をするかどうか
+USE_45_TURN_WITH_VICTIM_CHECK: bool = False  # 45度回転して被災者検出をするかどうか
 DETECT_VICTIM_45_CHECK_TIME_SEC: float = 0.5  # 45度回転した後、被災者検出を行う秒数
 
 USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING: bool = True  # 回転中に被災者検出をする際に、回転速度を落とすかどうか, USE_45_TURN_WITH_VICTIM_CHECK が False の場合のみ有効
 SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING_SPEED: int = 60  # 回転中に被災者検出をする際の回転速度, USE_SLOW_DOWN_FOR_VICTIM_DETECTION_WHEN_TURNING が True の場合のみ有効
 
-STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断。
+
+# 前が黒タイルの時のでの被災者救助
+SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE: bool = True  # 前が黒タイルの時に、後退しながら被災者検出をするかどうか
+
+# コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
+
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT: bool = True  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.7  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
+
+STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断
 
 
 
 ##### 坂道例外処理
 
-TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = True # 坂道の途中で前に壁を検出した時に引き返すか
-TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 20.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP: bool = False # 坂道の途中で前に壁を検出した時に引き返すか  memo: やや誤検知が多い（特に上り）
+TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_UP_RAMP_THRESHOLD_CM: float = 15.0 # 上り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_DOWN_RAMP_THRESHOLD_CM: float = 12.0 # 下り坂道の途中で前に壁を検出した時に引き返すかのしきい値
 TURN_BACK_WHEN_FRONT_WALL_DETECTED_ON_RAMP_ENABLE_TIME_SEC: float = 0.6 # 坂道壁検出を有効にする時間
 
@@ -140,10 +160,21 @@ SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE: bool = False # Dangerous Zone内の坂道�
 SLOW_DOWN_ON_RAMP_IN_DANGEROUS_ZONE_RATIO: float = 0.5 # Dangerous Zone内の坂道で速度を落とす場合の速度の補正率（スピードにこれをかけた値にする）
 
 
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH: bool = True # 坂道を上りor下り終わった後に、pitchが傾いている場合に位置の微調整を行うかどうか
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_THRESHOLD_DEG: float = 7.0 # 坂道を上りor下り終わった後に、pitchがこの角度以上傾いている場合に位置の微調整を行う
+ADJUSTMENT_AFTER_UP_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.9 # 坂道を上り終わった後に、pitchが傾いている場合に前進する時間
+ADJUSTMENT_AFTER_DOWN_RAMP_IF_TILTED_IN_PITCH_FORWARD_TIME_SEC: float = 0.3 # 坂道を下り終わった後に、pitchが傾いている場合に前進する時間
+ADJUSTMENT_AFTER_RAMP_IF_TILTED_IN_PITCH_TURN_SPEED: int = 50 # 坂道を上りor下り終わった後に、pitchが傾いている場合に回転する際の回転速度
+
+USE_JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF: bool = True # 坂道上のroll角度が一定でない場合に、坂道終了と判断するかどうか
+JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_DEG: float = 10.0 # 前回のrollとの差がこの角度以上になったら、坂道判定の角度であっても坂道終了と判断する。（坂道上のroll角度は一定なはず）
+JUDGE_AS_END_OF_RAMP_IF_ROLL_DIFF_LITTLE_FORWARD_TIME_SEC: float = 0.4 # 前進する秒数
+
 ## ↓　使わないほうがいい
 USE_ADJUSTMENT_AFTER_RAMP: bool = False # 坂道を上りor下り終わった時に、平らになってからの時間を利用して位置の微調整を行うかどうか
 ADJUSTMENT_AFTER_RAMP_ROLL_THRESHOLD: float = 1.0 # ±この角度の範囲内になったら、平らになったと判断し、時間の計測開始
 ADJUSTMENT_AFTER_RAMP_TIME_SEC: float = 0.4 # 坂道を上りor下り終わった後、平らになってからこの時間経過するまで待って止まる
+ 
  
 
 ###### Dangerous Zone関連
@@ -170,6 +201,8 @@ TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
     0  # 複数の救助キットを投下する際に回転する角度
 )
 
+TURN_180_WHEN_LACK_OF_KIT: bool = False  # 救助キットがない場合に180度回転するかどうか
+
 ###### エラーハンドリング
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = True  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT: bool = True # 壁検出エラーを正面でのみ出すようにする
@@ -189,7 +222,7 @@ RETURN_JUDGE_MODE: mazeEnums.returnJudgeMode = mazeEnums.returnJudgeMode.TIME_BA
 
 GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 
-RETURN_TIME_THRESHOLD_SEC: float = 360.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
+RETURN_TIME_THRESHOLD_SEC: float = 380.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
 RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 440.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
 
