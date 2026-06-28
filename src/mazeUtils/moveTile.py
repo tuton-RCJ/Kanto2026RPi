@@ -1757,6 +1757,8 @@ def moveTile(
     consequentSearchRes: dict[deviceEnums.Side, deviceEnums.UnitVStatus | None] = {
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
+    
+    enableStopByDistance = LiDAR.getCertainAngleDist(0, pts) < 600  # 前方の距離が600cm未満なら、距離で停止判定を行えます
 
     # beforeDist = oldDist
     while True:
@@ -1942,7 +1944,8 @@ def moveTile(
             stmInstance.sts3032.stop()
             debugTimingPrint("moveTile finished by time control", timing_start)
             break
-        if (
+    
+        if enableStopByDistance and (
             stmInstance.tof.getDistance()[0]
             < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM
             and not isBigRamp
