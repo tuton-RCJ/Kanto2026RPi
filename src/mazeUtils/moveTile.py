@@ -1972,7 +1972,7 @@ def moveTile(
                 backwardTime = time.time() - _startTime
                 logger.warning("Final forward adjustment timeout, stopping adjustment")
                 stmInstance.sts3032.stop()
-                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
                 time.sleep(backwardTime)
                 stmInstance.sts3032.stop()
                 break
