@@ -1758,7 +1758,7 @@ def moveTile(
         s: None for s in [deviceEnums.Side.LEFT, deviceEnums.Side.RIGHT]
     }
     
-    enableStopByDistance = LiDAR.getCertainAngleDist(0, pts) < 600  # 前方の距離が600cm未満なら、距離で停止判定を行えます
+    enableStopByDistance = LiDAR.getCertainAngleDist(0, pts) < 60  # 前方の距離が60cm未満なら、距離で停止判定を行えます
 
     # beforeDist = oldDist
     while True:
