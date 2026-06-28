@@ -11,15 +11,17 @@ def main():
         
         print("データ読み取り中... (Ctrl+C で終了)")
         while True:
-            s=input()
+            # s=input()
             # 受信データをチェックし、更新があれば表示
             stmInstance.update()
-            stmInstance.frontTSD10.update()
-            points = LiDAR.getLiDARScan(lidar)
-            dist = LiDAR.getCertainAngleDist(0, points)
-            print(f"LiDAR前方距離: {dist} cm")
-            print(f"TSD10距離: {stmInstance.frontTSD10.get_distance() / 10} cm")
-            print(f"ToF距離: {stmInstance.tof.getDistance()} mm")
+            # stmInstance.frontTSD10.update()
+            # points = LiDAR.getLiDARScan(lidar)
+            # dist = LiDAR.getCertainAngleDist(0, points)
+            # print(f"LiDAR前方距離: {dist} cm")
+            # print(f"TSD10距離: {stmInstance.frontTSD10.get_distance() / 10} cm")
+            print(f"ToF距離: {stmInstance.tof.getDistance()} cm")
+            if stmInstance.tof.getDistance()[0] < 15:
+                time.sleep(2)
             # CPU負荷を下げるためのわずかなウェイト
             # time.sleep(2)
 
