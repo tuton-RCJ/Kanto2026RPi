@@ -2591,18 +2591,18 @@ def moveTile(
     tileType = mazeEnums.tileType.EMPTY
 
     ### 過去の検出結果をもとに最大のものを選択する手法
-    # nowMaxCount = 0
-    # for t in list(getTileColorDict.keys()):
-    #     if t.value == "E":
-    #         continue
-    #     if (
-    #         getTileColorDict[t] > getTileColorDict[tileType]
-    #         and getTileColorDict[t]
-    #         >= max(mazeConstraints.MIN_TILE_DETECTION_THRESHOLD, nowMaxCount)
-    #         and t != mazeEnums.tileType.EMPTY
-    #     ):
-    #         tileType = t
-    #         nowMaxCount = getTileColorDict[t]
+    nowMaxCount = 0
+    for t in list(getTileColorDict.keys()):
+        if t.value == "E":
+            continue
+        if (
+            getTileColorDict[t] > getTileColorDict[tileType]
+            and getTileColorDict[t]
+            >= max(mazeConstraints.MIN_TILE_DETECTION_THRESHOLD, nowMaxCount)
+            and t != mazeEnums.tileType.EMPTY
+        ):
+            tileType = t
+            nowMaxCount = getTileColorDict[t]
 
     tileType = detectTileColor()
     mapInstance.setTileType(
