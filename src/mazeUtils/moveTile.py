@@ -909,7 +909,7 @@ def dropRescueKit(
                 stmInstance,
                 rescueVictim=False,
                 mapInstance=mapInstance,
-                normalTurnSpeed=30
+                normalTurnSpeed=50
             )
             # mapInstance.updateFrontDirection(
             #     mazeEnums.absDirection((mapInstance.frontDirection.value + 180) % 360)
