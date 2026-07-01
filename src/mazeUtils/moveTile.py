@@ -2683,9 +2683,9 @@ def moveTile(
     if mapInstance.getTileType() == mazeEnums.tileType.RED:
         stmInstance.rearSTM.playMusic(buzzerSongs.redTile)
 
-    # if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
-    #     stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
-    #     time.sleep(5.2)
+    if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
+        stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
+        time.sleep(5.2)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
         logger.info(
             f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}"
