@@ -91,7 +91,7 @@ REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
 
 # 銀タイルと判定する反射率の閾値（この値以下で銀タイルと判定） 片方を無視したかったら255を設定、銀検知を無効化したかったら両方とも0を設定
 SILVERTILE_REFLECTANCE_THRESHOLD_RF1: int = 120 
-SILVERTILE_REFLECTANCE_THRESHOLD_RF2: int = 120  
+SILVERTILE_REFLECTANCE_THRESHOLD_RF2: int = 120 
 
 # RAMP_DEG_THRESHOLD: float = 23  # 傾斜検出の閾値(度)
 RAMP_DEG_THRESHOLD: float = 12  # 傾斜検出の閾値(度)
@@ -143,7 +143,7 @@ SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE: bool = True  # 前が黒タイ
 # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
 
 SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT: bool = True  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
-SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.7  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.5  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
 
 STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断
 
