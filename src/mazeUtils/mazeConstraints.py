@@ -201,7 +201,7 @@ TURN_ANGLE_WHEN_DROP_MULTIPLE_KITS: int = (
     0  # 複数の救助キットを投下する際に回転する角度
 )
 
-TURN_180_WHEN_LACK_OF_KIT: bool = False  # 救助キットがない場合に180度回転するかどうか
+TURN_180_WHEN_LACK_OF_KIT: bool = True  # 救助キットがない場合に180度回転するかどうか
 
 ###### エラーハンドリング
 DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR: bool = False  # 壁検出エラーが発生した場合に、内部マップを全て破棄するかどうか
