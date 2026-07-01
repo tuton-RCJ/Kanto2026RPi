@@ -152,7 +152,8 @@ def getCertainAngleDist(
     distances = []
     for a in angle:
         target_deg = int(round(a)) % 360
-        idx_range = np.mod(target_deg + np.arange(-20, 21), 360)  # ±20度の範囲を探索
+        _detect_range = (-10, 21) if target_deg==90 else ( (-20, 11) if target_deg==270 else (-20, 21)) # 横をみるときは前側の範囲狭める
+        idx_range = np.mod(target_deg + np.arange(*_detect_range), 360)  # _detect_rangeの範囲を探索
         
         valid_mask = points.valid[idx_range]
         if not np.any(valid_mask):
