@@ -81,12 +81,12 @@ BLACKTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (0, 0, 0),
 )  # 黒タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 BLUETILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
-    (12, 18, 120),
-    (0, 0, 30),
+    (15, 25, 120),
+    (0, 0, 24),
 )  # 青タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 REDTILE_RGB: tuple[tuple[int, int, int], tuple[int, int, int]] = (
     (120, 20, 20),
-    (30, 0, 0),
+    (24, 0, 0),
 )  # 赤タイルと判定するRGB値の閾値, 一番大きな tuple のなかには二つ tuple が入る
 
 # 銀タイルと判定する反射率の閾値（この値以下で銀タイルと判定） 片方を無視したかったら255を設定、銀検知を無効化したかったら両方とも0を設定
