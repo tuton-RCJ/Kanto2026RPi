@@ -2490,7 +2490,7 @@ def moveTile(
 
     mapInstance.isSlopeDetected = False
 
-    detectWallRes = detectWall(lidar, mapInstance, stmInstance, not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR)
+    detectWallRes = detectWall(lidar, mapInstance, stmInstance, None, not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR)
     if (
         mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR
         and detectWallRes == False
