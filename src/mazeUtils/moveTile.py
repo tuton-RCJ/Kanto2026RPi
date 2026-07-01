@@ -998,9 +998,11 @@ def findVictimDuringMove(
                 and consequentSearchRes[side] is None
             ):  # 被災者を発見した
                 stmInstance.sts3032.stop()
-
+                
+                _back_is_wall = stmInstance.tof.getDistance()[3] < 210
+                
                 # 行き過ぎてしまうことが多いので、少し下がる
-                if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
+                if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove and not _back_is_wall:
                     logger.info("Moving backward before dropping rescue kit")
                     stmInstance.sts3032.setMotorSpeed(
                         mazeConstraints.GO_BACKWARD_LOW_SPEED
@@ -1039,7 +1041,7 @@ def findVictimDuringMove(
                 )
 
                 # 下がった分前進して元の位置に戻る
-                if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
+                if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove and not _back_is_wall:
                     stmInstance.sts3032.setMotorSpeed(
                         mazeConstraints.GO_STRAIGHT_LOW_SPEED
                     )
@@ -1105,7 +1107,9 @@ def findVictimDuringMove(
                     logger.info(
                         f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
                     )
-                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
+                    _back_is_wall = stmInstance.tof.getDistance()[3] < 210
+                    
+                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove and not _back_is_wall:
                         logger.info("Moving backward before dropping rescue kit")
                         stmInstance.sts3032.setMotorSpeed(
                             mazeConstraints.GO_BACKWARD_LOW_SPEED
@@ -1131,7 +1135,7 @@ def findVictimDuringMove(
                         ],
                         victimInfo[side],
                     )
-                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove:
+                    if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove and not _back_is_wall:
                         stmInstance.sts3032.setMotorSpeed(
                             mazeConstraints.GO_STRAIGHT_LOW_SPEED
                         )
@@ -2616,7 +2620,9 @@ def moveTile(
             
             isUpRamp = targetSteps > 1 and RollonRamp[-1] < 180
 
-            if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp:
+            _back_is_wall = stmInstance.tof.getDistance()[3] < 210
+            
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp and not _back_is_wall:
                 logger.info("Moving backward before dropping rescue kit")
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
@@ -2626,7 +2632,7 @@ def moveTile(
                 stmInstance, mapInstance, maxVictimInfo, side, detectedVictimDuringMove
             )
 
-            if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp:
+            if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp and not _back_is_wall:
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_STRAIGHT_LOW_SPEED)
                 time.sleep(mazeConstraints.BACKWARD_AFTER_DROP_KIT_TIME_SEC)
                 stmInstance.sts3032.stop()
