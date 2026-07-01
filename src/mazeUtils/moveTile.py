@@ -2266,8 +2266,8 @@ def moveTile(
             logger.info(f"Final forward adjustment... Current dist:{currentDist}")
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
-            # if currentDist > 30:
-            #     break
+            if currentDist > 30:
+                break
             if (
                 time.time() - _startTime > 0.8
             ):  # 0.8秒以上経っても距離が縮まらない場合は坂か階段か何かだったと判断し、引き返す
@@ -2623,7 +2623,7 @@ def moveTile(
     logger.info(f"Tile color detection, decided tile type: {tileType}")
     if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
         stmInstance.rearSTM.playMusic(buzzerSongs.checkpoint)
-    if mapInstance.getTileType() == mazeEunms.tileType.RED:
+    if mapInstance.getTileType() == mazeEnums.tileType.RED:
         stmInstance.rearSTM.playMusic(buzzerSongs.redTile)
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:

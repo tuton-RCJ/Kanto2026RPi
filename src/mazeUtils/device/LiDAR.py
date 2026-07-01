@@ -297,7 +297,7 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
         if connected_component_length_horizontal > deviceConstraints.WALL_DETECTION_CONNECTED_COMPONENT_THRESHOLD_CM:
             return deviceEnums.judgeWallResult.WALL  # 壁
         else:
-            if center_dist < 15:
+            if center_dist < 15 and getCertainAngleDist(angle,points) < 28:
                 return deviceEnums.judgeWallResult.WALL  # あまりに近いと視野に入りきらなくて中央障害物と判断してしまうけど、これは壁としよう。
             return deviceEnums.judgeWallResult.CENTER_OBSTACLE  # 中央障害物
         
