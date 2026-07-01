@@ -2257,6 +2257,12 @@ def moveTile(
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
                 return False, True, False
+            if min(stmInstance.gyro.getValue().roll, 360-stmInstance.gyro.getValue().roll) > 10:
+                stmInstance.sts3032.stop()
+                stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
+                time.sleep(0.1)
+                stmInstance.sts3032.stop()
+                break
             scanPoints = LiDAR.getLiDARScan(lidar)
             last_scan_points = scanPoints
             heading = stmInstance.gyro.getValue().heading
@@ -2281,6 +2287,7 @@ def moveTile(
                     time.sleep(backwardTime)
                     stmInstance.sts3032.stop()
                 break
+
 
     stmInstance.sts3032.stop()
     timing_start = debugTimingPrint(
