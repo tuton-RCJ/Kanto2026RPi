@@ -156,6 +156,13 @@ def main():
                 continue
             returnPath = mapInstance.getPathTo(start_tile_position)
             logger.info(f"Return Path: {returnPath}")
+            
+            if returnPath is None:
+                logger.error("Return path could not be calculated. Cannot return to start.")
+                mapInstance.resetMapData()
+                mapBroken = True
+                isLop = True
+                continue
 
             isLop = False
             if returnPath:

@@ -670,7 +670,7 @@ def detectWall(
                                 mapInstance.getWallType()[direction]
                                 != mazeEnums.wallType.NO_WALL
                             ):
-                                if not mazeConstraints.mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
+                                if not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
                                     mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL )
                                 logger.warning(
                                     f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
@@ -722,7 +722,7 @@ def detectWall(
                         and mapInstance.getWallType()[direction]
                         != mazeEnums.wallType.OBSTACLE_WALL
                     ):
-                        if not mazeConstraints.mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
+                        if not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
                             mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL )
                         logger.warning(
                             f"inconsistent wall detection: LiDAR indicates no wall, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm"
