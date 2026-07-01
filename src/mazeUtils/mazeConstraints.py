@@ -105,7 +105,7 @@ MIN_MOVE_STRAIGHT_SEC: float = 0.6  # 最短で1マス直進にかかると考�
 MOVETILE_TIMEOUT_SEC: float = 10  # 1マス移動のタイムアウト時間
 BLUE_TILE_WAIT_SEC: float = 5 # 青タイルの待機時間
 
-USE_PD_FOR_TURNING: bool = True  # 回転時にPD制御を使用するかどうか
+USE_PD_FOR_TURNING: bool = False  # 回転時にPD制御を使用するかどうか
 
 TURN_SPD: int = 80  # 回転時のモーター速度
 

@@ -158,6 +158,7 @@ def main():
             logger.info(f"Return Path: {returnPath}")
             
             if returnPath is None:
+                stmInstance.rearSTM.playMusic(buzzerSongs.mappingError)
                 logger.error("Return path could not be calculated. Cannot return to start.")
                 mapInstance.resetMapData()
                 mapBroken = True
@@ -173,6 +174,7 @@ def main():
 
                     if resetMapData:
                         logger.warning("Map data reset due to wall detection error.")
+                        stmInstance.rearSTM.playMusic(buzzerSongs.mappingError)
                         mapBroken = True
                         isLop = True
                         break
