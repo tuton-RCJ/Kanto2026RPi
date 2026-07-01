@@ -188,7 +188,7 @@ AVOID_SLOPE_IN_DANGEROUS_ZONE: bool = False  # Dangerous Zone内の坂を避け�
 DROP_ONLY_ONE_KIT_FOR_HARMED_COGNITIVE : bool = False  # 2点のCognitive Targetに1つのキットしか投下しない
 
 BACKWARD_AFTER_DROP_KIT : bool = True  # 救助キット投下後に少し後退するかどうか
-BACKWARD_AFTER_DROP_KIT_TIME_SEC : float = 0.5  # 救助キット投下後に後退する時間 (スピードは GO_BACKWARD_LOW_SPEED を使用)
+BACKWARD_AFTER_DROP_KIT_TIME_SEC : float = 0.35  # 救助キット投下後に後退する時間 (スピードは GO_BACKWARD_LOW_SPEED を使用)
 
 USE_SAME_COLOR_FOR_VICTIM_DETECTION_LED_BLINK : bool = False  # 被災者検出用LEDを点滅させる際に、同じ色で点滅させるかどうか
 
@@ -224,7 +224,7 @@ GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 
 RETURN_TIME_THRESHOLD_SEC: float = 380.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
-RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 440.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
+RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 450.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
 
 
 ###### 探索モード

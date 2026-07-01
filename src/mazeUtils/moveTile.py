@@ -2260,7 +2260,7 @@ def moveTile(
             if min(stmInstance.gyro.getValue().roll, 360-stmInstance.gyro.getValue().roll) > 10:
                 stmInstance.sts3032.stop()
                 stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
-                time.sleep(0.1)
+                time.sleep(0.16)
                 stmInstance.sts3032.stop()
                 break
             scanPoints = LiDAR.getLiDARScan(lidar)
