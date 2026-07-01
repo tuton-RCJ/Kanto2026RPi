@@ -670,6 +670,8 @@ def detectWall(
                                 mapInstance.getWallType()[direction]
                                 != mazeEnums.wallType.NO_WALL
                             ):
+                                if not mazeConstraints.mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
+                                    mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL )
                                 logger.warning(
                                     f"inconsistent wall detection: LiDAR indicates ramp, but map indicates wall. distance: {dist} cm, TSD10 distance: {stmInstance.frontTSD10.get_distance() / 10} cm"
                                 )
@@ -679,6 +681,8 @@ def detectWall(
                         mapInstance.getWallType()[direction]
                         == mazeEnums.wallType.NO_WALL
                     ):
+                        if not mazeConstraints.mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
+                            mapInstance.setWallType(direction, mazeEnums.wallType.WALL )
                         logger.warning(
                             f"inconsistent wall detection: LiDAR indicates wall, but map indicates no wall. distance: {dist} cm"
                         )
@@ -718,6 +722,8 @@ def detectWall(
                         and mapInstance.getWallType()[direction]
                         != mazeEnums.wallType.OBSTACLE_WALL
                     ):
+                        if not mazeConstraints.mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
+                            mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL )
                         logger.warning(
                             f"inconsistent wall detection: LiDAR indicates no wall, but map indicates {mapInstance.getWallType()[direction]}. distance: {dist} cm"
                         )
@@ -2523,7 +2529,7 @@ def moveTile(
 
     mapInstance.isSlopeDetected = False
 
-    detectWallRes = detectWall(lidar, mapInstance, stmInstance, None, not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR)
+    detectWallRes = detectWall(lidar, mapInstance, stmInstance)
     if (
         mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR
         and detectWallRes == False
@@ -2666,9 +2672,9 @@ def moveTile(
     if mapInstance.getTileType() == mazeEnums.tileType.RED:
         stmInstance.rearSTM.playMusic(buzzerSongs.redTile)
 
-    if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
-        stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
-        time.sleep(5.2)
+    # if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
+    #     stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
+    #     time.sleep(5.2)
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
         logger.info(
             f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}"
