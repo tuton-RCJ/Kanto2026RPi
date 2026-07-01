@@ -1660,7 +1660,7 @@ def moveTile(
                                 [
                                     mazeEnums.absDirection(
                                         (
-                                            mapInstance.frontDirection.value
+                                            direction
                                             + (90 if s == deviceEnums.Side.LEFT else 270)
                                         )
                                         % 360
@@ -1685,7 +1685,7 @@ def moveTile(
                                 [
                                     mazeEnums.absDirection(
                                         (
-                                            mapInstance.frontDirection.value
+                                            direction
                                             + (90 if s == deviceEnums.Side.LEFT else 270)
                                         )
                                         % 360
