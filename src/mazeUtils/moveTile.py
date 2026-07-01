@@ -1037,7 +1037,7 @@ def findVictimDuringMove(
             lastUpdateTime = stmInstance.unitv.getLastUpdateTime()[side]
             if (
                 mazeConstraints.MOVE_STRAIGHT_SEC - practicalMoveTime
-                < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20
+                < mazeConstraints.MOVE_STRAIGHT_SEC * 0.40
             ):  # 移動終了間際
                 victimInfo = stmInstance.unitv.getStatus()
                 if victimInfo[side] != deviceEnums.UnitVStatus.NOTHING:
@@ -1046,7 +1046,7 @@ def findVictimDuringMove(
 
             if (
                 practicalMoveTime - lastUpdateTime / 1000  # type: ignore
-            ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.20:  # 移動開始直後ならば
+            ) < mazeConstraints.MOVE_STRAIGHT_SEC * 0.30:  # 移動開始直後ならば
                 victimInfo = stmInstance.unitv.getStatus()
                 if (  # 発見した方向に壁があり、すでに見たことのある被災者でもない　ならば
                     victimInfo[side] != deviceEnums.UnitVStatus.NOTHING
