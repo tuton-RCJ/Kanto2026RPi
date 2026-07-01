@@ -1068,6 +1068,16 @@ def findVictimDuringMove(
                         )
                     ]
                     != mazeEnums.wallType.NO_WALL
+                    and mapInstance.getWallType()[
+                        mazeEnums.absDirection(
+                            (
+                                mapInstance.frontDirection.value
+                                + (90 if side == deviceEnums.Side.LEFT else 270)
+                            )
+                            % 360
+                        )
+                    ]
+                    != mazeEnums.wallType.OBSTACLE_WALL
                     and (
                         not mapInstance.isSeenVictimType(
                             [
@@ -1202,6 +1212,17 @@ def turnWith45VictimCheck(
                                 )
                             ]
                             != mazeEnums.wallType.NO_WALL
+                            and mapInstance.getWallType()[  # 回転する前
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + turnDir * (_c + 1)
+                                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ]
+                            != mazeEnums.wallType.OBSTACLE_WALL
                             and mapInstance.getWallType()[  # 回転した後
                                 mazeEnums.absDirection(
                                     (
@@ -1213,6 +1234,17 @@ def turnWith45VictimCheck(
                                 )
                             ]
                             != mazeEnums.wallType.NO_WALL
+                            and mapInstance.getWallType()[  # 回転した後
+                                mazeEnums.absDirection(
+                                    (
+                                        mapInstance.frontDirection.value
+                                        + turnDir * (_c + 2)
+                                        + (90 if s == deviceEnums.Side.LEFT else 270)
+                                    )
+                                    % 360
+                                )
+                            ]
+                            != mazeEnums.wallType.OBSTACLE_WALL
                         ):
                             watchVictimFlag[s] = True
                     if (
@@ -1598,9 +1630,9 @@ def moveTile(
 
     if mazeConstraints.SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT:
         # 回転前正面方向に壁があって、90°回転であって、90°回転後の後ろに壁がない場合、開店後に少し下がって被災者を確認する
-        if mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.NO_WALL:
+        if mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.NO_WALL and mapInstance.getWallType()[mapInstance.frontDirection] != mazeEnums.wallType.OBSTACLE_WALL:
             if (direction.value - mapInstance.frontDirection.value + 360) % 360 in (90, 270):
-                if mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] == mazeEnums.wallType.NO_WALL:
+                if mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] == mazeEnums.wallType.NO_WALL or mapInstance.getWallType()[mazeEnums.absDirection((direction.value + 180) % 360)] == mazeEnums.wallType.OBSTACLE_WALL:
                     debugPrint("After turning, checking for victims due to wall presence.")
                     _victim_check_start_time = time.time()
                     stmInstance.sts3032.setMotorSpeed(mazeConstraints.GO_BACKWARD_LOW_SPEED)
