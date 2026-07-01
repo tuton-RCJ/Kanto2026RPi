@@ -2269,6 +2269,7 @@ def moveTile(
             currentDist = LiDAR.getCertainAngleDist(
                 -heading + direction.value, scanPoints
             )
+            currentDist = stmInstance.tof.getDistance()[0]
             logger.info(f"Final forward adjustment... Current dist:{currentDist}")
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
