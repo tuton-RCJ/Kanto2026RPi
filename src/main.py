@@ -54,6 +54,7 @@ def main():
     stmInstance.rearSTM.camled((255, 255, 255))
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.rearSTM.playMusic(buzzerSongs.start)
+    stmInstance.rearSTM.send_message("Get Ready!")
     stmInstance.update()
     while stmInstance.switch.getToggleSwitch1():
         stmInstance.update()
@@ -142,6 +143,8 @@ def main():
                 continue
 
             ##### 帰還開始 #####
+            
+            stmInstance.rearSTM.send_message(f"Returning to Start. Time: {int(time.time() - gameStartTime)}s")
 
             stmInstance.rearSTM.playMusic(buzzerSongs.hotaru)
             start_tile_position =  mapInstance.estimateStartTile()
