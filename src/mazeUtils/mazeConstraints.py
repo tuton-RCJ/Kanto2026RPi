@@ -142,7 +142,7 @@ SEE_VICTIM_WHEN_TURNING_BACKWARD_FROM_BLACK_TILE: bool = True  # 前が黒タイ
 
 # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
 
-SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT: bool = False  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT: bool = True  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモード
 SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: float = 0.7  # コーナーではない所で旋回した際、壁があったら見逃さないように少し下がって被災者を見るモードの後退時間
 
 STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断
