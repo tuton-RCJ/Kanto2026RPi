@@ -1002,7 +1002,7 @@ def findVictimDuringMove(
             ):  # 被災者を発見した
                 stmInstance.sts3032.stop()
                 stmInstance.update()
-                _back_is_wall = stmInstance.tof.getDistance()[3] < 21
+                _back_is_wall = stmInstance.tof.getDistance()[2] < 21
                 
                 # 行き過ぎてしまうことが多いので、少し下がる
                 if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove and not _back_is_wall:
@@ -1111,7 +1111,7 @@ def findVictimDuringMove(
                         f"Detected victim info during movement needing rescue kit drop: {victimInfo}"
                     )
                     stmInstance.update()
-                    _back_is_wall = stmInstance.tof.getDistance()[3] < 21
+                    _back_is_wall = stmInstance.tof.getDistance()[2] < 21
                     
                     if mazeConstraints.BACKWARD_AFTER_DROP_KIT and useBackwardMove and not _back_is_wall:
                         logger.info("Moving backward before dropping rescue kit")
@@ -2625,7 +2625,7 @@ def moveTile(
             isUpRamp = targetSteps > 1 and RollonRamp[-1] < 180
             
             stmInstance.update()
-            _back_is_wall = stmInstance.tof.getDistance()[3] < 21
+            _back_is_wall = stmInstance.tof.getDistance()[2] < 21
             
             if mazeConstraints.BACKWARD_AFTER_DROP_KIT and not isUpRamp and not _back_is_wall:
                 logger.info("Moving backward before dropping rescue kit")
