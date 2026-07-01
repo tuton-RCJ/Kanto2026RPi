@@ -1,9 +1,5 @@
-from config import setup_logging, get_logger
-from mazeUtils import mazeMap
-from mazeUtils import moveTile
-from mazeUtils.device import stm
+# 
 from mazeUtils.device import LiDAR
-from mazeUtils.device import buzzerSongs
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
 from mazeUtils.device import deviceEnums
