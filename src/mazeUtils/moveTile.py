@@ -1728,6 +1728,8 @@ def moveTile(
                 if stmInstance.switch.getToggleSwitch1():
                     stmInstance.sts3032.stop()
                     return False, True, False
+                if min(stmInstance.gyro.getValue().roll, 360-stmInstance.gyro.getValue().roll) > 15:
+                    break
                 scanPoints = LiDAR.getLiDARScan(lidar)
                 heading = stmInstance.gyro.getValue().heading
                 currentDist = LiDAR.getCertainAngleDist(
@@ -1901,7 +1903,6 @@ def moveTile(
             f"moveTile applied motor speed left={leftSpeed} right={rightSpeed}",
             timing_start,
         )
-
 
 
         if mazeConstraints.USE_ADJUSTMENT_AFTER_RAMP:
