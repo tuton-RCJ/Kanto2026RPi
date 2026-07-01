@@ -930,7 +930,7 @@ def dropRescueKit(
                     return
         else:
             debugPrint(f"Not enough rescue kits to drop on {side} side.")
-    turnToCertainDirection(firstHeading, stmInstance)
+    turnToCertainDirection(firstHeading, stmInstance, normalTurnSpeed=30)
 
 
 def victimToWallType(victim: deviceEnums.UnitVStatus) -> mazeEnums.wallType:
