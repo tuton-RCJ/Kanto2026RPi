@@ -681,7 +681,7 @@ def detectWall(
                         mapInstance.getWallType()[direction]
                         == mazeEnums.wallType.NO_WALL
                     ):
-                        if not mazeConstraints.mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
+                        if not mazeConstraints.DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR:
                             mapInstance.setWallType(direction, mazeEnums.wallType.WALL )
                         logger.warning(
                             f"inconsistent wall detection: LiDAR indicates wall, but map indicates no wall. distance: {dist} cm"
