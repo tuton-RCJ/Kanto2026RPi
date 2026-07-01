@@ -331,9 +331,9 @@ def judgeWallCertainAngle(angle: int, points: ScanMap ) -> deviceEnums.judgeWall
         return deviceEnums.judgeWallResult.RIGHT_OBSTACLE  # 右障害物
     elif obstacle_left_flag and obstacle_right_flag:
         logger.warning(
-            "Both left and right obstacles detected, returning LEFT_OBSTACLE as default."
+            "Both left and right obstacles detected, returning WALL as default."
         )
-        return deviceEnums.judgeWallResult.LEFT_OBSTACLE  # 左障害物
+        return deviceEnums.judgeWallResult.WALL  # 左障害物
     else:
         return deviceEnums.judgeWallResult.NO_WALL  # 壁なし
 
