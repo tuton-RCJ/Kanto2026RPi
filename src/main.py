@@ -122,7 +122,7 @@ def main():
                     
                 # 周囲にU字型の未探索タイルがある場合、優先的にU字型のタイルに進む
                 detectedUshapedTile = False
-                if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE:
+                if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE and mapInstance.getTileType() != mazeEnums.tileType.RED:
                     for direction in mazeEnums.absDirection:
                         next_tile = mapInstance.getTileType(direction)
                         if next_tile is None:

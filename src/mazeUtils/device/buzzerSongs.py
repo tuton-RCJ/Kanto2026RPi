@@ -49,6 +49,16 @@ detectedVictim = MusicData(
     ]
 )
 
+redTile = MusicData(
+    musicID=10,
+    notes=[
+        [523, 100],
+        [523, 100],
+        [1047, 100],
+        [1047, 100],
+    ]
+)
+
 kimigayo = MusicData(
     musicID=2,
     notes=[

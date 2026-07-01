@@ -478,6 +478,7 @@ def turnToCertainDirection(
         debugPrint(
             f"Turning to {targetDir} deg, current heading: {stmInstance.gyro.getValue().heading} deg, turnAngle: {turnAngle} deg"
         )
+        
 
         oldError = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
         oldTime = time.time()
@@ -2619,6 +2620,8 @@ def moveTile(
     logger.info(f"Tile color detection, decided tile type: {tileType}")
     if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
         stmInstance.rearSTM.playMusic(buzzerSongs.checkpoint)
+    if mapInstance.getTileType() == mazeEunms.tileType.RED:
+        stmInstance.rearSTM.playMusic(buzzerSongs.redTile)
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
         stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
