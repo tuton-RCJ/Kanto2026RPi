@@ -2263,11 +2263,14 @@ def moveTile(
             currentDist = LiDAR.getCertainAngleDist(
                 -heading + direction.value, scanPoints
             )
+            logger.info(f"Final forward adjustment... Current dist:{currentDist}")
             if currentDist < mazeConstraints.MOVE_STRAIGHT_THRESHOLD_CM:
                 break
+            # if currentDist > 30:
+            #     break
             if (
-                time.time() - _startTime > 1.5
-            ):  # 1.5秒以上経っても距離が縮まらない場合は坂か階段か何かだったと判断し、引き返す
+                time.time() - _startTime > 0.8
+            ):  # 0.8秒以上経っても距離が縮まらない場合は坂か階段か何かだったと判断し、引き返す
                 backwardTime = time.time() - _startTime
                 stmInstance.sts3032.stop()
                 logger.warning("Final forward adjustment timeout, stopping adjustment")
