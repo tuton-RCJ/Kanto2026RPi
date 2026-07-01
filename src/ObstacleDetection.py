@@ -23,8 +23,8 @@ def main():
             #     # detection = LiDAR.judgeWallCertainAngle(0, pts)
             #     # print(detection)
             LiDAR.exportPointCloudImg_Fast(pts)
-            # detection = LiDAR.judgeWallCertainAngle(0, pts)
-            # print(detection)
+            detection = LiDAR.judgeWallCertainAngle(0, pts)
+            print(detection)
             time.sleep(2)
     except KeyboardInterrupt:
         LiDAR.liDARShutdown(lidarInstance)
