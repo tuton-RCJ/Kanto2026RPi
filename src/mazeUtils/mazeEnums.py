@@ -61,6 +61,7 @@ class wallType(Enum):
     Y_VICTIM = 7
     R_VICTIM = 8
     OBSTACLE_WALL = 9
+    SIDE_OBSTACLE_WALL = 10
 
 class tileType(Enum):
     UNKNOWN = "U"

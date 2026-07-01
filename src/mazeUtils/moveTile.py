@@ -606,6 +606,13 @@ def detectWall(
                         logger.debug(
                             f"Detected center obstacle at {direction}, distance: {dist} cm"
                         )
+                # elif detectedWallStatus == deviceEnums.judgeWallResult.LEFT_OBSTACLE or detectedWallStatus == deviceEnums.judgeWallResult.RIGHT_OBSTACLE:
+                #     mapInstance.setWallType(
+                #         direction, mazeEnums.wallType.SIDE_OBSTACLE_WALL
+                #     )
+                #     logger.debug(
+                #         f"Detected side obstacle at {direction}, distance: {dist} cm"
+                #     )
                 else:
                     mapInstance.setWallType(direction, mazeEnums.wallType.NO_WALL)
             else:
