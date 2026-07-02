@@ -567,7 +567,7 @@ class Switch:
         self,
     ):
         self.pushSwitch1 = False
-        self.toggleSwitch1 = False
+        self.toggleSwitch1 = True
 
     def setValue(self, pushSwitch1: bool, toggleSwitch1: bool):
         self.pushSwitch1 = pushSwitch1

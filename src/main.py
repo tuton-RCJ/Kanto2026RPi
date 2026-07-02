@@ -56,11 +56,17 @@ def main():
     stmInstance.rearSTM.playMusic(buzzerSongs.start)
     stmInstance.rearSTM.send_message("Get Ready!")
     stmInstance.update()
+
     while stmInstance.switch.getToggleSwitch1():
         if stmInstance.switch.getPushSwitch1():
             stmInstance.rearSTM.playMusic(buzzerSongs.start)
             time.sleep(1)
-        stmInstance.update()
+        if not stmInstance.update():
+            logger.warning("STM update failed. Retrying...")
+            stmInstance.switch.setValue(pushSwitch1=False, toggleSwitch1=True)
+            time.sleep(0.1)
+            continue
+            
     stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     gameStartTime = time.time()
     time.sleep(1)
