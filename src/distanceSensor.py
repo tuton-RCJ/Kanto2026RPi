@@ -6,7 +6,7 @@ from mazeUtils.device import LiDAR
 
 def main():
     stmInstance = stm.STM()
-    lidar = LiDAR.initializeLidar()
+    # lidar = LiDAR.initializeLidar()
     try:
         
         print("データ読み取り中... (Ctrl+C で終了)")
@@ -19,9 +19,11 @@ def main():
             # dist = LiDAR.getCertainAngleDist(0, points)
             # print(f"LiDAR前方距離: {dist} cm")
             # print(f"TSD10距離: {stmInstance.frontTSD10.get_distance() / 10} cm")
+            
             print(f"ToF距離: {stmInstance.tof.getDistance()} cm")
-            if stmInstance.tof.getDistance()[0] < 15:
-                time.sleep(2)
+            
+            # if stmInstance.tof.getDistance()[0] < 15:
+            #     time.sleep(2)
             # CPU負荷を下げるためのわずかなウェイト
             # time.sleep(2)
 

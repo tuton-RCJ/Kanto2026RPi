@@ -61,7 +61,7 @@ USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT: bool = True # 正面
 
 
 # 直進中の壁追従(壁が近い時のみ)の制御パラメータ
-WALL_FOLLOW_ENABLE_DIST_CM: float = 20  # 片側でもこの距離以下なら壁距離制御を有効化
+WALL_FOLLOW_ENABLE_DIST_CM: float = 22  # 片側でもこの距離以下なら壁距離制御を有効化
 WALL_FOLLOW_TARGET_DIST_CM: float = 14  # 片側のみ近い場合の目標距離
 WALL_FOLLOW_P_GAIN: float = 2.0  # 壁距離制御の比例ゲイン(steer量)
 WALL_FOLLOW_MAX_STEER: float = 20.0  # 壁距離制御のsteer上限(gyro優先のため抑える)
