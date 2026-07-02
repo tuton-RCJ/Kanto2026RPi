@@ -426,11 +426,11 @@ def turnToCertainDirection(
                 stmInstance.sts3032.stop()
                 _turn_start_time = time.time()
 
-                (
-                    stmInstance.sts3032.turnRight(normalTurnSpeed)
-                    if turnDirection == mazeEnums.turnDirection.RIGHT
-                    else stmInstance.sts3032.turnLeft(normalTurnSpeed)
-                )
+            (
+                stmInstance.sts3032.turnRight(normalTurnSpeed)
+                if turnDirection == mazeEnums.turnDirection.RIGHT
+                else stmInstance.sts3032.turnLeft(normalTurnSpeed)
+            )
 
         assert (
             abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))
@@ -452,6 +452,7 @@ def turnToCertainDirection(
             if oldTurnDir == mazeEnums.turnDirection.RIGHT
             else stmInstance.sts3032.turnLeft(mazeConstraints.TURN_SPD_SLOW)
         )
+        _turn_start_time = time.time()
         while (
             abs(regulationAngle(stmInstance.gyro.getValue().heading - targetDir))
             > mazeConstraints.TURN_THRESHOLD_DEG_FIX
@@ -472,6 +473,23 @@ def turnToCertainDirection(
             if stmInstance.switch.getToggleSwitch1():
                 stmInstance.sts3032.stop()
                 return
+            if mazeConstraints.USE_STUCK_AVOIDANCE_WHEN_TURNING and (
+                time.time() - _turn_start_time
+                > mazeConstraints.STUCK_AVOIDANCE_WHEN_TURNING_THRESHOLD_SEC
+            ):
+                stmInstance.sts3032.stop()
+                logger.warning(
+                    "Stuck avoidance triggered during turning. Performing escape maneuver."
+                )
+                stmInstance.sts3032.setMotorSpeed(
+                    mazeConstraints.STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_SPEED
+                )
+                time.sleep(
+                    mazeConstraints.STUCK_AVOIDANCE_WHEN_TURNING_FORWARD_TIME_SEC
+                )
+                stmInstance.sts3032.stop()
+                _turn_start_time = time.time()
+
         stmInstance.sts3032.stop()
     else:  # PD制御
         turnAngle = regulationAngle(stmInstance.gyro.getValue().heading - targetDir)
