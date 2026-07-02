@@ -2298,6 +2298,21 @@ def moveTile(
             f"moveTile loop end practicalMoveTime={practicalMoveTime:.3f}", timing_start
         )
 
+    # 止まった後少し被災者を見る
+    _start_pause_detection_Time = time.time()
+    while time.time() - _start_pause_detection_Time < 0.25:
+        stmInstance.update()
+        if stmInstance.switch.getToggleSwitch1():
+            stmInstance.sts3032.stop()
+            return False, True, False
+        for s in deviceEnums.Side:
+            unitvStatus = stmInstance.unitv.getStatus()[s]
+            if unitvStatus != deviceEnums.UnitVStatus.NOTHING:
+                getVictimDict[s][unitvStatus] += 1
+                logger.debug(
+                    f"Detected victim info after stopping: {unitvStatus} on {s.name} side"
+                )
+
     ###### 移動後、目の前が壁であれば位置調整のため少し前進 ######
     timing_start = debugTimingPrint(
         "moveTile start final forward adjustment", timing_start
