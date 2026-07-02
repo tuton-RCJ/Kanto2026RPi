@@ -2300,7 +2300,7 @@ def moveTile(
 
     # 止まった後少し被災者を見る
     _start_pause_detection_Time = time.time()
-    while time.time() - _start_pause_detection_Time < 0.25:
+    while time.time() - _start_pause_detection_Time < 0.1:
         stmInstance.update()
         if stmInstance.switch.getToggleSwitch1():
             stmInstance.sts3032.stop()
