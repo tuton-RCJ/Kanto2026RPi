@@ -147,7 +147,7 @@ SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_BACKWARD_TIME_SEC: fl
 
 STAIR_THRESHOLD_CM: float = 5.0  # verticalMovedDistanceの和がこの値以下になったら同じレイヤーに戻ってきたとして階段判断
 
-SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_ALWAYS: bool = True # 後退動作を壁があればいつでも実行する
+SEE_VICTIM_AFTER_TURNING_AT_NOT_CORNER_But_WALL_IS_PRESENT_ALWAYS: bool = False # 後退動作を壁があればいつでも実行する
 
 ##### 坂道例外処理
 
