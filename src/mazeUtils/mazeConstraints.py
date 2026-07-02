@@ -212,7 +212,7 @@ DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT: bool = True # 壁
 ###### Dijkstraのコスト計算の定数値。実測値を代入する。
 DIJKSTRA_COST_STRAIGHT_ONE_TILE: float = 2.0  # 直進のコスト
 DIJKSTRA_COST_TURN_90_DEG: float = 1.0  # 回転のコスト
-DIJKSTRA_COST_BLUE_TILE: float = 5.0  # 青タイルの追加コスト
+DIJKSTRA_COST_BLUE_TILE: float = 25.0  # 青タイルの追加コスト
 
 
 
