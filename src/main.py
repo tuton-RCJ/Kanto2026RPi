@@ -57,6 +57,9 @@ def main():
     stmInstance.rearSTM.send_message("Get Ready!")
     stmInstance.update()
     while stmInstance.switch.getToggleSwitch1():
+        if stmInstance.switch.getPushSwitch1():
+            stmInstance.rearSTM.playMusic(buzzerSongs.start)
+            time.sleep(1)
         stmInstance.update()
     stmInstance.gyro.setOffset(stmInstance.gyro.getValue())
     gameStartTime = time.time()
