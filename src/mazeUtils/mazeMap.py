@@ -190,11 +190,11 @@ class mazeMap:
         self.savedCache = dict()
         self.lastCheckpoint = self.currentPosition
 
-        # 直前に上った坂の鉛直距離を3マス分保持
-        self.movedVerticalDistanceNUM = 3
+        # 直前に上った坂の鉛直距離を4マス分保持
+        self.movedVerticalDistanceNUM = 4
         self.movedVerticalDistance: list[tuple[float, bool]] = [
             (0, False) for _ in range(self.movedVerticalDistanceNUM)
-        ]  # 1個前、2個前、3個前の坂の鉛直距離(cm)と坂検知をしたかのフラグ
+        ]  # 1個前、2個前、3個前、4個前の坂の鉛直距離(cm)と坂検知をしたかのフラグ
 
         # 坂道検出をしたかどうかのフラグ
         self.isSlopeDetected = False
