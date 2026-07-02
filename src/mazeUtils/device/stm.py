@@ -744,7 +744,7 @@ class STM:
                 # data[7]の8bit目がプッシュスイッチ1の値、7bit目がトグルスイッチ1の値
                 self.switch.setValue(
                     pushSwitch1=bool((data[12] >> 7) & 0x01),
-                    toggleSwitch1=bool((data[12] >> 6) & 0x01),
+                    toggleSwitch1= (not bool((data[12] >> 6) & 0x01)),
                 )
                 #   int distance = ((int)sensorData[11 + i * 2] << 8) + (int)sensorData[12 + i * 2];
                 # uart1.print(distance);
