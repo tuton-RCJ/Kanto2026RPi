@@ -212,7 +212,7 @@ DESTROY_ALL_INTERNAL_MAP_WHEN_WALL_DETECTION_ERROR_ONLY_FRONT: bool = True # 壁
 ###### Dijkstraのコスト計算の定数値。実測値を代入する。
 DIJKSTRA_COST_STRAIGHT_ONE_TILE: float = 2.0  # 直進のコスト
 DIJKSTRA_COST_TURN_90_DEG: float = 1.0  # 回転のコスト
-DIJKSTRA_COST_BLUE_TILE: float = 25.0  # 青タイルの追加コスト
+DIJKSTRA_COST_BLUE_TILE: float = 30.0  # 青タイルの追加コスト
 
 
 
@@ -224,7 +224,7 @@ GAME_TIME_SEC: float = 480.0  # 制限時間 (秒)
 
 RETURN_TIME_THRESHOLD_SEC: float = 380.0  # この時間たったら帰還開始と判断する閾値 (RETURN_JUDGE_MODE が ONLY_TIME_BASED の場合に使用)
 
-RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 450.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
+RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC: float = 440.0  # 現在の時刻 + 帰還に必要な時間がこの値を超えると帰還開始と判断する閾値 (RETURN_JUDGE_MODE が TIME_BASED_WITH_DISTANCE の場合に使用)
 
 
 ###### 探索モード
