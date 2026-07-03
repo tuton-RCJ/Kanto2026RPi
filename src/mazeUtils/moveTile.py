@@ -162,7 +162,7 @@ def detectTileColor() -> mazeEnums.tileType:
                 < mazeConstraints.BLACKTILE_RGB[0][2]
             )
         ):
-            return mazeEnums.tileType.BLACK
+            return mazeEnums.tileType.RED
         elif (
             (
                 mazeConstraints.BLUETILE_RGB[1][0]
@@ -194,7 +194,7 @@ def detectTileColor() -> mazeEnums.tileType:
                 < mazeConstraints.REDTILE_RGB[0][2]
             )
         ):
-            return mazeEnums.tileType.RED
+            return mazeEnums.tileType.BLACK
         elif (rf1 <= mazeConstraints.SILVERTILE_REFLECTANCE_THRESHOLD_RF1) or (
             rf2 <= mazeConstraints.SILVERTILE_REFLECTANCE_THRESHOLD_RF2
         ):
@@ -235,7 +235,7 @@ def escapeFromBlackTile(
     getVictimDict: dict[deviceEnums.Side, defaultdict[deviceEnums.UnitVStatus, int]]
 ) -> bool:
     tempTileColor = detectTileColor()
-    if tempTileColor == mazeEnums.tileType.BLACK and cameraBlackTileDetected:
+    if tempTileColor == mazeEnums.tileType.BLACK:
         stmInstance.sts3032.stop()
         mapInstance.setTileType(mazeEnums.tileType.BLACK, direction=direction)
         logger.info("Black tile detected! Stopping movement. Starting escape maneuver.")
