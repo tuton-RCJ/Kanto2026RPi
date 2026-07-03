@@ -12,8 +12,8 @@ STRAIGHT_TOF_P_GAIN: float = 8
 # USE_MOVE_METHOD: mazeEnums.moveMethod = (
 #     mazeEnums.moveMethod.SEE_FRONT
 # )  # 直進時の制御方法
-TURN_THRESHOLD_DEG_FIX: float = 2  # 回転時の誤差許容角度(調整時)
-TURN_THRESHOLD_DEG: float = 6  # 回転時の誤差許容角度
+TURN_THRESHOLD_DEG_FIX: float = 1  # 回転時の誤差許容角度(調整時)
+TURN_THRESHOLD_DEG: float = 10  # 回転時の誤差許容角度
 GO_STRAIGHT_MAX_SPEED: dict[deviceEnums.Side, int] = {
     deviceEnums.Side.LEFT: 100,
     deviceEnums.Side.RIGHT: 100,
