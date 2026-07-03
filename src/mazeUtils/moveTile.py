@@ -194,7 +194,7 @@ def detectTileColor() -> mazeEnums.tileType:
                 < mazeConstraints.REDTILE_RGB[0][2]
             )
         ):
-            return mazeEnums.tileType.EMPTY
+            return mazeEnums.tileType.RED
         elif (rf1 <= mazeConstraints.SILVERTILE_REFLECTANCE_THRESHOLD_RF1) or (
             rf2 <= mazeConstraints.SILVERTILE_REFLECTANCE_THRESHOLD_RF2
         ):

@@ -26,6 +26,7 @@ def _detect_and_wait_for_lop(stmInstance) -> bool:
     while stmInstance.switch.getToggleSwitch1():
         # 進行停止中の待機
         stmInstance.update()
+        logger.info(f"LoP.. gyro heading: {stmInstance.gyro.getValue().heading}")
         toggleswitchFlag = True
     return toggleswitchFlag
 
