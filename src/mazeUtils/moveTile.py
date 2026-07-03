@@ -2722,14 +2722,18 @@ def moveTile(
         tileType if tileType != mazeEnums.tileType.BLACK else mazeEnums.tileType.EMPTY
     )
     logger.info(f"Tile color detection, decided tile type: {tileType}")
-    if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
-        stmInstance.rearSTM.playMusic(buzzerSongs.checkpoint)
+    # if mapInstance.getTileType() == mazeEnums.tileType.SILVER:
+    #     stmInstance.rearSTM.playMusic(buzzerSongs.checkpoint)
     if mapInstance.getTileType() == mazeEnums.tileType.RED:
-        stmInstance.rearSTM.playMusic(buzzerSongs.redTile)
+        # REDは黒タイル。2人発見。6秒点滅
+        flashLED(stmInstance, mapInstance, 6, 0.5, (255,255,255))
 
     if mapInstance.getTileType() == mazeEnums.tileType.BLUE:
-        stmInstance.rearSTM.playMusic(buzzerSongs.swamp)
-        time.sleep(5.2)
+        # BLUEは青タイル。1人発見。6秒点灯
+        turnOnLED(stmInstance, (255,255,255))
+        time.sleep(6)
+        turnOffLED(stmInstance)
+        
     if mapInstance.getTileType() != mazeEnums.tileType.EMPTY:
         logger.info(
             f"Moved to {mapInstance.currentPosition}, Tile type: {mapInstance.getTileType()}, Wall types: {mapInstance.getWallType()}"
