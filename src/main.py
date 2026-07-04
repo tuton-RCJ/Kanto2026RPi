@@ -95,7 +95,7 @@ def main():
         pendingOrder = None  # LoPを跨いでも作りかけの注文を保持する
         while True:
             while mapInstance.sendedDishes < 3:
-                if time.time() - gameStartTime > 60:
+                if time.time() - gameStartTime > 420:
                     logger.info("Game time exceeded. Exiting.")
                     break
                 stmInstance.update()
