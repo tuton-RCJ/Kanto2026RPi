@@ -141,7 +141,13 @@ def detectTileColor() -> mazeEnums.tileType:
 
         colorSensor = colorsensor.ColorSensor()
     try:
-        if not colorSensor.update():
+        ok_flag = False
+        for i in range(5):
+            if colorSensor.update():
+                ok_flag = True
+                continue
+        if not ok_flag:
+            logger.warning("could not read the color sensor values")
             return mazeEnums.tileType.EMPTY
         r, g, b = colorSensor._colorRGB
         rf1, rf2 = colorSensor._reflectance
