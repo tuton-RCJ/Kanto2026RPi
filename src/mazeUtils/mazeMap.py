@@ -87,23 +87,23 @@ def dijkstra(
                 / mazeConstraints.TILE_SIZE_CM
             )
 
-            # 青タイルならコストを追加
-            if getTileType((nx, ny, nz)) == mazeEnums.tileType.BLUE:
-                step_cost += mazeConstraints.DIJKSTRA_COST_BLUE_TILE
+            # # 青タイルならコストを追加
+            # if getTileType((nx, ny, nz)) == mazeEnums.tileType.BLUE:
+            #     step_cost += mazeConstraints.DIJKSTRA_COST_BLUE_TILE
 
-            # 赤タイル -> 未訪問かつ未発見タイルの移動はコストを大きくする（先にDangerous以外を全部探索する）
-            if (
-                getTileType((nx, ny, nz)) == mazeEnums.tileType.UNKNOWN
-                and getTileType(pos) == mazeEnums.tileType.RED
-            ):
-                step_cost += 10000
-                neighbor_graph = mazeGraph[nz][ny][nx]
-                for _dir in mazeEnums.absDirection:
-                    # 今のタイル以外に辺が張ってあれば、それは発見済みタイルなのでコストは変えない
-                    if _dir != move_dir.opposite() and neighbor_graph[_dir] is not None:
-                        if getTileType(neighbor_graph[_dir][:3]) != mazeEnums.tileType.RED:  # type: ignore 赤タイル隣接でなければ
-                            step_cost -= 10000
-                            break
+            # # 赤タイル -> 未訪問かつ未発見タイルの移動はコストを大きくする（先にDangerous以外を全部探索する）
+            # if (
+            #     getTileType((nx, ny, nz)) == mazeEnums.tileType.UNKNOWN
+            #     and getTileType(pos) == mazeEnums.tileType.RED
+            # ):
+            #     step_cost += 10000
+            #     neighbor_graph = mazeGraph[nz][ny][nx]
+            #     for _dir in mazeEnums.absDirection:
+            #         # 今のタイル以外に辺が張ってあれば、それは発見済みタイルなのでコストは変えない
+            #         if _dir != move_dir.opposite() and neighbor_graph[_dir] is not None:
+            #             if getTileType(neighbor_graph[_dir][:3]) != mazeEnums.tileType.RED:  # type: ignore 赤タイル隣接でなければ
+            #                 step_cost -= 10000
+            #                 break
 
             new_cost = cost + step_cost
 
