@@ -1425,13 +1425,13 @@ def moveTile(
     _judge_front_wall_result = LiDAR.judgeWallCertainAngle(0, pts)
     steer_gain_correction_due_to_obstacle: float = 1.0
     time_correction_due_to_obstacle: float = 0.0
-    if _judge_front_wall_result == deviceEnums.judgeWallResult.LEFT_OBSTACLE:
+    if _judge_front_wall_result == deviceEnums.judgeWallResult.LEFT_OBSTACLE and mazeEnums.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
         turnToCertainDirection(
             (mapInstance.frontDirection.value - 25) % 360, stmInstance
         )
         steer_gain_correction_due_to_obstacle = 0.7
         time_correction_due_to_obstacle = 0.1
-    elif _judge_front_wall_result == deviceEnums.judgeWallResult.RIGHT_OBSTACLE:
+    elif _judge_front_wall_result == deviceEnums.judgeWallResult.RIGHT_OBSTACLE and mazeEnums.USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL:
         turnToCertainDirection(
             (mapInstance.frontDirection.value + 25) % 360, stmInstance
         )
