@@ -1,6 +1,6 @@
 import ydlidar
 from . import mazeConstraints, mazeEnums, mazeMap
-from .device import LiDAR, deviceConstraints, deviceEnums, stm, camera, buzzerSongs
+from .device import LiDAR, deviceConstraints, deviceEnums, stm, buzzerSongs
 from config import get_logger
 import time
 import threading
@@ -1503,7 +1503,7 @@ def moveTile(
         loop_start_time = time.time()
         timing_start = debugTimingPrint("moveTile loop start", timing_start)
         stmInstance.update()
-        isBlackTileByCam = camera.detectTileColor() == "BLACK"
+        isBlackTileByCam = False
         cameraBlackTileDetected = cameraBlackTileDetected or isBlackTileByCam
 
         stmInstance.update()
