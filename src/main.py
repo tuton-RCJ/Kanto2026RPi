@@ -97,10 +97,11 @@ def main():
                 if not mapBroken:
                     mapInstance.saveCache()
                 mapBroken = False
-                # TODO: wait for sending order from robot A
+                # TODO: wait for order from robot A
                 navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=False, findingredient=["tomato", "onion", "cheese"])
                 navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
-
+                # TODO: wait for sending dish to robot A
+                mapInstance.sendedDishes += 1 if stmInstance.getToggleSwitch1() else 0
                 ### LoP検出後の再開処理
                 while not stmInstance.switch.getToggleSwitch1():
                     stmInstance.update()
@@ -109,6 +110,20 @@ def main():
                 if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
                     logger.info("Exploration resumed.")
                     _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+                    continue
+
+                if time.time() - gameStartTime > 60:  
+                    logger.info("Game time exceeded. Exiting.")
+                    break
+
+            navigateChef.goToGoal(mapInstance, stmInstance, lidarInstance)
+            while not stmInstance.switch.getToggleSwitch1():
+                stmInstance.update()
+            logger.warning("detect LoP. back to last check point.")
+
+            if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                logger.info("Exploration resumed.")
+                _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                 continue
 
 
