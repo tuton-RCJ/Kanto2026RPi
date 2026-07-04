@@ -198,6 +198,16 @@ def main():
                     logger.info(mapInstance.renderKnownTileAndWall())
             if isLop:
                 continue
+            
+            ### ここで帰還終了。レスキューキット投下。
+            
+            need_rescue_kit = mapInstance.SumOfVictims()
+            if need_rescue_kit <= 4:
+                stmInstance.rescuekitservo.dropRescueKit(need_rescue_kit,deviceEnums.Side.LEFT)
+            else:
+                stmInstance.rescuekitservo.dropRescueKit(4, deviceEnums.Side.LEFT)
+                stmInstance.rescuekitservo.dropRescueKit(need_rescue_kit-4,deviceEnums.Side.RIGHT)
+                
 
             logger.info("Robot now at the starting position, Congratulations!")
             stmInstance.rearSTM.playMusic(buzzerSongs.matuken)
