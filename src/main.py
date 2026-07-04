@@ -64,32 +64,22 @@ def main():
     time.sleep(1)
     mapBroken = False
     try:
-        while True:                
+        while True:
             navigateChef.goToFirstBlackTileFromStart(mapInstance, stmInstance, lidarInstance)
             navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=True)
             navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
-            stmInstance.update()
-            if stmInstance.getToggleSwitch1():
+            if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
                 logger.warning("detect LoP. back to last check point.")
-                if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                    logger.info("Exploration resumed.")
-                    _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+                logger.info("Exploration resumed.")
+                _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                 continue
-            else:
-                break
-        
-    except KeyboardInterrupt:
-        logger.info("Program interrupted by user.")
-        raise
-    except Exception:
-        logger.exception("An unexpected error occurred:")
-    finally:
-        LiDAR.liDARShutdown(lidarInstance)
-        stmInstance.sts3032.stop()
-        moveTile.turnOffLED(stmInstance)
-    try:
+            break
+
         while True:
             while mapInstance.sendedDishes < 3:
+                if time.time() - gameStartTime > 60:
+                    logger.info("Game time exceeded. Exiting.")
+                    break
                 stmInstance.update()
                 moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
                 logger.info("Initial Map:")
@@ -101,31 +91,20 @@ def main():
                 navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=False, findingredient=["tomato", "onion", "cheese"])
                 navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
                 # TODO: wait for sending dish to robot A
-                mapInstance.sendedDishes += 1 if stmInstance.getToggleSwitch1() else 0
-                ### LoP検出後の再開処理
-                while not stmInstance.switch.getToggleSwitch1():
-                    stmInstance.update()
-                logger.warning("detect LoP. back to last check point.")
-
+                mapInstance.sendedDishes += 1 if stmInstance.switch.getToggleSwitch1() else 0
                 if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                    logger.warning("detect LoP. back to last check point.")
                     logger.info("Exploration resumed.")
                     _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                     continue
 
-                if time.time() - gameStartTime > 60:  
-                    logger.info("Game time exceeded. Exiting.")
-                    break
-
             navigateChef.goToGoal(mapInstance, stmInstance, lidarInstance)
-            while not stmInstance.switch.getToggleSwitch1():
-                stmInstance.update()
-            logger.warning("detect LoP. back to last check point.")
-
             if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                logger.warning("detect LoP. back to last check point.")
                 logger.info("Exploration resumed.")
                 _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                 continue
-
+            break
 
     except KeyboardInterrupt:
         logger.info("Program interrupted by user.")
