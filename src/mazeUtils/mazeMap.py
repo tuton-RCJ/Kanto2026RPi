@@ -466,6 +466,7 @@ class mazeMap:
             return None
         _, _, _, d = neighbor
         return d
+    
 
     def setSlope(
         self,
@@ -1288,3 +1289,13 @@ class mazeMap:
         #                     + "}"
         #                 )
         return "\n".join(lines)
+
+    def SumOfVictims(self) -> int:
+        res = 0
+        for t in self.tileTypes[0]:
+            for sub_t in t:
+                if sub_t == mazeEnums.tileType.RED:
+                    res += 2
+                elif sub_t == mazeEnums.tileType.BLUE:
+                    res += 1
+        return res
