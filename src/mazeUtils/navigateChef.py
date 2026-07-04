@@ -76,6 +76,11 @@ def goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIng
                 logger.info(f"Detected victim: {mostCommonVictim.name} at position {mapInstance.currentPosition}.")
                 if setIngredient:
                     setIngredients(mapInstance, stmInstance, mostCommonVictim.name)
+                    for i in range(2):
+                        moveTile.moveTile(mazeEnums.absDirection.SOUTH, mapInstance, stmInstance, lidarInstance)
+                    for i in range(2):
+                        moveTile.moveTile(mazeEnums.absDirection.NORTH, mapInstance, stmInstance, lidarInstance)
+                        
         if findingredient and mapInstance.currentPosition in ingredientsCordinates:
             logger.info(f"Getting ingredient at position {mapInstance.currentPosition}.")
             moveTile.flashLED(mapInstance, stmInstance, 3, 0.5, (255,255,255))

@@ -58,7 +58,7 @@ CAR_HEIGHT: int = 10  # 車の高さ
 
 WALL_DETECTION_RAMP_THRESHOLD_DIFF_CM: int = 15  # 坂検出をする、LiDAR距離とTSD10距離の差の閾値
 
-USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL: bool = True  # 壁検出時に障害物検出モードを使用するかどうか
+USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL: bool = False  # 壁検出時に障害物検出モードを使用するかどうか
 USE_OBSTACLE_DETECTION_MODE_WHEN_DETECTING_WALL_ONLY_FRONT: bool = True # 正面のみで使用
 
 
