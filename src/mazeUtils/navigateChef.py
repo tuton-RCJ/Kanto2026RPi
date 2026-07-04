@@ -4,7 +4,7 @@ from config import get_logger
 import time
 from collections import defaultdict
 
-def goToFirstBlackTileFromStart(stmInstance, mapInstance, lidarInstance):
+def goToFirstBlackTileFromStart(mapInstance,stmInstance, lidarInstance):
     """
     @brief 最初の黒タイルまで移動する
     @param stmInstance: STMのインスタンス
@@ -13,11 +13,11 @@ def goToFirstBlackTileFromStart(stmInstance, mapInstance, lidarInstance):
     """
     logger = get_logger(__name__)
     logger.info("Starting to go to the first black tile.")
-    assert mapInstance.CurrentPosition[0] == 0 and mapInstance.CurrentPosition[1] == 0, "Current position must be (0, 0) at the start."
+    assert mapInstance.currentPosition[0] == 20 and mapInstance.currentPosition[1] == 20, f"Current position must be (20, 20) at the start. Now position is {mapInstance.currentPosition}."
     for i in range(2):
-        moveTile.movetile(mazeEnums.absDirection.NORTH, stmInstance, mapInstance, lidarInstance)
+        moveTile.moveTile(mazeEnums.absDirection.NORTH, mapInstance, stmInstance, lidarInstance)
 
-def goToSecondBlackTileFromFirst(stmInstance, mapInstance, lidarInstance, setIngredient: bool = False, findingredient: list[str] = None):
+def goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient: bool = False, findingredient: list[str] = None):
     """
     @brief 2つ目の黒タイルまで移動する 
     @param stmInstance: STMのインスタンス
@@ -26,7 +26,7 @@ def goToSecondBlackTileFromFirst(stmInstance, mapInstance, lidarInstance, setIng
     @param setIngredient: 材料を設定するかどうか
     @param findingredient: 設定する材料の名前のリスト, None ならば設定しない
     """
-    assert mapInstance.CurrentPosition[0] == 0 and mapInstance.CurrentPosition[1] == 2, "Current position must be (0, 2) before moving to the second black tile."
+    assert mapInstance.currentPosition[0] == 20 and mapInstance.currentPosition[1] == 18, f"Current position must be (20, 18) before moving to the second black tile. Now position is {mapInstance.currentPosition}."
 
     logger = get_logger(__name__)
     logger.info("Starting to go to the second black tile.")
@@ -35,7 +35,7 @@ def goToSecondBlackTileFromFirst(stmInstance, mapInstance, lidarInstance, setIng
         for ingredient in findingredient:
             ingredientsCordinates.add(mapInstance.getIngredientCoordinates(ingredient))
     for i in range(7):
-        moveTile.movetile(mazeEnums.absDirection.EAST, stmInstance, mapInstance, lidarInstance)
+        moveTile.moveTile(mazeEnums.absDirection.EAST, mapInstance, stmInstance, lidarInstance)
         victimCountDict = defaultdict(int)
         if setIngredient:
             t = time.time()
@@ -47,14 +47,14 @@ def goToSecondBlackTileFromFirst(stmInstance, mapInstance, lidarInstance, setIng
                 stmInstance.update()
             if len(victimCountDict) > 0:
                 mostCommonVictim = max(victimCountDict, key=victimCountDict.get)
-                logger.info(f"Detected victim: {mostCommonVictim.name} at position {mapInstance.CurrentPosition}.")
+                logger.info(f"Detected victim: {mostCommonVictim.name} at position {mapInstance.currentPosition}.")
                 if setIngredient:
-                    setIngredients(stmInstance, mapInstance, mostCommonVictim.name)
-        if findingredient and mapInstance.CurrentPosition in ingredientsCordinates:
-            logger.info(f"Getting ingredient at position {mapInstance.CurrentPosition}.")
-            moveTile.flashLED(stmInstance, mapInstance, 3, 0.5, (255,255,255))
+                    setIngredients(mapInstance, stmInstance, mostCommonVictim.name)
+        if findingredient and mapInstance.currentPosition in ingredientsCordinates:
+            logger.info(f"Getting ingredient at position {mapInstance.currentPosition}.")
+            moveTile.flashLED(mapInstance, stmInstance, 3, 0.5, (255,255,255))
        
-def goToFirstBlackTileFromSecond(stmInstance, mapInstance, lidarInstance):
+def goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance):
     """
     @brief 2つ目の黒タイルから最初の黒タイルまで移動する
     @param stmInstance: STMのインスタンス
@@ -63,11 +63,11 @@ def goToFirstBlackTileFromSecond(stmInstance, mapInstance, lidarInstance):
     """
     logger = get_logger(__name__)
     logger.info("Starting to go back to the first black tile from the second black tile.")
-    assert mapInstance.CurrentPosition[0] == 0 and mapInstance.CurrentPosition[1] == 9, "Current position must be (0, 9) before moving back to the first black tile."
+    assert mapInstance.currentPosition[0] == 27 and mapInstance.currentPosition[1] == 18, f"Current position must be (27, 18) before moving back to the first black tile. Now position is {mapInstance.currentPosition}."
     for i in range(7):
-        moveTile.movetile(mazeEnums.absDirection.WEST, stmInstance, mapInstance, lidarInstance)
+        moveTile.moveTile(mazeEnums.absDirection.WEST, mapInstance, stmInstance, lidarInstance)
 
-def setIngredients(stmInstance, mapInstance, ingredient: str):
+def setIngredients(mapInstance, stmInstance, ingredient: str):
     """
     @brief 材料 str を現在の位置に設定する
     @param stmInstance: STMのインスタンス
@@ -78,7 +78,7 @@ def setIngredients(stmInstance, mapInstance, ingredient: str):
     logger.info(f"Setting ingredient '{ingredient}' at current position.")
     mapInstance.setIngredients(ingredient)
 
-def goToGoal(stmInstance, mapInstance, lidarInstance):
+def goToGoal(mapInstance, stmInstance, lidarInstance):
     """
     @brief ゴールまで移動する
     @param stmInstance: STMのインスタンス
@@ -87,11 +87,11 @@ def goToGoal(stmInstance, mapInstance, lidarInstance):
     """
     logger = get_logger(__name__)
     logger.info("Starting to go to the goal.")
-    if mapInstance.CurrentPosition[0] == 0 and mapInstance.CurrentPosition[1] == 0:
-        goToFirstBlackTileFromStart(stmInstance, mapInstance, lidarInstance)
-    if mapInstance.CurrentPosition[0] == 0 and mapInstance.CurrentPosition[1] == 2:
-        goToSecondBlackTileFromFirst(stmInstance, mapInstance, lidarInstance)
-    if mapInstance.CurrentPosition[0] == 0 and mapInstance.CurrentPosition[1] == 9:
+    if mapInstance.currentPosition[0] == 20 and mapInstance.currentPosition[1] == 20:
+        goToFirstBlackTileFromStart(mapInstance, stmInstance, lidarInstance)
+    if mapInstance.currentPosition[0] == 20 and mapInstance.currentPosition[1] == 18:
+        goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance)
+    if mapInstance.currentPosition[0] == 27 and mapInstance.currentPosition[1] == 18:
         for i in range(2):
-            moveTile.movetile(mazeEnums.absDirection.SOUTH, stmInstance, mapInstance, lidarInstance)
+            moveTile.moveTile(mazeEnums.absDirection.SOUTH, mapInstance, stmInstance, lidarInstance)
     logger.info("Reached the goal position.")

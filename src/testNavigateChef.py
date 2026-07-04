@@ -66,8 +66,9 @@ def main():
     try:
         while True:
             stmInstance.update()
-            navigateChef.goToFirstBlackTileFromStart(stmInstance, mapInstance, lidarInstance)
-            ### LoP検出後の再開処理
+            navigateChef.goToFirstBlackTileFromStart(mapInstance, stmInstance, lidarInstance)
+            navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=True)
+            print(mapInstance.ingredients)
             while not stmInstance.switch.getToggleSwitch1():
                 stmInstance.update()
             logger.warning("detect LoP. back to last check point.")
