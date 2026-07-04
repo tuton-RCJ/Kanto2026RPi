@@ -204,10 +204,12 @@ def main():
             need_rescue_kit = mapInstance.SumOfVictims()
             if need_rescue_kit <= 4:
                 stmInstance.rescuekitservo.dropRescueKit(need_rescue_kit,deviceEnums.Side.LEFT)
+                time.sleep(need_rescue_kit)
             else:
                 stmInstance.rescuekitservo.dropRescueKit(4, deviceEnums.Side.LEFT)
+                time.sleep(4)
                 stmInstance.rescuekitservo.dropRescueKit(need_rescue_kit-4,deviceEnums.Side.RIGHT)
-                
+                time.sleep(need_rescue_kit - 4)
 
             logger.info("Robot now at the starting position, Congratulations!")
             stmInstance.rearSTM.playMusic(buzzerSongs.matuken)
