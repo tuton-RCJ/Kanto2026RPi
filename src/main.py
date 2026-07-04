@@ -3,6 +3,7 @@ from mazeUtils import mazeMap
 from mazeUtils import moveTile
 from mazeUtils.device import stm
 from mazeUtils.device import LiDAR
+from mazeUtils.device import uart_comunication
 from mazeUtils.device import buzzerSongs
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
@@ -44,14 +45,29 @@ def _recover_from_lop(stmInstance, mapInstance, lidarInstance):
             nowDirection = direction
 
     mapInstance.loadCache(nowDirection=nowDirection)
+    mapInstance.currentPosition = (20, 20, 0)  # LoP後は必ずスタートタイルに置き直される
     time.sleep(1)
     stmInstance.update()
     moveTile.turnOffLED(stmInstance)
+
+
+def _handle_lop_if_any(stmInstance, mapInstance, lidarInstance) -> bool:
+    """
+    @brief LoPが発生していれば復帰を待ってリカバリし、Trueを返す。発生していなければFalseを返す。
+    """
+    if _detect_and_wait_for_lop(stmInstance):
+        logger.warning("detect LoP. back to last check point.")
+        logger.info("Exploration resumed.")
+        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+        return True
+    return False
 
 def main():
     stmInstance = stm.STM()
     stmInstance.update()
     mapInstance = mazeMap.mazeMap()
+    peer = uart_comunication.WirelessPeer()
+    peer.start()
     stmInstance.rearSTM.camled((255, 255, 255))
     lidarInstance = LiDAR.initializeLidar()
     stmInstance.rearSTM.playMusic(buzzerSongs.start)
@@ -66,15 +82,17 @@ def main():
     try:
         while True:
             navigateChef.goToFirstBlackTileFromStart(mapInstance, stmInstance, lidarInstance)
+            if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                continue
             navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=True)
+            if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                continue
             navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
-            if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                logger.warning("detect LoP. back to last check point.")
-                logger.info("Exploration resumed.")
-                _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+            if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
                 continue
             break
 
+        pendingOrder = None  # LoPを跨いでも作りかけの注文を保持する
         while True:
             while mapInstance.sendedDishes < 3:
                 if time.time() - gameStartTime > 60:
@@ -87,22 +105,24 @@ def main():
                 if not mapBroken:
                     mapInstance.saveCache()
                 mapBroken = False
-                # TODO: wait for order from robot A
-                navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=False, findingredient=["tomato", "onion", "cheese"])
+                if mapInstance.currentPosition[0] == 20 and mapInstance.currentPosition[1] == 20:
+                    navigateChef.goToFirstBlackTileFromStart(mapInstance, stmInstance, lidarInstance)
+                    if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                        continue
+                if pendingOrder is None:
+                    pendingOrder = navigateChef.waitForOrder(peer, mapInstance, stmInstance)
+                navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=False, findingredient=navigateChef.orderToIngredients(pendingOrder))
+                if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                    continue 
                 navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
-                # TODO: wait for sending dish to robot A
-                mapInstance.sendedDishes += 1 if stmInstance.switch.getToggleSwitch1() else 0
-                if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                    logger.warning("detect LoP. back to last check point.")
-                    logger.info("Exploration resumed.")
-                    _recover_from_lop(stmInstance, mapInstance, lidarInstance)
-                    continue
+                if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                    continue  
+                navigateChef.handOverDish(peer, mapInstance, stmInstance)
+                mapInstance.sendedDishes += 1
+                pendingOrder = None
 
             navigateChef.goToGoal(mapInstance, stmInstance, lidarInstance)
-            if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                logger.warning("detect LoP. back to last check point.")
-                logger.info("Exploration resumed.")
-                _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+            if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
                 continue
             break
 
@@ -112,6 +132,7 @@ def main():
     except Exception:
         logger.exception("An unexpected error occurred:")
     finally:
+        peer.stop()
         LiDAR.liDARShutdown(lidarInstance)
         stmInstance.sts3032.stop()
         moveTile.turnOffLED(stmInstance)

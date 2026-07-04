@@ -1298,3 +1298,9 @@ class mazeMap:
         """
         x, y, z = self.currentPosition
         self.ingredients[ingredient] = (x, y, z)
+
+    def getIngredientCoordinates(self, ingredient: str) -> tuple[int, int, int] | None:
+        """
+        @brief 材料 str の座標を返す。未検出ならば None を返す
+        """
+        return self.ingredients.get(ingredient)
