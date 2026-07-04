@@ -7,7 +7,7 @@ import platform  # 追加
 
 DEBUG = True
 
-SERIAL_PORT = "/dev/??????" 
+SERIAL_PORT = "/dev/ttyACM0" 
 BAUD_RATE = 115200
 
 # Linux用のパス設定
