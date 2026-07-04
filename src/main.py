@@ -210,6 +210,13 @@ def main():
                 time.sleep(4)
                 stmInstance.rescuekitservo.dropRescueKit(need_rescue_kit-4,deviceEnums.Side.RIGHT)
                 time.sleep(need_rescue_kit - 4)
+                
+            for i in range(3):
+                stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: 50, deviceEnums.Side.RIGHT: 50})
+                time.sleep(0.1)
+                stmInstance.sts3032.setMotorSpeed({deviceEnums.Side.LEFT: -50, deviceEnums.Side.RIGHT: -50})
+                time.sleep(0.1)
+            stmInstance.sts3032.stop()
 
             logger.info("Robot now at the starting position, Congratulations!")
             stmInstance.rearSTM.playMusic(buzzerSongs.matuken)
