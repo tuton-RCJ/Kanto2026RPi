@@ -184,6 +184,8 @@ class mazeMap:
         self.layerInfo[0] = layerInfoData(
             isKnown=True, layerNumber=0, altitude=0.0, x_offset=0.0, y_offset=0.0
         )
+
+        self.ingredients = dict()
         self.knownLayerCount = 1  # すでに登録済みのレイヤー数
 
         self.nowRescueKitCount = mazeConstraints.DEFAULT_RESCUE_KIT_COUNT.copy()
@@ -1288,3 +1290,10 @@ class mazeMap:
         #                     + "}"
         #                 )
         return "\n".join(lines)
+    
+    def setIngredients(self, ingredient: str) -> None:
+        """
+        @brief 材料 str を現在の位置に設定する
+        """
+        x, y, z = self.currentPosition
+        self.ingredients[ingredient] = (x, y, z)
