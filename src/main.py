@@ -88,21 +88,21 @@ def main():
             isLoP = False
             while nextDirection is not None and not isLoP:
 
-                if (
-                    mazeConstraints.RETURN_JUDGE_MODE
-                    == mazeEnums.returnJudgeMode.ONLY_TIME_BASED
-                ):
-                    if time.time() - gameStartTime > mazeConstraints.RETURN_TIME_THRESHOLD_SEC:
-                        logger.info("Time's up! Starting return to the starting point.")
-                        break
-                if (mazeConstraints.RETURN_JUDGE_MODE
-                    == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
-                    _costToStart = mapInstance.getCostToStartTile()
-                    if _costToStart >= 0:
-                        estReturnTime = time.time() + _costToStart * 1.5
-                        if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
-                            logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
-                            break
+                # if (
+                #     mazeConstraints.RETURN_JUDGE_MODE
+                #     == mazeEnums.returnJudgeMode.ONLY_TIME_BASED
+                # ):
+                #     if time.time() - gameStartTime > mazeConstraints.RETURN_TIME_THRESHOLD_SEC:
+                #         logger.info("Time's up! Starting return to the starting point.")
+                #         break
+                # if (mazeConstraints.RETURN_JUDGE_MODE
+                #     == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
+                #     _costToStart = mapInstance.getCostToStartTile()
+                #     if _costToStart >= 0:
+                #         estReturnTime = time.time() + _costToStart * 1.5
+                #         if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
+                #             logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
+                #             break
 
                 # nextDirection = mapInstance.getNearestUnexploredTile()
 
