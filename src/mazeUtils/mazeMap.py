@@ -134,6 +134,7 @@ class mazeMap:
         self.maxSize = maxSize
         self.currentPosition: tuple[int, int, int] = (maxSize // 2, maxSize // 2, 0)
         self.maxLayer = maxLayer
+        self.sendedDishes = 0
         self.wallTypes = [
             [
                 [

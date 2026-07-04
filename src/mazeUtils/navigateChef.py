@@ -36,6 +36,9 @@ def goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIng
             ingredientsCordinates.add(mapInstance.getIngredientCoordinates(ingredient))
     for i in range(7):
         moveTile.moveTile(mazeEnums.absDirection.EAST, mapInstance, stmInstance, lidarInstance)
+        stmInstance.update()
+        if stmInstance.getToggleSwitch1():
+            return 
         victimCountDict = defaultdict(int)
         if setIngredient:
             t = time.time()

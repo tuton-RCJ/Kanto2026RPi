@@ -3,6 +3,8 @@ from .device import deviceEnums
 
 TILE_SIZE_CM: int = 30  # タイル1枚のサイズ
 
+ROBOT_PORT = "/dev/*****"  
+
 STRAIGHT_GYRO_P_GAIN: float = 4
 STRAIGHT_TOF_P_GAIN: float = 8
 

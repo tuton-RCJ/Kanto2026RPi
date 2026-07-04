@@ -7,6 +7,7 @@ from mazeUtils.device import buzzerSongs
 from mazeUtils import mazeEnums
 from mazeUtils import mazeConstraints
 from mazeUtils.device import deviceEnums
+from mazeUtils import navigateChef
 import ydlidar
 import time
 
@@ -63,144 +64,53 @@ def main():
     time.sleep(1)
     mapBroken = False
     try:
-        while True:
+        while True:                
+            navigateChef.goToFirstBlackTileFromStart(mapInstance, stmInstance, lidarInstance)
+            navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=True)
+            navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
             stmInstance.update()
-            moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
-            logger.info("Initial Map:")
-            logger.info(mapInstance.renderKnownTileAndWall())
-            if not mapBroken:
-                mapInstance.saveCache()
-            mapBroken = False
-
-            nextDirection = mapInstance.getNearestUnexploredTile()
-            logger.info(f"Next Direction: {nextDirection}")
-            logger.info("Exploration started.")
-            isLoP = False
-            while nextDirection is not None and not isLoP:
-
-                if (
-                    mazeConstraints.RETURN_JUDGE_MODE
-                    == mazeEnums.returnJudgeMode.ONLY_TIME_BASED
-                ):
-                    if time.time() - gameStartTime > mazeConstraints.RETURN_TIME_THRESHOLD_SEC:
-                        logger.info("Time's up! Starting return to the starting point.")
-                        break
-                if (mazeConstraints.RETURN_JUDGE_MODE
-                    == mazeEnums.returnJudgeMode.TIME_BASED_WITH_DISTANCE):
-                    _costToStart = mapInstance.getCostToStartTile()
-                    if _costToStart >= 0:
-                        estReturnTime = time.time() + _costToStart * 1.5
-                        if estReturnTime - gameStartTime > mazeConstraints.RETURN_TIME_WITH_DISTANCE_THRESHOLD_SEC:
-                            logger.info("Estimated return time exceeds threshold! Starting return to the starting point.")
-                            break
-
-                # nextDirection = mapInstance.getNearestUnexploredTile()
-
-                if nextDirection is None:
-                    continue
-                for direction in nextDirection:
-                    before_movement_pos = mapInstance.currentPosition
-                    isBlack, stopped, resetMapData = moveTile.moveNextTile(
-                        direction, mapInstance, stmInstance, lidarInstance
-                    )
-                    if resetMapData:
-                        logger.warning("Map data reset due to wall detection error.")
-                        stmInstance.rearSTM.playMusic(buzzerSongs.mappingError)
-                        break
-                    logger.info(mapInstance.renderKnownTileAndWall())
-
-                    if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                        logger.info("Exploration resumed.")
-
-                        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
-                        isLoP = True
-                        break
-                    if before_movement_pos == mapInstance.currentPosition:
-                        logger.warning("Position did not change after movement. Possible error in movement or wall detection.")
-                        break
-                    # moveTile.turnOffLED(stmInstance)
-                    
-                # 周囲にU字型の未探索タイルがある場合、優先的にU字型のタイルに進む
-                detectedUshapedTile = False
-                if mazeConstraints.PRIORITIZE_UNEXPLORED_U_SHAPED_TILE and mapInstance.getTileType() != mazeEnums.tileType.RED:
-                    for direction in mazeEnums.absDirection:
-                        next_tile = mapInstance.getTileType(direction)
-                        if next_tile is None:
-                            continue
-                        if next_tile != mazeEnums.tileType.UNKNOWN:
-                            continue
-                        # pts = LiDAR.getLiDARScan(lidarInstance)
-                        isUshaped = LiDAR.detectUshapedTile_ROI(direction.value-mapInstance.frontDirection.value)
-                        if isUshaped:
-                            logger.info(f"U-shaped unexplored tile detected in direction {direction}. Prioritizing this tile.")
-                            nextDirection = [direction]
-                            detectedUshapedTile = True
-                            break
-                if not detectedUshapedTile:
-                    nextDirection = mapInstance.getNearestUnexploredTile()
-            if isLoP:
-                isLoP = False
+            if stmInstance.getToggleSwitch1():
+                logger.warning("detect LoP. back to last check point.")
+                if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                    logger.info("Exploration resumed.")
+                    _recover_from_lop(stmInstance, mapInstance, lidarInstance)
                 continue
-
-            ##### 帰還開始 #####
-            
-            stmInstance.rearSTM.send_message(f"Returning to Start. Time: {int(time.time() - gameStartTime)}s")
-
-            stmInstance.rearSTM.playMusic(buzzerSongs.hotaru)
-            start_tile_position =  mapInstance.estimateStartTile()
-            if start_tile_position is None:
-                logger.error("Start tile position could not be estimated. Cannot return to start.")
-                mapInstance.resetMapData()
-                mapBroken = True
-                isLop = True
-                continue
-            returnPath = mapInstance.getPathTo(start_tile_position)
-            logger.info(f"Return Path: {returnPath}")
-
-            isLop = False
-            if returnPath:
-                for direction in returnPath:
-                    isBlack, stopped, resetMapData = moveTile.moveNextTile(
-                        direction, mapInstance, stmInstance, lidarInstance
-                    )
-
-                    if resetMapData:
-                        logger.warning("Map data reset due to wall detection error.")
-                        mapBroken = True
-                        isLop = True
-                        break
-
-                    if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                        logger.info("Exploration resumed.")
-                        _recover_from_lop(stmInstance, mapInstance, lidarInstance)
-                        isLop = True
-                        break
-
-                    logger.info(mapInstance.renderKnownTileAndWall())
-            if isLop:
-                continue
-
-            logger.info("Robot now at the starting position, Congratulations!")
-            stmInstance.rearSTM.playMusic(buzzerSongs.matuken)
-            moveTile.flashLED(
-                stmInstance,
-                mapInstance,
-                loopCount=5,
-                intervalSec=1,
-                color=(255, 255, 255),
-            )  # Flash white LED to indicate completion
-            stmInstance.sts3032.stop()
-            logger.info(mapInstance.renderKnownTileAndWall())
-
-            ### LoP検出後の再開処理
-            while not stmInstance.switch.getToggleSwitch1():
+            else:
+                break
+        
+    except KeyboardInterrupt:
+        logger.info("Program interrupted by user.")
+        raise
+    except Exception:
+        logger.exception("An unexpected error occurred:")
+    finally:
+        LiDAR.liDARShutdown(lidarInstance)
+        stmInstance.sts3032.stop()
+        moveTile.turnOffLED(stmInstance)
+    try:
+        while True:
+            while mapInstance.sendedDishes < 3:
                 stmInstance.update()
-            logger.warning("detect LoP. back to last check point.")
+                moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
+                logger.info("Initial Map:")
+                logger.info(mapInstance.renderKnownTileAndWall())
+                if not mapBroken:
+                    mapInstance.saveCache()
+                mapBroken = False
+                # TODO: wait for sending order from robot A
+                navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=False, findingredient=["tomato", "onion", "cheese"])
+                navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
 
-            if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
-                logger.info("Exploration resumed.")
-                _recover_from_lop(stmInstance, mapInstance, lidarInstance)
-            continue
+                ### LoP検出後の再開処理
+                while not stmInstance.switch.getToggleSwitch1():
+                    stmInstance.update()
+                logger.warning("detect LoP. back to last check point.")
+
+                if _detect_and_wait_for_lop(stmInstance):  # LoP検出後の再開処理
+                    logger.info("Exploration resumed.")
+                    _recover_from_lop(stmInstance, mapInstance, lidarInstance)
+                continue
+
 
     except KeyboardInterrupt:
         logger.info("Program interrupted by user.")
