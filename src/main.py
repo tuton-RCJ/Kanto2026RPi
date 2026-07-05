@@ -16,6 +16,9 @@ import time
 setup_logging()
 logger = get_logger(__name__)
 
+# 競技の制限時間。超過したら新しい皿には着手せずゴールへ帰還する
+GAME_TIME_LIMIT_SECONDS = 420
+
 
 def _detect_and_wait_for_lop(stmInstance) -> bool:
     """
@@ -92,11 +95,12 @@ def main():
                 continue
             break
 
+        gameDeadline = gameStartTime + GAME_TIME_LIMIT_SECONDS
         pendingOrder = None  # LoPを跨いでも作りかけの注文を保持する
         while True:
             while mapInstance.sendedDishes < 3:
-                if time.time() - gameStartTime > 420:
-                    logger.info("Game time exceeded. Exiting.")
+                if time.time() > gameDeadline:
+                    logger.info("Game time exceeded. Heading to the goal.")
                     break
                 stmInstance.update()
                 moveTile.detectWall(lidarInstance, mapInstance, stmInstance, enableOverwrite=True)
@@ -110,14 +114,25 @@ def main():
                     if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
                         continue
                 if pendingOrder is None:
-                    pendingOrder = navigateChef.waitForOrder(peer, mapInstance, stmInstance)
+                    pendingOrder = navigateChef.waitForOrder(peer, mapInstance, stmInstance, deadline=gameDeadline)
+                    if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                        continue  # 注文待ち中にLoP (受信済みならpendingOrderに保持したままリカバリ)
+                    if pendingOrder is None:
+                        # 時間切れ: 注文を待たずにゴールへ帰還する
+                        logger.info("Game time exceeded while waiting for an order. Heading to the goal.")
+                        break
                 navigateChef.goToSecondBlackTileFromFirst(mapInstance, stmInstance, lidarInstance, setIngredient=False, findingredient=navigateChef.orderToIngredients(pendingOrder))
                 if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
                     continue 
                 navigateChef.goToFirstBlackTileFromSecond(mapInstance, stmInstance, lidarInstance)
                 if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
                     continue  
-                navigateChef.handOverDish(peer, mapInstance, stmInstance)
+                if not navigateChef.handOverDish(peer, mapInstance, stmInstance, deadline=gameDeadline):
+                    if _handle_lop_if_any(stmInstance, mapInstance, lidarInstance):
+                        continue  # 受け渡し中にLoP: 皿は数えずに作り直し
+                    # 時間切れ: 受け渡しを諦めてゴールへ帰還する
+                    logger.info("Game time exceeded while handing over the dish. Heading to the goal.")
+                    break
                 mapInstance.sendedDishes += 1
                 pendingOrder = None
 

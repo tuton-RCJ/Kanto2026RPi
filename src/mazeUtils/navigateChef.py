@@ -112,16 +112,20 @@ def setIngredients(mapInstance, stmInstance, ingredient: str):
     logger.info(f"Setting ingredient '{ingredient}' at current position.")
     mapInstance.setIngredients(ingredient)
 
-def _stayStillOnTile(stmInstance, seconds: float):
+def _stayStillOnTile(stmInstance, seconds: float) -> bool:
     """
     @brief モーターを止めて現在のタイル上で指定秒数静止する
     @param stmInstance: STMのインスタンス
     @param seconds: 静止する秒数
+    @return 静止し切ったら True。途中でLoPを検出して中断したら False
     """
     stmInstance.sts3032.stop()
     startTime = time.time()
     while time.time() - startTime < seconds:
         stmInstance.update()
+        if stmInstance.switch.getToggleSwitch1():  # LoP検出時は中断
+            return False
+    return True
 
 
 def orderToIngredients(order: int) -> list[str]:
@@ -133,20 +137,29 @@ def orderToIngredients(order: int) -> list[str]:
     return [deviceEnums.UnitVStatus(v).name for v in ORDER_RECIPES[order]]
 
 
-def waitForOrder(peer, mapInstance, stmInstance) -> int:
+def waitForOrder(peer, mapInstance, stmInstance, deadline: float | None = None) -> int | None:
     """
     @brief 1st Black タイルで静止したままロボットAからの注文を待ち、受信後さらに5秒間静止する
     @param peer: WirelessPeer のインスタンス
     @param stmInstance: STMのインスタンス
     @param mapInstance: mazeMapのインスタンス
-    @return 受信した注文値 (-2~2)
+    @param deadline: time.time() 基準の締め切り。超過したら待つのをやめる。None ならば無期限に待つ
+    @return 受信した注文値 (-2~2)。締め切り超過またはLoPで受信できなかった場合は None
+    @note 待機中にLoPを検出した場合も None を返して即座に戻る。受信後の静止中にLoPを検出した
+          場合は注文自体は成立済みなので注文値を返す。呼び出し側でLoP処理を行うこと。
     """
     logger = get_logger(__name__)
     assert mapInstance.currentPosition[0] == FIRST_BLACK_TILE[0] and mapInstance.currentPosition[1] == FIRST_BLACK_TILE[1], f"Current position must be {FIRST_BLACK_TILE} to take an order. Now position is {mapInstance.currentPosition}."
     stmInstance.sts3032.stop()
     logger.info("Waiting for an order from robot A at the first black tile.")
     while True:
+        if deadline is not None and time.time() > deadline:
+            logger.warning("Timed out while waiting for an order.")
+            return None
         stmInstance.update()
+        if stmInstance.switch.getToggleSwitch1():  # LoP検出時は中断
+            logger.warning("LoP detected while waiting for an order.")
+            return None
         order = peer.take_order()
         if order is None:
             continue
@@ -155,25 +168,38 @@ def waitForOrder(peer, mapInstance, stmInstance) -> int:
             continue
         break
     logger.info(f"Received order {order}. Staying still for {EXCHANGE_STILL_SECONDS} seconds.")
-    _stayStillOnTile(stmInstance, EXCHANGE_STILL_SECONDS)
+    if not _stayStillOnTile(stmInstance, EXCHANGE_STILL_SECONDS):
+        logger.warning("LoP detected while placing the order. The order itself is kept.")
     return order
 
 
-def handOverDish(peer, mapInstance, stmInstance) -> None:
+def handOverDish(peer, mapInstance, stmInstance, deadline: float | None = None) -> bool:
     """
     @brief 1st Black タイルで DISH_READY をロボットAに通知し、ACK後5秒間静止して皿を受け渡す
     @param peer: WirelessPeer のインスタンス
     @param stmInstance: STMのインスタンス
     @param mapInstance: mazeMapのインスタンス
+    @param deadline: time.time() 基準の締め切り。超過したら待つのをやめる。None ならば無期限に待つ
+    @return 受け渡しが成立したら True。締め切り超過またはLoPで成立しなかった場合は False
+    @note LoPを検出した場合は5秒静止の途中でも中断して False を返す。呼び出し側でLoP処理を行うこと。
     """
     logger = get_logger(__name__)
     assert mapInstance.currentPosition[0] == FIRST_BLACK_TILE[0] and mapInstance.currentPosition[1] == FIRST_BLACK_TILE[1], f"Current position must be {FIRST_BLACK_TILE} to hand over a dish. Now position is {mapInstance.currentPosition}."
     stmInstance.sts3032.stop()
     logger.info("Notifying robot A that the dish is ready.")
     while not peer.send_dish_ready():
+        if deadline is not None and time.time() > deadline:
+            logger.warning("Timed out while waiting for robot A to accept the dish.")
+            return False
         stmInstance.update()
+        if stmInstance.switch.getToggleSwitch1():  # LoP検出時は中断
+            logger.warning("LoP detected while waiting for robot A to accept the dish.")
+            return False
     logger.info(f"Robot A acknowledged. Staying still for {EXCHANGE_STILL_SECONDS} seconds to hand over the dish.")
-    _stayStillOnTile(stmInstance, EXCHANGE_STILL_SECONDS)
+    if not _stayStillOnTile(stmInstance, EXCHANGE_STILL_SECONDS):
+        logger.warning("LoP detected during the handover. The dish is not counted.")
+        return False
+    return True
 
 
 def goToGoal(mapInstance, stmInstance, lidarInstance):
